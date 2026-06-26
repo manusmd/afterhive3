@@ -1,3 +1,4 @@
+import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import {
   canCreateLocation,
@@ -9,6 +10,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { CreateLocationForm } from "./CreateLocationForm";
 
@@ -25,11 +27,21 @@ export default async function LocationsSettingsPage({ params }: LocationsSetting
   }
 
   if (!canViewLocations(session.roles)) {
-    redirect(`/${tenantSlug}`);
+    return (
+      <SurfaceShell surface="admin" title="Standorte">
+        <Stack spacing={2}>
+          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
+            <StaffLogoutButton tenantSlug={tenantSlug} />
+          </Stack>
+          <SettingsForbidden tenantSlug={tenantSlug} title="Standorte" />
+        </Stack>
+      </SurfaceShell>
+    );
   }
 
   const locations = await listLocations(tenantSlug);
   const showCreateForm = canCreateLocation(session.roles);
+  const showTeam = canAssignRoles(session.roles);
 
   return (
     <SurfaceShell surface="admin" title="Standorte">
@@ -37,7 +49,7 @@ export default async function LocationsSettingsPage({ params }: LocationsSetting
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Stack direction="row" spacing={1}>
             <Link href={`/${tenantSlug}`}>Dashboard</Link>
-            <Link href={`/${tenantSlug}/settings/team`}>Team</Link>
+            {showTeam ? <Link href={`/${tenantSlug}/settings/team`}>Team</Link> : null}
           </Stack>
           <StaffLogoutButton tenantSlug={tenantSlug} />
         </Stack>

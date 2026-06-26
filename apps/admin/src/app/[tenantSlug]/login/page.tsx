@@ -11,8 +11,12 @@ export default async function LoginPage({ params }: LoginPageProps) {
 
   return (
     <SurfaceShell surface="admin" title="Anmelden">
-      <Typography color="text.secondary" sx={{ mb: 3 }}>
+      <Typography color="text.secondary" sx={{ mb: 1 }}>
         Melden Sie sich als Mitarbeitende:r an.
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        Demo: staff@demo-club.de fuer Buero-Zugang, owner@demo-club.de fuer Standorte und Team
+        (Passwort Demo1234!).
       </Typography>
       <LoginForm tenantSlug={tenantSlug} />
     </SurfaceShell>
