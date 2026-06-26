@@ -27,6 +27,7 @@ describe("uploadDocument", () => {
     getDb.mockReset();
     setDocumentStorageForTests({
       putObject: vi.fn(async () => undefined),
+      getSignedUrl: vi.fn(async () => "https://signed.example/doc"),
     });
   });
 
@@ -42,7 +43,10 @@ describe("uploadDocument", () => {
 
   it("stores metadata and uploads to storage", async () => {
     const putObject = vi.fn(async () => undefined);
-    setDocumentStorageForTests({ putObject });
+    setDocumentStorageForTests({
+      putObject,
+      getSignedUrl: vi.fn(async () => "https://signed.example/doc"),
+    });
 
     getDb.mockReturnValue({
       select: () => ({
@@ -92,6 +96,7 @@ describe("uploadDocument", () => {
       putObject: vi.fn(async () => {
         throw new Error("network");
       }),
+      getSignedUrl: vi.fn(async () => "https://signed.example/doc"),
     });
 
     getDb.mockReturnValue({
