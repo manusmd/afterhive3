@@ -1,12 +1,18 @@
 import { getAdminAuth } from "@afterhive/api/auth/admin-auth";
 import { getPlatformAuth } from "@afterhive/api/auth/platform-auth";
+import { getPortalAuth } from "@afterhive/api/auth/portal-auth";
 import { getDb } from "@afterhive/db";
 import {
   account,
+  consentRecords,
+  enrollments,
   leads,
   locations,
+  memberProfiles,
+  offerGroups,
   persons,
   platformMemberships,
+  relationships,
   roleAssignments,
   session,
   staffInvites,
@@ -20,7 +26,13 @@ async function main() {
   const db = getDb();
   const adminAuth = getAdminAuth();
   const platformAuth = getPlatformAuth();
+  const portalAuth = getPortalAuth();
 
+  await db.delete(consentRecords);
+  await db.delete(enrollments);
+  await db.delete(relationships);
+  await db.delete(memberProfiles);
+  await db.delete(offerGroups);
   await db.delete(roleAssignments);
   await db.delete(staffInvites);
   await db.delete(leads);
@@ -153,10 +165,56 @@ async function main() {
     },
   ]);
 
+  const guardianSignUp = await portalAuth.api.signUpEmail({
+    body: {
+      email: "guardian@demo-club.de",
+      password: "Demo1234!",
+      name: "Demo Guardian",
+    },
+  });
+
+  if (!guardianSignUp.user) {
+    throw new Error("Failed to seed guardian user");
+  }
+
+  const [guardianPerson, minorPerson] = await db
+    .insert(persons)
+    .values([
+      {
+        tenantId: tenant.id,
+        userId: guardianSignUp.user.id,
+        firstName: "Maria",
+        lastName: "Muster",
+      },
+      {
+        tenantId: tenant.id,
+        firstName: "Leo",
+        lastName: "Muster",
+        dateOfBirth: "2015-03-15",
+      },
+    ])
+    .returning();
+
+  await db.insert(relationships).values({
+    tenantId: tenant.id,
+    fromPersonId: guardianPerson.id,
+    toPersonId: minorPerson.id,
+    type: "guardian",
+    isPrimaryGuardian: true,
+  });
+
+  await db.insert(memberProfiles).values({
+    tenantId: tenant.id,
+    personId: minorPerson.id,
+    memberNumber: "M-0001",
+    consentStatus: "pending",
+  });
+
   console.log("Platform: platform@afterhive.de / Platform1234!");
   console.log("Seeded demo tenant:", tenant.slug);
   console.log("Staff: staff@demo-club.de / Demo1234! → location", locationA.name, "(1 qualified lead)");
   console.log("Owner: owner@demo-club.de / Demo1234! → all locations (2 leads)");
+  console.log("Guardian: guardian@demo-club.de / Demo1234! → portal consent for", minorPerson.firstName);
   console.log("Other location:", locationB.name);
 }
 

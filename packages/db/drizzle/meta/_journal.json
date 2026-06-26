@@ -71,6 +71,13 @@
       "when": 1782486000000,
       "tag": "0009_guardian_consent_base",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782487000000,
+      "tag": "0010_portal_consent",
+      "breakpoints": true
     }
   ]
 }

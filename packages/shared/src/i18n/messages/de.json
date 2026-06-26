@@ -388,7 +388,33 @@
     },
     "home": {
       "title": "Self-Service-Portal",
-      "subtitle": "Grundgeruest — Mitglieder-Flows folgen in EPIC-040."
+      "subtitle": "Verwalten Sie Einwilligungen und Mitgliederdaten."
+    },
+    "login": {
+      "title": "Anmelden",
+      "subtitle": "Melden Sie sich als Erziehungsberechtigte:r an.",
+      "demoHint": "Demo: guardian@demo-club.de (Passwort Demo1234!).",
+      "tenantLabel": "Verein: {tenantSlug}",
+      "email": { "label": "E-Mail" },
+      "password": { "label": "Passwort" },
+      "submit": "Anmelden",
+      "error": {
+        "invalidCredentials": "Anmeldung fehlgeschlagen. E-Mail oder Passwort ungueltig.",
+        "noPortalAccess": "Kein Portal-Zugang fuer diesen Verein."
+      }
+    },
+    "consent": {
+      "title": "Einwilligung",
+      "empty": "Keine ausstehenden Einwilligungen.",
+      "grant": "Einwilligung erteilen",
+      "granting": "Wird gespeichert…",
+      "success": "Einwilligung fuer {name} erteilt.",
+      "error": {
+        "notGuardian": "Keine Berechtigung fuer dieses Kind.",
+        "alreadyGranted": "Einwilligung wurde bereits erteilt.",
+        "personNotFound": "Person nicht gefunden.",
+        "default": "Einwilligung fehlgeschlagen."
+      }
     }
   },
   "marketplace": {

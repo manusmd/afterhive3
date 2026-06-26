@@ -8,7 +8,7 @@ const basePath = process.env.BASE_PATH ?? "/portal";
 
 const nextConfig: NextConfig = {
   basePath,
-  transpilePackages: ["@afterhive/api", "@afterhive/shared", "@afterhive/ui"],
+  transpilePackages: ["@afterhive/api", "@afterhive/shared", "@afterhive/ui", "@afterhive/domain", "@afterhive/db"],
   output: "standalone",
 };
 
