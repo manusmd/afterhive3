@@ -23,6 +23,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "leads": "Leads",
+      "persons": "Personen",
       "import": "Import",
       "locations": "Standorte",
       "team": "Team"
@@ -36,6 +37,7 @@
       "signedInAs": "Angemeldet als {userId} in {tenantSlug}",
       "nav": {
         "leads": "Leads",
+        "persons": "Personen",
         "import": "Import",
         "locations": "Standorte",
         "team": "Team"
@@ -243,6 +245,33 @@
         "tooManyRows": "Maximal 500 Zeilen pro Import.",
         "forbidden": "Keine Berechtigung.",
         "default": "Import fehlgeschlagen."
+      }
+    },
+    "persons": {
+      "title": "Personen",
+      "list": {
+        "title": "{count} Personen",
+        "empty": "Keine Personen vorhanden."
+      },
+      "table": {
+        "name": "Name",
+        "createdAt": "Angelegt"
+      },
+      "merge": {
+        "title": "Personen zusammenfuehren",
+        "winner": { "label": "Beibehaltene Person" },
+        "loser": { "label": "Zu loeschende Person" },
+        "submit": "Zusammenfuehren",
+        "submitting": "Zusammenfuehren…",
+        "success": "Personen zusammengefuehrt. {count} Lead-Verknuepfungen aktualisiert.",
+        "error": {
+          "missingSelection": "Bitte beide Personen auswaehlen.",
+          "samePerson": "Bitte zwei verschiedene Personen auswaehlen.",
+          "personNotFound": "Person nicht gefunden.",
+          "alreadyDeleted": "Person wurde bereits geloescht.",
+          "forbidden": "Keine Berechtigung.",
+          "default": "Zusammenfuehrung fehlgeschlagen."
+        }
       }
     },
     "settings": {

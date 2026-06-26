@@ -40,7 +40,11 @@
     "./crm/can-update-lead": "./src/crm/can-update-lead.ts",
     "./crm/update-lead-status": "./src/crm/update-lead-status.ts",
     "./crm/can-run-import": "./src/crm/can-run-import.ts",
-    "./crm/import-leads-csv": "./src/crm/import-leads-csv.ts"
+    "./crm/import-leads-csv": "./src/crm/import-leads-csv.ts",
+    "./crm/can-read-persons": "./src/crm/can-read-persons.ts",
+    "./crm/can-merge-persons": "./src/crm/can-merge-persons.ts",
+    "./crm/list-persons": "./src/crm/list-persons.ts",
+    "./crm/merge-persons": "./src/crm/merge-persons.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

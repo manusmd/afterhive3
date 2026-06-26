@@ -2,6 +2,7 @@ import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canRunImport } from "@afterhive/api/crm/can-run-import";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
+import { canReadPersons } from "@afterhive/api/crm/can-read-persons";
 import { canViewLocations } from "@afterhive/api/location/can-manage-locations";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
@@ -28,6 +29,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showLocations = canViewLocations(session.roles);
   const showTeam = canAssignRoles(session.roles);
   const showLeads = canReadLeads(session.roles, session.locationIds);
+  const showPersons = canReadPersons(session.roles);
   const showImport = canRunImport(session.roles, session.locationIds, session.roleAssignments);
 
   return (
@@ -42,11 +44,16 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
             tenantSlug: session.tenantSlug ?? tenantSlug,
           })}
         </Typography>
-        {showLeads || showImport || showLocations || showTeam ? (
+        {showLeads || showPersons || showImport || showLocations || showTeam ? (
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
             {showLeads ? (
               <Link href={`/${tenantSlug}/crm/leads`}>
                 <Button variant="outlined">{t("admin.dashboard.nav.leads")}</Button>
+              </Link>
+            ) : null}
+            {showPersons ? (
+              <Link href={`/${tenantSlug}/crm/persons`}>
+                <Button variant="outlined">{t("admin.dashboard.nav.persons")}</Button>
               </Link>
             ) : null}
             {showImport ? (

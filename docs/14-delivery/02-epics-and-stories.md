@@ -58,7 +58,7 @@ MVP backlog with acceptance criteria (export to Linear).
 | Story | AC |
 |-------|-----|
 | US-110 CSV import | Import job completes; errors reported per row (Flow 09) — **Linear MAN-180** |
-| US-111 Merge persons | Duplicate merged; FKs repointed; audit entry |
+| US-111 Merge persons | Duplicate merged; FKs repointed; audit entry — **Linear MAN-182** |
 
 ## EPIC-012: Guardian consent
 
