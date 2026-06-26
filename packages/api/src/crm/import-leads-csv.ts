@@ -91,9 +91,22 @@ export async function importLeadsCsv(
     : session.locationIds;
 
   const tenantLocations = await listTenantLocations(tenantSlug);
+  const allowedLocationIds = new Set(tenantLocations.map((location) => location.id));
   const locationByCode = new Map(
     tenantLocations.map((location) => [normalizeLocationCode(location.name), location.id]),
   );
+
+  if (input.defaultLocationId) {
+    if (!allowedLocationIds.has(input.defaultLocationId)) {
+      throw new ImportLeadsCsvError("invalid_location");
+    }
+
+    if (!isWithinLocationScope(input.defaultLocationId, importLocationIds)) {
+      throw new ImportLeadsCsvError("location_forbidden");
+    }
+  } else if (!input.mapping.locationCode) {
+    throw new ImportLeadsCsvError("invalid_location");
+  }
 
   const db = getDb();
   const [job] = await db
@@ -131,7 +144,7 @@ export async function importLeadsCsv(
       ? locationByCode.get(normalizeLocationCode(locationCode))
       : input.defaultLocationId;
 
-    if (!locationId) {
+    if (!locationId || !allowedLocationIds.has(locationId)) {
       result.failed += 1;
       result.errors.push({ row: rowNumber, message: "invalid_location" });
       continue;

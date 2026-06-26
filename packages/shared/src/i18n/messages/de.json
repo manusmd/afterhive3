@@ -207,6 +207,7 @@
       "title": "CSV-Import",
       "upload": "CSV-Datei auswaehlen",
       "submit": "Import starten",
+      "submitting": "Import laeuft…",
       "noLocations": "Keine Standorte verfuegbar.",
       "mapping": {
         "firstName": "Spalte Vorname",

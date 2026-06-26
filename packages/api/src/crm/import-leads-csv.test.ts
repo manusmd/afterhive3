@@ -53,6 +53,18 @@ describe("importLeadsCsv", () => {
     ).rejects.toMatchObject({ code: "invalid_csv" });
   });
 
+  it("throws invalid_location for forged defaultLocationId", async () => {
+    await expect(
+      importLeadsCsv(ownerSession, tenantSlug, {
+        csvContent: "first_name,last_name\nAnna,Nord",
+        mapping: { firstName: "first_name", lastName: "last_name" },
+        defaultLocationId: "foreign-location",
+      }),
+    ).rejects.toMatchObject({ code: "invalid_location" });
+
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
   it("imports valid rows and reports row errors", async () => {
     let insertCount = 0;
 

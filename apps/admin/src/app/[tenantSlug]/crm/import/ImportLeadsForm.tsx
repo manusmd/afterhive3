@@ -6,6 +6,7 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
@@ -283,8 +284,9 @@ export function ImportLeadsForm({ tenantSlug, locations }: ImportLeadsFormProps)
           type="submit"
           variant="contained"
           disabled={loading || !csvContent || !firstNameColumn || !lastNameColumn}
+          startIcon={loading ? <CircularProgress color="inherit" size={16} /> : undefined}
         >
-          {t("admin.import.submit")}
+          {loading ? t("admin.import.submitting") : t("admin.import.submit")}
         </Button>
       </Stack>
     </Box>
