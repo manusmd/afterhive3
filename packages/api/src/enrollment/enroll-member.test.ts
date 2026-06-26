@@ -31,43 +31,57 @@ type MockGroup = {
   status: "open" | "full" | "closed" | "draft";
 };
 
+type MockMember = {
+  id: string;
+  consentStatus: "pending" | "complete";
+  dateOfBirth: string | null;
+};
+
 const selectResults = vi.hoisted(() => ({
   group: null as MockGroup | null,
-  member: null as { id: string } | null,
+  member: null as MockMember | null,
   existingEnrollment: null as { id: string } | null,
   existingWaitlist: null as { id: string } | null,
   maxPosition: 0,
 }));
 
 const insert = vi.hoisted(() => vi.fn());
+const update = vi.hoisted(() => vi.fn());
 
 function mockTransaction() {
-  let directSelectCall = 0;
+  let innerJoinWhereCall = 0;
+  let directWhereCall = 0;
 
   return {
     select: () => ({
       from: () => ({
         innerJoin: () => ({
-          where: () => ({
-            for: () => ({
-              limit: () => Promise.resolve(selectResults.group ? [selectResults.group] : []),
-            }),
-          }),
+          where: () => {
+            innerJoinWhereCall += 1;
+
+            if (innerJoinWhereCall === 1) {
+              return {
+                for: () => ({
+                  limit: () => Promise.resolve(selectResults.group ? [selectResults.group] : []),
+                }),
+              };
+            }
+
+            return {
+              limit: () => Promise.resolve(selectResults.member ? [selectResults.member] : []),
+            };
+          },
         }),
         where: () => {
-          directSelectCall += 1;
+          directWhereCall += 1;
 
-          if (directSelectCall === 4) {
+          if (directWhereCall === 3) {
             return Promise.resolve([{ maxPosition: selectResults.maxPosition }]);
           }
 
           return {
             limit: () => {
-              if (directSelectCall === 1) {
-                return Promise.resolve(selectResults.member ? [selectResults.member] : []);
-              }
-
-              if (directSelectCall === 2) {
+              if (directWhereCall === 1) {
                 return Promise.resolve(
                   selectResults.existingEnrollment ? [selectResults.existingEnrollment] : [],
                 );
@@ -84,6 +98,11 @@ function mockTransaction() {
     insert: () => ({
       values: () => ({
         returning: insert,
+      }),
+    }),
+    update: () => ({
+      set: () => ({
+        where: () => update(),
       }),
     }),
   };
@@ -108,6 +127,7 @@ describe("enrollMember", () => {
   beforeEach(() => {
     getDb.mockReset();
     insert.mockReset();
+    update.mockReset();
     selectResults.group = {
       id: offerGroupId,
       capacity: 20,
@@ -116,10 +136,15 @@ describe("enrollMember", () => {
       locationId,
       status: "open",
     };
-    selectResults.member = { id: memberProfileId };
+    selectResults.member = {
+      id: memberProfileId,
+      consentStatus: "complete",
+      dateOfBirth: "1990-01-01",
+    };
     selectResults.existingEnrollment = null;
     selectResults.existingWaitlist = null;
     selectResults.maxPosition = 2;
+    update.mockResolvedValue(undefined);
     getDb.mockReturnValue({
       transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
         callback(mockTransaction()),
@@ -127,7 +152,28 @@ describe("enrollMember", () => {
     });
   });
 
-  it("creates a pending enrollment when capacity is available", async () => {
+  it("creates an active enrollment when capacity is available and consent allows", async () => {
+    insert.mockResolvedValueOnce([{ id: "enrollment-1" }]);
+
+    const result = await enrollMember(ownerSession, tenantSlug, {
+      memberProfileId,
+      offerGroupId,
+    });
+
+    expect(result).toEqual({
+      outcome: "enrolled",
+      enrollmentId: "enrollment-1",
+      status: "active",
+    });
+    expect(update).toHaveBeenCalled();
+  });
+
+  it("creates a pending enrollment for minors without consent", async () => {
+    selectResults.member = {
+      id: memberProfileId,
+      consentStatus: "pending",
+      dateOfBirth: "2015-01-01",
+    };
     insert.mockResolvedValueOnce([{ id: "enrollment-1" }]);
 
     const result = await enrollMember(ownerSession, tenantSlug, {
@@ -140,6 +186,7 @@ describe("enrollMember", () => {
       enrollmentId: "enrollment-1",
       status: "pending",
     });
+    expect(update).not.toHaveBeenCalled();
   });
 
   it("creates a waitlist entry when the group is full and waitlist is enabled", async () => {

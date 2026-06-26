@@ -11,6 +11,7 @@ import {
 } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { isWithinLocationScope } from "../location/location-scope";
+import { canActivateEnrollment } from "./can-activate-enrollment";
 import { canEnrollMember, resolveEnrollMemberLocationIds } from "./can-enroll-member";
 
 export type EnrollMemberInput = {
@@ -22,7 +23,7 @@ export type EnrollMemberResult =
   | {
       outcome: "enrolled";
       enrollmentId: string;
-      status: "pending";
+      status: "active" | "pending";
     }
   | {
       outcome: "waitlisted";
@@ -124,8 +125,13 @@ export async function enrollMember(
     }
 
     const [member] = await tx
-      .select({ id: memberProfiles.id })
+      .select({
+        id: memberProfiles.id,
+        consentStatus: memberProfiles.consentStatus,
+        dateOfBirth: persons.dateOfBirth,
+      })
       .from(memberProfiles)
+      .innerJoin(persons, eq(memberProfiles.personId, persons.id))
       .where(
         and(
           eq(memberProfiles.id, input.memberProfileId),
@@ -173,6 +179,42 @@ export async function enrollMember(
     }
 
     if (group.enrolledCount < group.capacity) {
+      const enrollmentDate = new Date();
+      const canActivate = canActivateEnrollment({
+        dateOfBirth: member.dateOfBirth ? new Date(member.dateOfBirth) : null,
+        consentStatus: member.consentStatus as "pending" | "complete",
+        enrollmentDate,
+      });
+
+      if (canActivate) {
+        const [enrollment] = await tx
+          .insert(enrollments)
+          .values({
+            tenantId: session.tenantId!,
+            memberProfileId: input.memberProfileId,
+            offerGroupId: input.offerGroupId,
+            status: "active",
+            activatedAt: enrollmentDate,
+          })
+          .returning({ id: enrollments.id });
+
+        const nextEnrolledCount = group.enrolledCount + 1;
+
+        await tx
+          .update(offerGroups)
+          .set({
+            enrolledCount: nextEnrolledCount,
+            ...(nextEnrolledCount >= group.capacity ? { status: "full" as const } : {}),
+          })
+          .where(eq(offerGroups.id, group.id));
+
+        return {
+          outcome: "enrolled",
+          enrollmentId: enrollment.id,
+          status: "active",
+        };
+      }
+
       const [enrollment] = await tx
         .insert(enrollments)
         .values({

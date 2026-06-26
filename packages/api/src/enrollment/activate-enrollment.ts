@@ -16,7 +16,8 @@ export class ActivateEnrollmentError extends Error {
       | "tenant_not_found"
       | "enrollment_not_found"
       | "invalid_status"
-      | "consent_required",
+      | "consent_required"
+      | "group_full",
   ) {
     super(code);
     this.name = "ActivateEnrollmentError";
@@ -79,6 +80,20 @@ export async function activateEnrollment(
       throw new ActivateEnrollmentError("consent_required");
     }
 
+    const [group] = await tx
+      .select({
+        capacity: offerGroups.capacity,
+        enrolledCount: offerGroups.enrolledCount,
+      })
+      .from(offerGroups)
+      .where(eq(offerGroups.id, row.offerGroupId))
+      .for("update")
+      .limit(1);
+
+    if (!group || group.enrolledCount >= group.capacity) {
+      throw new ActivateEnrollmentError("group_full");
+    }
+
     const [updated] = await tx
       .update(enrollments)
       .set({
@@ -96,22 +111,13 @@ export async function activateEnrollment(
       throw new ActivateEnrollmentError("invalid_status");
     }
 
-    const [group] = await tx
-      .select({
-        capacity: offerGroups.capacity,
-        enrolledCount: offerGroups.enrolledCount,
-      })
-      .from(offerGroups)
-      .where(eq(offerGroups.id, row.offerGroupId))
-      .limit(1);
-
-    const nextEnrolledCount = (group?.enrolledCount ?? 0) + 1;
+    const nextEnrolledCount = group.enrolledCount + 1;
 
     await tx
       .update(offerGroups)
       .set({
         enrolledCount: nextEnrolledCount,
-        ...(group && nextEnrolledCount >= group.capacity ? { status: "full" as const } : {}),
+        ...(nextEnrolledCount >= group.capacity ? { status: "full" as const } : {}),
       })
       .where(eq(offerGroups.id, row.offerGroupId));
 

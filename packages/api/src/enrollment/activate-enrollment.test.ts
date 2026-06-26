@@ -37,7 +37,8 @@ function mockTransaction(options: {
   updated?: { id: string; status: string; activatedAt: Date } | null;
   offerGroup?: { capacity: number; enrolledCount: number } | null;
 }) {
-  let selectCall = 0;
+  let innerJoinWhereCall = 0;
+  let directWhereCall = 0;
 
   getDb.mockReturnValue({
     transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) => {
@@ -48,40 +49,33 @@ function mockTransaction(options: {
               innerJoin: () => ({
                 innerJoin: () => ({
                   where: () => {
-                    selectCall += 1;
-
-                    if (selectCall === 1) {
-                      return {
-                        for: () => ({
-                          limit: () => Promise.resolve(options.row ? [options.row] : []),
-                        }),
-                      };
-                    }
+                    innerJoinWhereCall += 1;
 
                     return {
-                      limit: () =>
-                        Promise.resolve(
-                          options.offerGroup === undefined
-                            ? [{ capacity: 20, enrolledCount: 5 }]
-                            : options.offerGroup
-                              ? [options.offerGroup]
-                              : [],
-                        ),
+                      for: () => ({
+                        limit: () => Promise.resolve(options.row ? [options.row] : []),
+                      }),
                     };
                   },
                 }),
               }),
             }),
-            where: () => ({
-              limit: () =>
-                Promise.resolve(
-                  options.offerGroup === undefined
-                    ? [{ capacity: 20, enrolledCount: 5 }]
-                    : options.offerGroup
-                      ? [options.offerGroup]
-                      : [],
-                ),
-            }),
+            where: () => {
+              directWhereCall += 1;
+
+              return {
+                for: () => ({
+                  limit: () =>
+                    Promise.resolve(
+                      options.offerGroup === undefined
+                        ? [{ capacity: 20, enrolledCount: 5 }]
+                        : options.offerGroup
+                          ? [options.offerGroup]
+                          : [],
+                    ),
+                }),
+              };
+            },
           }),
         }),
         update: () => ({
@@ -155,6 +149,24 @@ describe("activateEnrollment", () => {
 
     await expect(activateEnrollment(ownerSession, tenantSlug, enrollmentId)).rejects.toMatchObject({
       code: "consent_required",
+    });
+  });
+
+  it("throws group_full when the offer group is at capacity", async () => {
+    mockTransaction({
+      row: {
+        enrollmentId,
+        offerGroupId,
+        enrollmentStatus: "pending",
+        enrolledAt: defaultEnrolledAt,
+        consentStatus: "complete",
+        dateOfBirth: "1990-01-01",
+      },
+      offerGroup: { capacity: 20, enrolledCount: 20 },
+    });
+
+    await expect(activateEnrollment(ownerSession, tenantSlug, enrollmentId)).rejects.toMatchObject({
+      code: "group_full",
     });
   });
 

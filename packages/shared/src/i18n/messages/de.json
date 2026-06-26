@@ -376,8 +376,14 @@
         "offerGroup": { "label": "Angebotsgruppe" },
         "submit": "Einschreiben",
         "success": {
-          "enrolled": "Einschreibung angelegt (Status: ausstehend).",
+          "active": "Mitglied aktiv eingeschrieben.",
+          "pending": "Einschreibung angelegt (Status: ausstehend, Einwilligung erforderlich).",
           "waitlisted": "Auf Warteliste gesetzt (Position {position})."
+        },
+        "empty": {
+          "noMembersOrGroups": "Keine Mitglieder oder Angebotsgruppen verfuegbar.",
+          "noOfferGroups": "Keine Angebotsgruppen verfuegbar. Erstellen Sie zuerst ein Angebot.",
+          "noMembers": "Keine Mitglieder verfuegbar. Konvertieren Sie zuerst einen Lead."
         },
         "error": {
           "missingFields": "Mitglied und Angebotsgruppe sind erforderlich.",

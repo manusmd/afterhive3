@@ -90,12 +90,14 @@ export function EnrollMemberForm({ tenantSlug, offerGroups, members }: EnrollMem
       }
 
       const payload = (await response.json()) as
-        | { outcome: "enrolled"; enrollmentId: string; status: "pending" }
+        | { outcome: "enrolled"; enrollmentId: string; status: "active" | "pending" }
         | { outcome: "waitlisted"; waitlistEntryId: string; position: number; status: "waiting" };
 
       setSuccess(
         payload.outcome === "enrolled"
-          ? t("admin.enrollment.enroll.success.enrolled")
+          ? payload.status === "active"
+            ? t("admin.enrollment.enroll.success.active")
+            : t("admin.enrollment.enroll.success.pending")
           : t("admin.enrollment.enroll.success.waitlisted", { position: payload.position }),
       );
       setLoading(false);
@@ -106,8 +108,18 @@ export function EnrollMemberForm({ tenantSlug, offerGroups, members }: EnrollMem
     }
   }
 
-  if (offerGroups.length === 0 || members.length === 0) {
-    return null;
+  if (offerGroups.length === 0 && members.length === 0) {
+    return (
+      <Alert severity="info">{t("admin.enrollment.enroll.empty.noMembersOrGroups")}</Alert>
+    );
+  }
+
+  if (offerGroups.length === 0) {
+    return <Alert severity="info">{t("admin.enrollment.enroll.empty.noOfferGroups")}</Alert>;
+  }
+
+  if (members.length === 0) {
+    return <Alert severity="info">{t("admin.enrollment.enroll.empty.noMembers")}</Alert>;
   }
 
   return (
