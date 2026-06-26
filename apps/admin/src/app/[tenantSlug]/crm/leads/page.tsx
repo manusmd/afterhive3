@@ -1,4 +1,6 @@
+import { canCreateLead } from "@afterhive/api/crm/can-create-lead";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
+import { listLeadFormLocations } from "@afterhive/api/crm/create-lead";
 import { listLeads } from "@afterhive/api/crm/list-leads";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { SurfaceShell } from "@afterhive/ui";
@@ -8,6 +10,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
+import { CreateLeadForm } from "./CreateLeadForm";
 
 type LeadsPageProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -35,6 +38,8 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
   }
 
   const leads = await listLeads(session);
+  const showCreateForm = canCreateLead(session.roles, session.locationIds);
+  const formLocations = showCreateForm ? await listLeadFormLocations(session, tenantSlug) : [];
   const scopedLocations =
     session.locationIds === undefined
       ? "alle Standorte"
@@ -53,6 +58,10 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
         <Typography color="text.secondary">
           Sichtbare Standorte: {scopedLocations}
         </Typography>
+
+        {showCreateForm ? (
+          <CreateLeadForm tenantSlug={tenantSlug} locations={formLocations} />
+        ) : null}
 
         <Stack spacing={2}>
           <Typography variant="h6">Leads ({leads.length})</Typography>

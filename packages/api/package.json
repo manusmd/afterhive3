@@ -31,7 +31,9 @@
     "./location/location-scope": "./src/location/location-scope.ts",
     "./location/role-location-scope": "./src/location/role-location-scope.ts",
     "./crm/list-leads": "./src/crm/list-leads.ts",
-    "./crm/can-read-leads": "./src/crm/can-read-leads.ts"
+    "./crm/can-read-leads": "./src/crm/can-read-leads.ts",
+    "./crm/create-lead": "./src/crm/create-lead.ts",
+    "./crm/can-create-lead": "./src/crm/can-create-lead.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
