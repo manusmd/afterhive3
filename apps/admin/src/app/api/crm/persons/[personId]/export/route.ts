@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: ExportRouteProps) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!canExportPerson(session.roles, session.locationIds)) {
+  if (!canExportPerson(session.roles, session.locationIds, session.roleAssignments)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 

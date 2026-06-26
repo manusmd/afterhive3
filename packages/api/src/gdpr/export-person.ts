@@ -16,6 +16,7 @@ import {
   hasNoLocationAccess,
 } from "../location/location-scope";
 import { buildPersonExportZip, type PersonExportCategories } from "./build-export-zip";
+import { resolveSessionExportLocationIds } from "./can-export-person";
 
 export type ExportPersonResult = {
   fileName: string;
@@ -33,20 +34,20 @@ export class ExportPersonError extends Error {
 }
 
 async function assertPersonExportScope(
-  session: SessionContext,
   tenantId: string,
   personId: string,
+  exportLocationIds: string[] | undefined,
 ) {
-  if (hasAllLocationsAccess(session.locationIds)) {
+  if (hasAllLocationsAccess(exportLocationIds)) {
     return;
   }
 
-  if (hasNoLocationAccess(session.locationIds)) {
+  if (hasNoLocationAccess(exportLocationIds)) {
     throw new ExportPersonError("location_forbidden");
   }
 
   const db = getDb();
-  const scopeFilter = buildLocationScopeFilter(leads.locationId, session.locationIds);
+  const scopeFilter = buildLocationScopeFilter(leads.locationId, exportLocationIds);
   const conditions = [
     eq(leads.tenantId, tenantId),
     eq(leads.convertedPersonId, personId),
@@ -70,6 +71,7 @@ async function assertPersonExportScope(
 export async function collectPersonExportCategories(
   tenantId: string,
   personId: string,
+  exportLocationIds?: string[],
 ): Promise<PersonExportCategories> {
   const db = getDb();
 
@@ -129,6 +131,13 @@ export async function collectPersonExportCategories(
       ),
     );
 
+  const leadConditions = [eq(leads.tenantId, tenantId), eq(leads.convertedPersonId, personId)];
+  const leadScopeFilter = buildLocationScopeFilter(leads.locationId, exportLocationIds);
+
+  if (leadScopeFilter) {
+    leadConditions.push(leadScopeFilter);
+  }
+
   const leadRows = await db
     .select({
       id: leads.id,
@@ -141,7 +150,7 @@ export async function collectPersonExportCategories(
       createdAt: leads.createdAt,
     })
     .from(leads)
-    .where(and(eq(leads.tenantId, tenantId), eq(leads.convertedPersonId, personId)));
+    .where(and(...leadConditions));
 
   return {
     profile: {
@@ -196,9 +205,15 @@ export async function exportPerson(
     throw new ExportPersonError("person_not_found");
   }
 
-  await assertPersonExportScope(session, session.tenantId, personId);
+  const exportLocationIds = resolveSessionExportLocationIds(session);
 
-  const categories = await collectPersonExportCategories(session.tenantId, personId);
+  await assertPersonExportScope(session.tenantId, personId, exportLocationIds);
+
+  const categories = await collectPersonExportCategories(
+    session.tenantId,
+    personId,
+    exportLocationIds,
+  );
   const zip = buildPersonExportZip(categories);
   const fileName = `person-export-${personId}.zip`;
 

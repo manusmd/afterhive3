@@ -44,7 +44,11 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
 
   const persons = await listPersons(session);
   const showMergeForm = canMergePersons(session.roles);
-  const showPrivacyLink = canExportPerson(session.roles, session.locationIds);
+  const showPrivacyLink = canExportPerson(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
   const tableHeadings = [
     t("admin.persons.table.name"),
     t("admin.persons.table.createdAt"),

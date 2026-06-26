@@ -26,7 +26,7 @@ export default async function PersonPrivacyPage({ params }: PersonPrivacyPagePro
     redirect(`/${tenantSlug}/login`);
   }
 
-  if (!canExportPerson(session.roles, session.locationIds)) {
+  if (!canExportPerson(session.roles, session.locationIds, session.roleAssignments)) {
     return (
       <SurfaceShell surface="admin" title={pageTitle}>
         <Stack spacing={2}>

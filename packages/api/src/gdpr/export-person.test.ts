@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionContext } from "@afterhive/domain";
-import { ExportPersonError, exportPerson } from "./export-person";
+import {
+  collectPersonExportCategories,
+  ExportPersonError,
+  exportPerson,
+} from "./export-person";
 
 const tenantId = "tenant-1";
 const tenantSlug = "demo-club";
 const personId = "person-1";
 const locationNorth = "loc-north";
+const locationSouth = "loc-south";
 
 const getDb = vi.hoisted(() => vi.fn());
 
@@ -20,6 +25,7 @@ const ownerSession: SessionContext = {
   tenantSlug,
   roles: ["tenant_owner"],
   locationIds: undefined,
+  roleAssignments: [{ role: "tenant_owner", locationIds: null }],
 };
 
 const officeSession: SessionContext = {
@@ -29,6 +35,20 @@ const officeSession: SessionContext = {
   tenantSlug,
   roles: ["tenant_office"],
   locationIds: [locationNorth],
+  roleAssignments: [{ role: "tenant_office", locationIds: [locationNorth] }],
+};
+
+const mixedFinanceOfficeSession: SessionContext = {
+  userId: "mixed-1",
+  surface: "tenant_admin",
+  tenantId,
+  tenantSlug,
+  roles: ["tenant_finance", "tenant_office"],
+  locationIds: undefined,
+  roleAssignments: [
+    { role: "tenant_finance", locationIds: null },
+    { role: "tenant_office", locationIds: [locationNorth] },
+  ],
 };
 
 function mockExportDb(options: {
@@ -89,6 +109,77 @@ function mockExportDb(options: {
     insert: () => ({
       values: vi.fn(async () => undefined),
     }),
+  });
+}
+
+function mockCollectCategoriesDb(exportLocationIds?: string[]) {
+  const allLeads = [
+    {
+      id: "lead-north",
+      firstName: "Leo",
+      lastName: "Muster",
+      status: "converted",
+      source: "web",
+      locationId: locationNorth,
+      convertedAt: new Date("2024-02-01"),
+      createdAt: new Date("2024-01-15"),
+    },
+    {
+      id: "lead-south",
+      firstName: "Leo",
+      lastName: "Muster",
+      status: "converted",
+      source: "referral",
+      locationId: locationSouth,
+      convertedAt: new Date("2024-03-01"),
+      createdAt: new Date("2024-02-15"),
+    },
+  ];
+
+  let selectCall = 0;
+
+  getDb.mockReturnValue({
+    select: () => {
+      selectCall += 1;
+      const call = selectCall;
+
+      return {
+        from: () => ({
+          where: () => {
+            if (call === 1) {
+              return {
+                limit: () =>
+                  Promise.resolve([
+                    {
+                      id: personId,
+                      firstName: "Leo",
+                      lastName: "Muster",
+                      dateOfBirth: "2015-01-01",
+                      createdAt: new Date("2024-01-01"),
+                    },
+                  ]),
+              };
+            }
+
+            if (call === 2) {
+              return {
+                limit: () => Promise.resolve([]),
+              };
+            }
+
+            if (call === 5) {
+              const scopedLeads =
+                exportLocationIds && exportLocationIds.length > 0
+                  ? allLeads.filter((lead) => exportLocationIds.includes(lead.locationId))
+                  : allLeads;
+              return Promise.resolve(scopedLeads);
+            }
+
+            return Promise.resolve([]);
+          },
+        }),
+      };
+    },
   });
 }
 
@@ -214,5 +305,119 @@ describe("exportPerson", () => {
     await expect(exportPerson(ownerSession, tenantSlug, personId)).rejects.toBeInstanceOf(
       ExportPersonError,
     );
+  });
+
+  it("uses export-capable role scope for mixed finance and office sessions", async () => {
+    mockCollectCategoriesDb([locationNorth]);
+
+    let selectCall = 0;
+
+    getDb.mockReturnValue({
+      select: () => {
+        selectCall += 1;
+        const call = selectCall;
+
+        return {
+          from: () => ({
+            innerJoin: () => ({
+              where: () => ({
+                limit: () =>
+                  Promise.resolve([
+                    { id: personId, firstName: "Leo", lastName: "Muster" },
+                  ]),
+              }),
+            }),
+            where: () => {
+              if (call === 2) {
+                return {
+                  limit: () => Promise.resolve([{ id: "lead-north" }]),
+                };
+              }
+
+              if (call === 3) {
+                return {
+                  limit: () =>
+                    Promise.resolve([
+                      {
+                        id: personId,
+                        firstName: "Leo",
+                        lastName: "Muster",
+                        dateOfBirth: "2015-01-01",
+                        createdAt: new Date("2024-01-01"),
+                      },
+                    ]),
+                };
+              }
+
+              if (call === 4) {
+                return {
+                  limit: () => Promise.resolve([]),
+                };
+              }
+
+              if (call === 5 || call === 6) {
+                return Promise.resolve([]);
+              }
+
+              if (call === 7) {
+                return Promise.resolve([
+                  {
+                    id: "lead-north",
+                    firstName: "Leo",
+                    lastName: "Muster",
+                    status: "converted",
+                    source: "web",
+                    locationId: locationNorth,
+                    convertedAt: new Date("2024-02-01"),
+                    createdAt: new Date("2024-01-15"),
+                  },
+                ]);
+              }
+
+              return Promise.resolve([]);
+            },
+          }),
+        };
+      },
+      insert: () => ({
+        values: vi.fn(async () => undefined),
+      }),
+    });
+
+    const result = await exportPerson(mixedFinanceOfficeSession, tenantSlug, personId);
+
+    expect(result.categories.leads).toHaveLength(1);
+    expect(result.categories.leads).toEqual([
+      expect.objectContaining({ id: "lead-north", locationId: locationNorth }),
+    ]);
+  });
+});
+
+describe("collectPersonExportCategories", () => {
+  beforeEach(() => {
+    getDb.mockReset();
+  });
+
+  it("filters converted leads to export location scope", async () => {
+    mockCollectCategoriesDb([locationNorth]);
+
+    const scoped = await collectPersonExportCategories(tenantId, personId, [locationNorth]);
+
+    const scopedLeads = scoped.leads as Array<{ id: string; locationId: string }>;
+
+    expect(scopedLeads).toHaveLength(1);
+    expect(scopedLeads[0]).toMatchObject({ id: "lead-north", locationId: locationNorth });
+
+    getDb.mockReset();
+    mockCollectCategoriesDb(undefined);
+
+    const unrestricted = await collectPersonExportCategories(tenantId, personId, undefined);
+    const unrestrictedLeads = unrestricted.leads as Array<{ locationId: string }>;
+
+    expect(unrestrictedLeads).toHaveLength(2);
+    expect(unrestrictedLeads.map((lead) => lead.locationId).sort()).toEqual([
+      locationNorth,
+      locationSouth,
+    ]);
   });
 });
