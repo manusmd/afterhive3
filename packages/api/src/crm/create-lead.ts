@@ -4,12 +4,12 @@ import { leads, locations, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { isWithinLocationScope } from "../location/location-scope";
 import { listTenantLocations } from "../auth/tenant-locations";
+import { resolveLeadCreateLocationIds } from "./can-create-lead";
 
 export type CreateLeadInput = {
   firstName: string;
   lastName: string;
   locationId: string;
-  source?: string;
 };
 
 export type CreateLeadResult = {
@@ -60,22 +60,25 @@ export function validateCreateLeadInput(input: CreateLeadInput) {
     firstName,
     lastName,
     locationId: input.locationId,
-    source: input.source?.trim() || DEFAULT_SOURCE,
+    source: DEFAULT_SOURCE,
   };
 }
 
 export async function listLeadFormLocations(session: SessionContext, tenantSlug: string) {
   const locations = await listTenantLocations(tenantSlug);
+  const createLocationIds = session.roleAssignments
+    ? resolveLeadCreateLocationIds(session.roles, session.roleAssignments)
+    : session.locationIds;
 
-  if (session.locationIds === undefined) {
+  if (createLocationIds === undefined) {
     return locations;
   }
 
-  if (session.locationIds.length === 0) {
+  if (createLocationIds.length === 0) {
     return [];
   }
 
-  return locations.filter((location) => session.locationIds!.includes(location.id));
+  return locations.filter((location) => createLocationIds.includes(location.id));
 }
 
 export async function createLead(
@@ -92,7 +95,11 @@ export async function createLead(
     throw new CreateLeadError(validation.code);
   }
 
-  if (!isWithinLocationScope(validation.locationId, session.locationIds)) {
+  const createLocationIds = session.roleAssignments
+    ? resolveLeadCreateLocationIds(session.roles, session.roleAssignments)
+    : session.locationIds;
+
+  if (!isWithinLocationScope(validation.locationId, createLocationIds)) {
     throw new CreateLeadError("location_forbidden");
   }
 

@@ -38,7 +38,11 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
   }
 
   const leads = await listLeads(session);
-  const showCreateForm = canCreateLead(session.roles, session.locationIds);
+  const showCreateForm = canCreateLead(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
   const formLocations = showCreateForm ? await listLeadFormLocations(session, tenantSlug) : [];
   const scopedLocations =
     session.locationIds === undefined

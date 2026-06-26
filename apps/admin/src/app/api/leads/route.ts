@@ -9,7 +9,6 @@ type CreateLeadBody = {
   firstName?: string;
   lastName?: string;
   locationId?: string;
-  source?: string;
 };
 
 export async function GET(request: Request) {
@@ -46,7 +45,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!canCreateLead(session.roles, session.locationIds)) {
+  if (!canCreateLead(session.roles, session.locationIds, session.roleAssignments)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
@@ -67,7 +66,6 @@ export async function POST(request: Request) {
       firstName: body.firstName,
       lastName: body.lastName,
       locationId: body.locationId,
-      source: body.source,
     });
 
     return NextResponse.json(result, { status: 201 });

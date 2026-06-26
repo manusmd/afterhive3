@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { validateCreateLeadInput } from "./create-lead";
 
 describe("validateCreateLeadInput", () => {
-  it("accepts valid lead fields", () => {
+  it("always uses manual source for staff-created leads", () => {
     expect(
       validateCreateLeadInput({
         firstName: "Anna",

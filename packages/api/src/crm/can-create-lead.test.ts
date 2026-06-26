@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { canCreateLead } from "./can-create-lead";
+import { canCreateLead, resolveLeadCreateLocationIds } from "./can-create-lead";
 
 const locationNorth = "loc-north";
+const locationSouth = "loc-south";
 
 describe("canCreateLead", () => {
   it("allows owner, admin, office, and location manager with scope", () => {
@@ -16,5 +17,47 @@ describe("canCreateLead", () => {
     expect(canCreateLead(["tenant_coach"], [locationNorth])).toBe(false);
     expect(canCreateLead(["tenant_office"], [])).toBe(false);
     expect(canCreateLead(["tenant_office"], undefined)).toBe(false);
+  });
+
+  it("does not grant create from finance mixed with scoped creator roles", () => {
+    const assignments = [
+      { role: "tenant_finance", locationIds: null },
+      { role: "tenant_office", locationIds: [locationNorth] },
+    ];
+
+    expect(canCreateLead(["tenant_finance", "tenant_office"], undefined, assignments)).toBe(
+      true,
+    );
+    expect(
+      resolveLeadCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
+    ).toEqual([locationNorth]);
+  });
+
+  it("denies finance plus office when office has no assigned locations", () => {
+    const assignments = [
+      { role: "tenant_finance", locationIds: null },
+      { role: "tenant_office", locationIds: [] },
+    ];
+
+    expect(canCreateLead(["tenant_finance", "tenant_office"], undefined, assignments)).toBe(
+      false,
+    );
+    expect(
+      resolveLeadCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
+    ).toEqual([]);
+  });
+
+  it("does not expand scoped creators to all locations when finance is present", () => {
+    const assignments = [
+      { role: "tenant_finance", locationIds: null },
+      { role: "tenant_office", locationIds: [locationNorth] },
+    ];
+
+    expect(
+      resolveLeadCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
+    ).not.toBeUndefined();
+    expect(
+      resolveLeadCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
+    ).not.toContain(locationSouth);
   });
 });

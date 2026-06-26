@@ -37,30 +37,40 @@ export function CreateLeadForm({ tenantSlug, locations }: CreateLeadFormProps) {
     setError(null);
     setLoading(true);
 
-    const response = await fetch("/app/api/leads", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-tenant-slug": tenantSlug,
-      },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        locationId,
-      }),
-    });
+    try {
+      const response = await fetch("/app/api/leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-tenant-slug": tenantSlug,
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          locationId,
+        }),
+      });
 
-    if (!response.ok) {
-      const payload = (await response.json()) as { error?: string };
-      setError(mapCreateLeadError(payload.error));
+      if (!response.ok) {
+        let payload: { error?: string } = {};
+        try {
+          payload = (await response.json()) as { error?: string };
+        } catch {
+          payload = {};
+        }
+        setError(mapCreateLeadError(payload.error));
+        setLoading(false);
+        return;
+      }
+
+      setFirstName("");
+      setLastName("");
       setLoading(false);
-      return;
+      router.refresh();
+    } catch {
+      setError(mapCreateLeadError());
+      setLoading(false);
     }
-
-    setFirstName("");
-    setLastName("");
-    setLoading(false);
-    router.refresh();
   }
 
   if (locations.length === 0) {
