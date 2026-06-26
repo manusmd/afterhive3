@@ -46,6 +46,7 @@ function mockDbChain(existingSessionStartsAt: Date[] = [existingStartsAt]) {
                     rrule: "FREQ=WEEKLY;BYDAY=MO",
                     dtstart,
                     durationMinutes: 90,
+                    timezone: "UTC",
                   },
                 ]),
             };

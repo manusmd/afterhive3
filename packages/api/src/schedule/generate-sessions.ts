@@ -65,6 +65,7 @@ export async function generateSessions(
       rrule: recurrenceRules.rrule,
       dtstart: recurrenceRules.dtstart,
       durationMinutes: recurrenceRules.durationMinutes,
+      timezone: recurrenceRules.timezone,
     })
     .from(recurrenceRules)
     .where(
@@ -88,6 +89,7 @@ export async function generateSessions(
     durationMinutes: rule.durationMinutes,
     rrule: rule.rrule,
     maxOccurrences: input.maxOccurrences,
+    timezone: rule.timezone,
   });
 
   if (occurrences.length === 0) {

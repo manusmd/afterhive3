@@ -14,6 +14,7 @@ import { listTenantLocations } from "../auth/tenant-locations";
 import { isWithinLocationScope } from "../location/location-scope";
 import { canCreateOffer, resolveOfferCreateLocationIds } from "./can-create-offer";
 import { buildWeeklySessionOccurrences, isValidWeeklySingleDayRrule } from "../schedule/build-weekly-sessions";
+import { isValidTimeZone, parseLocalDateTimeInTimeZone } from "../schedule/timezone";
 
 export type CreateOfferInput = {
   name: string;
@@ -104,8 +105,13 @@ export function validateCreateOfferInput(input: CreateOfferInput) {
     return "missing_fields" as const;
   }
 
-  const dtstart = new Date(input.recurrence.dtstart);
-  if (Number.isNaN(dtstart.getTime())) {
+  const timezone = input.recurrence.timezone.trim() || DEFAULT_TIMEZONE;
+  if (!isValidTimeZone(timezone)) {
+    return "invalid_recurrence" as const;
+  }
+
+  const dtstart = parseLocalDateTimeInTimeZone(input.recurrence.dtstart, timezone);
+  if (!dtstart) {
     return "invalid_recurrence" as const;
   }
 
@@ -175,7 +181,12 @@ export async function createOffer(
   const offerId = randomUUID();
   const offerGroupId = randomUUID();
   const recurrenceRuleId = randomUUID();
-  const dtstart = new Date(input.recurrence.dtstart);
+  const timezone = input.recurrence.timezone.trim() || DEFAULT_TIMEZONE;
+  const dtstart = parseLocalDateTimeInTimeZone(input.recurrence.dtstart, timezone);
+  if (!dtstart) {
+    throw new CreateOfferError("invalid_recurrence");
+  }
+
   const rangeEnd = addWeeks(dtstart, input.recurrence.generateWeeks);
 
   return db.transaction(async (tx) => {
@@ -228,7 +239,7 @@ export async function createOffer(
       tenantId: session.tenantId!,
       offerGroupId,
       rrule: input.recurrence.rrule.trim(),
-      timezone: input.recurrence.timezone.trim() || DEFAULT_TIMEZONE,
+      timezone,
       dtstart,
       until: rangeEnd,
       durationMinutes: input.recurrence.durationMinutes,
@@ -239,6 +250,7 @@ export async function createOffer(
       durationMinutes: input.recurrence.durationMinutes,
       rrule: input.recurrence.rrule.trim(),
       maxOccurrences: input.recurrence.generateWeeks,
+      timezone,
     });
 
     if (occurrences.length === 0) {

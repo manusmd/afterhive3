@@ -47,12 +47,15 @@ export function CreateOfferForm({ tenantSlug, locations }: CreateOfferFormProps)
     }
   }
 
-  function buildDtstartIso() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(now.getUTCDate()).padStart(2, "0");
-    return `${year}-${month}-${day}T${startTime}:00.000Z`;
+  function buildDtstartLocalIso() {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Berlin",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const date = formatter.format(new Date());
+    return `${date}T${startTime}:00`;
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -75,7 +78,7 @@ export function CreateOfferForm({ tenantSlug, locations }: CreateOfferFormProps)
           groupName,
           capacity: Number(capacity),
           recurrence: {
-            dtstart: buildDtstartIso(),
+            dtstart: buildDtstartLocalIso(),
             durationMinutes: Number(durationMinutes),
             rrule: `FREQ=WEEKLY;BYDAY=${weekday}`,
             timezone: "Europe/Berlin",

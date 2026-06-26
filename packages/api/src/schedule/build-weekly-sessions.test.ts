@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { parseLocalDateTimeInTimeZone } from "./timezone";
 import {
   buildWeeklySessionOccurrences,
   isValidWeeklySingleDayRrule,
@@ -43,6 +44,7 @@ describe("buildWeeklySessionOccurrences", () => {
       durationMinutes: 90,
       rrule: "FREQ=WEEKLY;BYDAY=MO",
       maxOccurrences: 3,
+      timezone: "UTC",
     });
 
     expect(occurrences).toHaveLength(3);
@@ -58,9 +60,24 @@ describe("buildWeeklySessionOccurrences", () => {
       durationMinutes: 90,
       rrule: "FREQ=WEEKLY;BYDAY=MO",
       maxOccurrences: 8,
+      timezone: "UTC",
     });
 
     expect(occurrences).toHaveLength(8);
     expect(occurrences[7]?.startsAt.toISOString()).toBe("2024-02-19T17:00:00.000Z");
+  });
+
+  it("preserves local wall-clock time in the configured timezone", () => {
+    const dtstart = parseLocalDateTimeInTimeZone("2024-01-01T17:00:00", "Europe/Berlin");
+    const occurrences = buildWeeklySessionOccurrences({
+      dtstart: dtstart!,
+      durationMinutes: 90,
+      rrule: "FREQ=WEEKLY;BYDAY=MO",
+      maxOccurrences: 2,
+      timezone: "Europe/Berlin",
+    });
+
+    expect(occurrences[0]?.startsAt.toISOString()).toBe("2024-01-01T16:00:00.000Z");
+    expect(occurrences[1]?.startsAt.toISOString()).toBe("2024-01-08T16:00:00.000Z");
   });
 });

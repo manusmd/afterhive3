@@ -14,7 +14,11 @@ export async function GET(request: Request) {
 
   const session = await getAdminSessionContext(tenantSlug, request.headers);
 
-  if (!session || !canReadOffers(session.roles, session.locationIds)) {
+  if (!session) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  if (!canReadOffers(session.roles, session.locationIds)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 

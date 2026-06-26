@@ -1,3 +1,5 @@
+import { addDaysInTimeZone, getZonedWeekday } from "./timezone";
+
 const BYDAY_TO_JS_DAY: Record<string, number> = {
   SU: 0,
   MO: 1,
@@ -73,28 +75,29 @@ export function buildWeeklySessionOccurrences(input: {
   durationMinutes: number;
   rrule: string;
   maxOccurrences: number;
+  timezone: string;
 }): WeeklySessionOccurrence[] {
   const targetDay = parseWeeklyByDay(input.rrule);
   if (targetDay === null || input.maxOccurrences < 1) {
     return [];
   }
 
-  const occurrences: WeeklySessionOccurrence[] = [];
-  const cursor = new Date(input.dtstart);
+  let cursor = new Date(input.dtstart.getTime());
 
-  while (cursor.getUTCDay() !== targetDay) {
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  while (getZonedWeekday(cursor, input.timezone) !== targetDay) {
+    cursor = addDaysInTimeZone(cursor, 1, input.timezone);
   }
 
-  while (occurrences.length < input.maxOccurrences) {
-    const startsAt = new Date(cursor);
-    const endsAt = new Date(startsAt.getTime() + input.durationMinutes * 60_000);
+  const occurrences: WeeklySessionOccurrence[] = [];
 
-    if (startsAt >= input.dtstart) {
+  while (occurrences.length < input.maxOccurrences) {
+    if (cursor >= input.dtstart) {
+      const startsAt = new Date(cursor.getTime());
+      const endsAt = new Date(startsAt.getTime() + input.durationMinutes * 60_000);
       occurrences.push({ startsAt, endsAt });
     }
 
-    cursor.setUTCDate(cursor.getUTCDate() + 7);
+    cursor = addDaysInTimeZone(cursor, 7, input.timezone);
   }
 
   return occurrences;
