@@ -24,7 +24,9 @@ pnpm test
 ```
 
 5. Commit with a message that references the ticket when relevant.
-6. Open a PR from the feature branch into `main`.
+6. Push the branch and open a PR from the feature branch into `main`.
+
+When the user asks to **push**, always push **and** open the PR in the same turn (unless a PR for that branch already exists).
 
 ### Branch naming
 
@@ -101,6 +103,7 @@ Link commits and PRs to the Linear issue when possible.
 ## Pull requests
 
 - One PR per ticket / branch.
+- **Push implies PR:** if the user says push (or commit and push), push to origin and create the PR with `gh pr create` before finishing — do not stop at push only.
 - Summary: what changed and why (not a file list).
 - Test plan: commands run (`pnpm test`, manual URLs, seed data used).
 - Do not commit `.env` or secrets.
