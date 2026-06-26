@@ -27,7 +27,11 @@
     "./location/list-locations": "./src/location/list-locations.ts",
     "./location/create-location": "./src/location/create-location.ts",
     "./location/can-manage-locations": "./src/location/can-manage-locations.ts",
-    "./location/location-name": "./src/location/location-name.ts"
+    "./location/location-name": "./src/location/location-name.ts",
+    "./location/location-scope": "./src/location/location-scope.ts",
+    "./location/role-location-scope": "./src/location/role-location-scope.ts",
+    "./crm/list-leads": "./src/crm/list-leads.ts",
+    "./crm/can-read-leads": "./src/crm/can-read-leads.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -46,7 +46,13 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof InviteStaffError) {
-      return NextResponse.json({ error: error.code }, { status: 409 });
+      const status =
+        error.code === "tenant_not_found"
+          ? 404
+          : error.code === "locations_required"
+            ? 400
+            : 409;
+      return NextResponse.json({ error: error.code }, { status });
     }
 
     throw error;
