@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { getEnv } from "@afterhive/shared/env";
 import * as schema from "./schema";
 
 export type Db = ReturnType<typeof createDb>;
@@ -13,7 +14,7 @@ export function createDb(connectionString: string) {
 }
 
 export function getDb(connectionString?: string): Db {
-  const url = connectionString ?? process.env.DATABASE_URL;
+  const url = connectionString ?? getEnv().DATABASE_URL;
   if (!url) {
     throw new Error("DATABASE_URL is required");
   }
