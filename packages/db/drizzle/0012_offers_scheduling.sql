@@ -44,7 +44,8 @@ BEGIN
 
     SELECT COUNT(*) INTO v_enrolled_count
     FROM enrollments e
-    WHERE e.offer_group_id = group_row.id;
+    WHERE e.offer_group_id = group_row.id
+      AND e.status = 'active';
 
     new_offer_id := gen_random_uuid();
 
@@ -117,4 +118,5 @@ CREATE TABLE "sessions" (
 --> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_offer_group_id_offer_groups_id_fk" FOREIGN KEY ("offer_group_id") REFERENCES "public"."offer_groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_location_id_locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."locations"("id") ON DELETE restrict ON UPDATE no action;
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_location_id_locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."locations"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "sessions_offer_group_id_starts_at_unique" ON "sessions" ("offer_group_id", "starts_at");

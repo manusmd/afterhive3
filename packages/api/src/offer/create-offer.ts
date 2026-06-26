@@ -13,7 +13,7 @@ import type { SessionContext } from "@afterhive/domain";
 import { listTenantLocations } from "../auth/tenant-locations";
 import { isWithinLocationScope } from "../location/location-scope";
 import { canCreateOffer, resolveOfferCreateLocationIds } from "./can-create-offer";
-import { buildWeeklySessionOccurrences } from "../schedule/build-weekly-sessions";
+import { buildWeeklySessionOccurrences, isValidWeeklySingleDayRrule } from "../schedule/build-weekly-sessions";
 
 export type CreateOfferInput = {
   name: string;
@@ -109,7 +109,7 @@ export function validateCreateOfferInput(input: CreateOfferInput) {
     return "invalid_recurrence" as const;
   }
 
-  if (!input.recurrence.rrule.includes("FREQ=WEEKLY")) {
+  if (!isValidWeeklySingleDayRrule(input.recurrence.rrule)) {
     return "invalid_recurrence" as const;
   }
 

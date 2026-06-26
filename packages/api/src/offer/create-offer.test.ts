@@ -77,4 +77,23 @@ describe("validateCreateOfferInput", () => {
       }),
     ).toBe("missing_fields");
   });
+
+  it("rejects multi-day weekly recurrence", () => {
+    expect(
+      validateCreateOfferInput({
+        name: "Kids course",
+        type: "course",
+        locationId: "loc-1",
+        groupName: "Group A",
+        capacity: 20,
+        recurrence: {
+          dtstart: "2024-01-01T17:00:00.000Z",
+          durationMinutes: 90,
+          rrule: "FREQ=WEEKLY;BYDAY=MO,WE",
+          timezone: "Europe/Berlin",
+          generateWeeks: 8,
+        },
+      }),
+    ).toBe("invalid_recurrence");
+  });
 });

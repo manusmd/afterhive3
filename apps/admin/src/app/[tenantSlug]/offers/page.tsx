@@ -3,7 +3,7 @@ import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { listOfferFormLocations } from "@afterhive/api/offer/create-offer";
 import { listOffers } from "@afterhive/api/offer/list-offers";
-import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
+import { createTranslator, DEFAULT_LOCALE, getMessages, translateOfferStatus, translateOfferType } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -71,7 +71,8 @@ export default async function OffersPage({ params }: OffersPageProps) {
           ) : (
             offers.map((offer) => (
               <Typography key={offer.offerId}>
-                {offer.name} · {offer.type} · {offer.status}
+                {offer.name} · {translateOfferType(t, offer.type)} ·{" "}
+                {translateOfferStatus(t, offer.status)}
               </Typography>
             ))
           )}

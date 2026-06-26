@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
 import {
   offerGroups,
@@ -6,7 +6,10 @@ import {
   sessions,
   tenants,
 } from "@afterhive/db/schema";
-import { buildWeeklySessionOccurrences } from "./build-weekly-sessions";
+import {
+  buildWeeklySessionOccurrences,
+  isValidWeeklySingleDayRrule,
+} from "./build-weekly-sessions";
 
 export type GenerateSessionsInput = {
   tenantId: string;
@@ -76,6 +79,10 @@ export async function generateSessions(
     throw new GenerateSessionsError("recurrence_not_found");
   }
 
+  if (!isValidWeeklySingleDayRrule(rule.rrule)) {
+    throw new GenerateSessionsError("invalid_recurrence");
+  }
+
   const occurrences = buildWeeklySessionOccurrences({
     dtstart: rule.dtstart,
     durationMinutes: rule.durationMinutes,
@@ -87,8 +94,31 @@ export async function generateSessions(
     throw new GenerateSessionsError("invalid_recurrence");
   }
 
+  const startsAtValues = occurrences.map((occurrence) => occurrence.startsAt);
+  const existingRows =
+    startsAtValues.length === 0
+      ? []
+      : await db
+          .select({ startsAt: sessions.startsAt })
+          .from(sessions)
+          .where(
+            and(
+              eq(sessions.offerGroupId, group.id),
+              inArray(sessions.startsAt, startsAtValues),
+            ),
+          );
+
+  const existingStartsAt = new Set(existingRows.map((row) => row.startsAt.getTime()));
+  const newOccurrences = occurrences.filter(
+    (occurrence) => !existingStartsAt.has(occurrence.startsAt.getTime()),
+  );
+
+  if (newOccurrences.length === 0) {
+    return 0;
+  }
+
   await db.insert(sessions).values(
-    occurrences.map((occurrence) => ({
+    newOccurrences.map((occurrence) => ({
       tenantId: input.tenantId,
       offerGroupId: group.id,
       locationId: group.locationId,
@@ -98,5 +128,5 @@ export async function generateSessions(
     })),
   );
 
-  return occurrences.length;
+  return newOccurrences.length;
 }

@@ -8,8 +8,26 @@ const BYDAY_TO_JS_DAY: Record<string, number> = {
   SA: 6,
 };
 
-export function parseWeeklyByDay(rrule: string): number | null {
+export function isValidWeeklySingleDayRrule(rrule: string): boolean {
   if (!rrule.includes("FREQ=WEEKLY")) {
+    return false;
+  }
+
+  const match = rrule.match(/BYDAY=([A-Z,]+)/);
+  if (!match) {
+    return false;
+  }
+
+  const days = match[1].split(",").filter((day) => day.length > 0);
+  if (days.length !== 1) {
+    return false;
+  }
+
+  return BYDAY_TO_JS_DAY[days[0]] !== undefined;
+}
+
+export function parseWeeklyByDay(rrule: string): number | null {
+  if (!isValidWeeklySingleDayRrule(rrule)) {
     return null;
   }
 

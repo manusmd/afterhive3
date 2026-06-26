@@ -46,6 +46,20 @@ const STAFF_ROLE_KEYS = {
   tenant_location_manager: "admin.team.roles.locationManager",
 } as const;
 
+const OFFER_TYPE_KEYS = {
+  team: "admin.offers.type.team",
+  course: "admin.offers.type.course",
+  workshop: "admin.offers.type.workshop",
+  subscription: "admin.offers.type.subscription",
+} as const;
+
+const OFFER_STATUS_KEYS = {
+  draft: "admin.offers.status.draft",
+  internal: "admin.offers.status.internal",
+  published: "admin.offers.status.published",
+  archived: "admin.offers.status.archived",
+} as const;
+
 function translateMappedValue(
   t: Translator,
   value: string,
@@ -77,4 +91,12 @@ export function translateLeadSource(t: Translator, source: string): string {
 
 export function translateStaffRole(t: Translator, role: string): string {
   return translateMappedValue(t, role, STAFF_ROLE_KEYS);
+}
+
+export function translateOfferType(t: Translator, type: string): string {
+  return translateMappedValue(t, type, OFFER_TYPE_KEYS);
+}
+
+export function translateOfferStatus(t: Translator, status: string): string {
+  return translateMappedValue(t, status, OFFER_STATUS_KEYS);
 }

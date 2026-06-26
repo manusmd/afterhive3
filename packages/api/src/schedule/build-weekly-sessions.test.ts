@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { buildWeeklySessionOccurrences, parseWeeklyByDay } from "./build-weekly-sessions";
+import {
+  buildWeeklySessionOccurrences,
+  isValidWeeklySingleDayRrule,
+  parseWeeklyByDay,
+} from "./build-weekly-sessions";
+
+describe("isValidWeeklySingleDayRrule", () => {
+  it("accepts a single weekly BYDAY", () => {
+    expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;BYDAY=MO")).toBe(true);
+  });
+
+  it("rejects multi-day weekly rules", () => {
+    expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;BYDAY=MO,WE")).toBe(false);
+  });
+
+  it("rejects non-weekly rules", () => {
+    expect(isValidWeeklySingleDayRrule("FREQ=DAILY;BYDAY=MO")).toBe(false);
+  });
+});
 
 describe("parseWeeklyByDay", () => {
   it("parses weekly BYDAY", () => {

@@ -328,6 +328,18 @@
         "title": "Angebote ({count})",
         "empty": "Noch keine Angebote."
       },
+      "type": {
+        "team": "Team",
+        "course": "Kurs",
+        "workshop": "Workshop",
+        "subscription": "Abo"
+      },
+      "status": {
+        "draft": "Entwurf",
+        "internal": "Intern",
+        "published": "Veroeffentlicht",
+        "archived": "Archiviert"
+      },
       "create": {
         "name": { "label": "Angebotsname" },
         "groupName": { "label": "Gruppenname" },
