@@ -18,14 +18,73 @@ CREATE TABLE "offers" (
 --> statement-breakpoint
 ALTER TABLE "offers" ADD CONSTRAINT "offers_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "offers" ADD CONSTRAINT "offers_location_id_locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."locations"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
-DELETE FROM "enrollments";--> statement-breakpoint
-DELETE FROM "offer_groups";--> statement-breakpoint
-ALTER TABLE "offer_groups" ADD COLUMN "offer_id" uuid NOT NULL;--> statement-breakpoint
-ALTER TABLE "offer_groups" ADD COLUMN "capacity" integer NOT NULL;--> statement-breakpoint
-ALTER TABLE "offer_groups" ADD COLUMN "enrolled_count" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
-ALTER TABLE "offer_groups" ADD COLUMN "waitlist_enabled" boolean DEFAULT false NOT NULL;--> statement-breakpoint
-ALTER TABLE "offer_groups" ADD COLUMN "location_id" uuid NOT NULL;--> statement-breakpoint
-ALTER TABLE "offer_groups" ADD COLUMN "status" "offer_group_status" DEFAULT 'open' NOT NULL;--> statement-breakpoint
+ALTER TABLE "offer_groups" ADD COLUMN "offer_id" uuid;--> statement-breakpoint
+ALTER TABLE "offer_groups" ADD COLUMN "capacity" integer;--> statement-breakpoint
+ALTER TABLE "offer_groups" ADD COLUMN "enrolled_count" integer DEFAULT 0;--> statement-breakpoint
+ALTER TABLE "offer_groups" ADD COLUMN "waitlist_enabled" boolean DEFAULT false;--> statement-breakpoint
+ALTER TABLE "offer_groups" ADD COLUMN "location_id" uuid;--> statement-breakpoint
+ALTER TABLE "offer_groups" ADD COLUMN "status" "offer_group_status" DEFAULT 'open';--> statement-breakpoint
+DO $$
+DECLARE
+  group_row RECORD;
+  new_offer_id uuid;
+  v_location_id uuid;
+  v_enrolled_count integer;
+BEGIN
+  FOR group_row IN SELECT id, tenant_id, name FROM offer_groups LOOP
+    SELECT l.id INTO v_location_id
+    FROM locations l
+    WHERE l.tenant_id = group_row.tenant_id
+    ORDER BY l.created_at ASC
+    LIMIT 1;
+
+    IF v_location_id IS NULL THEN
+      RAISE EXCEPTION 'Cannot backfill offer_group %: tenant has no location', group_row.id;
+    END IF;
+
+    SELECT COUNT(*) INTO v_enrolled_count
+    FROM enrollments e
+    WHERE e.offer_group_id = group_row.id;
+
+    new_offer_id := gen_random_uuid();
+
+    INSERT INTO offers (
+      id,
+      tenant_id,
+      name,
+      location_id,
+      type,
+      vertical,
+      status,
+      capacity_default
+    ) VALUES (
+      new_offer_id,
+      group_row.tenant_id,
+      group_row.name,
+      v_location_id,
+      'course',
+      'core',
+      'draft',
+      20
+    );
+
+    UPDATE offer_groups
+    SET
+      offer_id = new_offer_id,
+      capacity = 20,
+      enrolled_count = v_enrolled_count,
+      waitlist_enabled = false,
+      location_id = v_location_id,
+      status = 'open'
+    WHERE id = group_row.id;
+  END LOOP;
+END $$;--> statement-breakpoint
+ALTER TABLE "offer_groups" ALTER COLUMN "offer_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "offer_groups" ALTER COLUMN "capacity" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "offer_groups" ALTER COLUMN "enrolled_count" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "offer_groups" ALTER COLUMN "waitlist_enabled" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "offer_groups" ALTER COLUMN "location_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "offer_groups" ALTER COLUMN "status" SET NOT NULL;--> statement-breakpoint
 ALTER TABLE "offer_groups" ADD CONSTRAINT "offer_groups_offer_id_offers_id_fk" FOREIGN KEY ("offer_id") REFERENCES "public"."offers"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "offer_groups" ADD CONSTRAINT "offer_groups_location_id_locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."locations"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 CREATE TABLE "recurrence_rules" (

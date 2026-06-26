@@ -12,7 +12,7 @@ export type GenerateSessionsInput = {
   tenantId: string;
   tenantSlug: string;
   offerGroupId: string;
-  rangeEnd: Date;
+  maxOccurrences: number;
 };
 
 export class GenerateSessionsError extends Error {
@@ -80,7 +80,7 @@ export async function generateSessions(
     dtstart: rule.dtstart,
     durationMinutes: rule.durationMinutes,
     rrule: rule.rrule,
-    rangeEnd: input.rangeEnd,
+    maxOccurrences: input.maxOccurrences,
   });
 
   if (occurrences.length === 0) {

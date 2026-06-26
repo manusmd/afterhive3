@@ -42,7 +42,7 @@ export default async function OffersPage({ params }: OffersPageProps) {
   }
 
   const locations = await listOfferFormLocations(session, tenantSlug);
-  const offers = await listOffers(tenantSlug);
+  const offers = await listOffers(session, tenantSlug);
 
   return (
     <SurfaceShell surface="admin" title={pageTitle}>

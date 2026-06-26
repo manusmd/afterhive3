@@ -9,18 +9,31 @@ describe("parseWeeklyByDay", () => {
 });
 
 describe("buildWeeklySessionOccurrences", () => {
-  it("generates weekly sessions through range end", () => {
+  it("generates exactly maxOccurrences weekly sessions", () => {
     const dtstart = new Date("2024-01-01T17:00:00.000Z");
-    const rangeEnd = new Date("2024-01-21T23:59:59.000Z");
     const occurrences = buildWeeklySessionOccurrences({
       dtstart,
       durationMinutes: 90,
       rrule: "FREQ=WEEKLY;BYDAY=MO",
-      rangeEnd,
+      maxOccurrences: 3,
     });
 
     expect(occurrences).toHaveLength(3);
     expect(occurrences[0]?.startsAt.toISOString()).toBe("2024-01-01T17:00:00.000Z");
     expect(occurrences[0]?.endsAt.toISOString()).toBe("2024-01-01T18:30:00.000Z");
+    expect(occurrences[2]?.startsAt.toISOString()).toBe("2024-01-15T17:00:00.000Z");
+  });
+
+  it("does not produce an extra session when dtstart matches BYDAY", () => {
+    const dtstart = new Date("2024-01-01T17:00:00.000Z");
+    const occurrences = buildWeeklySessionOccurrences({
+      dtstart,
+      durationMinutes: 90,
+      rrule: "FREQ=WEEKLY;BYDAY=MO",
+      maxOccurrences: 8,
+    });
+
+    expect(occurrences).toHaveLength(8);
+    expect(occurrences[7]?.startsAt.toISOString()).toBe("2024-02-19T17:00:00.000Z");
   });
 });

@@ -38,12 +38,15 @@ export type CreateOfferResult = {
   sessionCount: number;
 };
 
+const OFFER_TYPES = ["team", "course", "workshop", "subscription"] as const;
+
 export class CreateOfferError extends Error {
   constructor(
     readonly code:
       | "tenant_not_found"
       | "forbidden"
       | "missing_fields"
+      | "invalid_type"
       | "invalid_location"
       | "location_forbidden"
       | "invalid_capacity"
@@ -89,6 +92,10 @@ export function validateCreateOfferInput(input: CreateOfferInput) {
     input.recurrence.generateWeeks < 1
   ) {
     return "missing_fields" as const;
+  }
+
+  if (!(OFFER_TYPES as readonly string[]).includes(input.type)) {
+    return "invalid_type" as const;
   }
 
   if (input.name.length > MAX_NAME_LENGTH || input.groupName.length > MAX_NAME_LENGTH) {
@@ -137,6 +144,9 @@ export async function createOffer(
   const validationError = validateCreateOfferInput(input);
   if (validationError === "missing_fields") {
     throw new CreateOfferError("missing_fields");
+  }
+  if (validationError === "invalid_type") {
+    throw new CreateOfferError("invalid_type");
   }
   if (validationError === "invalid_recurrence") {
     throw new CreateOfferError("invalid_recurrence");
@@ -219,7 +229,7 @@ export async function createOffer(
       dtstart,
       durationMinutes: input.recurrence.durationMinutes,
       rrule: input.recurrence.rrule.trim(),
-      rangeEnd,
+      maxOccurrences: input.recurrence.generateWeeks,
     });
 
     if (occurrences.length === 0) {

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  const items = await listOffers(tenantSlug);
+  const items = await listOffers(session, tenantSlug);
   return NextResponse.json({ items });
 }
 

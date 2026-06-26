@@ -30,10 +30,10 @@ export function buildWeeklySessionOccurrences(input: {
   dtstart: Date;
   durationMinutes: number;
   rrule: string;
-  rangeEnd: Date;
+  maxOccurrences: number;
 }): WeeklySessionOccurrence[] {
   const targetDay = parseWeeklyByDay(input.rrule);
-  if (targetDay === null) {
+  if (targetDay === null || input.maxOccurrences < 1) {
     return [];
   }
 
@@ -44,7 +44,7 @@ export function buildWeeklySessionOccurrences(input: {
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
 
-  while (cursor <= input.rangeEnd) {
+  while (occurrences.length < input.maxOccurrences) {
     const startsAt = new Date(cursor);
     const endsAt = new Date(startsAt.getTime() + input.durationMinutes * 60_000);
 
