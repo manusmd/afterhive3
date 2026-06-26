@@ -369,6 +369,29 @@
         }
       }
     },
+    "enrollment": {
+      "enroll": {
+        "title": "Mitglied einschreiben",
+        "member": { "label": "Mitglied" },
+        "offerGroup": { "label": "Angebotsgruppe" },
+        "submit": "Einschreiben",
+        "success": {
+          "enrolled": "Einschreibung angelegt (Status: ausstehend).",
+          "waitlisted": "Auf Warteliste gesetzt (Position {position})."
+        },
+        "error": {
+          "missingFields": "Mitglied und Angebotsgruppe sind erforderlich.",
+          "memberNotFound": "Mitglied nicht gefunden.",
+          "offerGroupNotFound": "Angebotsgruppe nicht gefunden.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "groupClosed": "Diese Gruppe ist geschlossen.",
+          "groupFull": "Gruppe ist voll und Warteliste ist deaktiviert.",
+          "alreadyEnrolled": "Mitglied ist bereits eingeschrieben.",
+          "alreadyWaitlisted": "Mitglied steht bereits auf der Warteliste.",
+          "default": "Einschreibung fehlgeschlagen."
+        }
+      }
+    },
     "settings": {
       "forbidden": {
         "message": "Ihr Konto hat keine Berechtigung fuer diesen Bereich.",

@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
-import { enrollments, memberProfiles, persons, tenants } from "@afterhive/db/schema";
+import { enrollments, memberProfiles, offerGroups, persons, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { canActivateEnrollment } from "./can-activate-enrollment";
 
@@ -39,6 +39,7 @@ export async function activateEnrollment(
     const [row] = await tx
       .select({
         enrollmentId: enrollments.id,
+        offerGroupId: enrollments.offerGroupId,
         enrollmentStatus: enrollments.status,
         enrolledAt: enrollments.enrolledAt,
         consentStatus: memberProfiles.consentStatus,
@@ -94,6 +95,25 @@ export async function activateEnrollment(
     if (!updated?.activatedAt) {
       throw new ActivateEnrollmentError("invalid_status");
     }
+
+    const [group] = await tx
+      .select({
+        capacity: offerGroups.capacity,
+        enrolledCount: offerGroups.enrolledCount,
+      })
+      .from(offerGroups)
+      .where(eq(offerGroups.id, row.offerGroupId))
+      .limit(1);
+
+    const nextEnrolledCount = (group?.enrolledCount ?? 0) + 1;
+
+    await tx
+      .update(offerGroups)
+      .set({
+        enrolledCount: nextEnrolledCount,
+        ...(group && nextEnrolledCount >= group.capacity ? { status: "full" as const } : {}),
+      })
+      .where(eq(offerGroups.id, row.offerGroupId));
 
     return {
       enrollmentId: updated.id,
