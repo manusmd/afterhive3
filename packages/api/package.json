@@ -51,7 +51,9 @@
     "./auth/portal-auth": "./src/auth/portal-auth.ts",
     "./auth/portal-route-handler": "./src/auth/portal-route-handler.ts",
     "./auth/get-portal-session": "./src/auth/get-portal-session.ts",
-    "./portal/grant-consent": "./src/portal/grant-consent.ts"
+    "./portal/grant-consent": "./src/portal/grant-consent.ts",
+    "./gdpr/can-export-person": "./src/gdpr/can-export-person.ts",
+    "./gdpr/export-person": "./src/gdpr/export-person.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -64,6 +66,7 @@
     "@afterhive/shared": "workspace:*",
     "better-auth": "^1.6.22",
     "drizzle-orm": "^0.45.2",
+    "fflate": "^0.8.3",
     "ioredis": "^5.6.1"
   },
   "devDependencies": {

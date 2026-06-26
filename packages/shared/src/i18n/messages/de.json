@@ -255,7 +255,8 @@
       },
       "table": {
         "name": "Name",
-        "createdAt": "Angelegt"
+        "createdAt": "Angelegt",
+        "privacy": "Datenschutz"
       },
       "merge": {
         "title": "Personen zusammenfuehren",
@@ -271,6 +272,20 @@
           "alreadyDeleted": "Person wurde bereits geloescht.",
           "forbidden": "Keine Berechtigung.",
           "default": "Zusammenfuehrung fehlgeschlagen."
+        }
+      },
+      "privacy": {
+        "title": "Datenschutz",
+        "link": "Datenschutz",
+        "description": "Exportieren Sie alle gespeicherten Personendaten als ZIP-Archiv mit Kategorien.",
+        "export": {
+          "submit": "Daten exportieren",
+          "submitting": "Export wird erstellt…",
+          "error": {
+            "personNotFound": "Person nicht gefunden.",
+            "forbidden": "Keine Berechtigung.",
+            "default": "Export fehlgeschlagen."
+          }
         }
       }
     },
