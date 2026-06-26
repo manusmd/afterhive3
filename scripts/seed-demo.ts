@@ -23,6 +23,7 @@ import {
   tenantMemberships,
   tenantSubscriptions,
   tenants,
+  waitlistEntries,
   user,
 } from "@afterhive/db/schema";
 
@@ -34,6 +35,7 @@ async function main() {
 
   await db.delete(consentRecords);
   await db.delete(documents);
+  await db.delete(waitlistEntries);
   await db.delete(enrollments);
   await db.delete(sessions);
   await db.delete(recurrenceRules);

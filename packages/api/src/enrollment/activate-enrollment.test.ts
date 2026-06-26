@@ -5,6 +5,7 @@ import { ActivateEnrollmentError, activateEnrollment } from "./activate-enrollme
 const tenantId = "tenant-1";
 const tenantSlug = "demo-club";
 const enrollmentId = "enrollment-1";
+const offerGroupId = "group-1";
 
 const getDb = vi.hoisted(() => vi.fn());
 
@@ -22,6 +23,7 @@ const ownerSession: SessionContext = {
 
 type MockEnrollmentRow = {
   enrollmentId: string;
+  offerGroupId: string;
   enrollmentStatus: string;
   enrolledAt: Date;
   consentStatus: string;
@@ -33,7 +35,11 @@ const defaultEnrolledAt = new Date("2026-06-26T12:00:00.000Z");
 function mockTransaction(options: {
   row: MockEnrollmentRow | null;
   updated?: { id: string; status: string; activatedAt: Date } | null;
+  offerGroup?: { capacity: number; enrolledCount: number } | null;
 }) {
+  let innerJoinWhereCall = 0;
+  let directWhereCall = 0;
+
   getDb.mockReturnValue({
     transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) => {
       const tx = {
@@ -42,14 +48,34 @@ function mockTransaction(options: {
             innerJoin: () => ({
               innerJoin: () => ({
                 innerJoin: () => ({
-                  where: () => ({
-                    for: () => ({
-                      limit: () => Promise.resolve(options.row ? [options.row] : []),
-                    }),
-                  }),
+                  where: () => {
+                    innerJoinWhereCall += 1;
+
+                    return {
+                      for: () => ({
+                        limit: () => Promise.resolve(options.row ? [options.row] : []),
+                      }),
+                    };
+                  },
                 }),
               }),
             }),
+            where: () => {
+              directWhereCall += 1;
+
+              return {
+                for: () => ({
+                  limit: () =>
+                    Promise.resolve(
+                      options.offerGroup === undefined
+                        ? [{ capacity: 20, enrolledCount: 5 }]
+                        : options.offerGroup
+                          ? [options.offerGroup]
+                          : [],
+                    ),
+                }),
+              };
+            },
           }),
         }),
         update: () => ({
@@ -96,6 +122,7 @@ describe("activateEnrollment", () => {
     mockTransaction({
       row: {
         enrollmentId,
+        offerGroupId,
         enrollmentStatus: "active",
         enrolledAt: defaultEnrolledAt,
         consentStatus: "complete",
@@ -112,6 +139,7 @@ describe("activateEnrollment", () => {
     mockTransaction({
       row: {
         enrollmentId,
+        offerGroupId,
         enrollmentStatus: "pending",
         enrolledAt: defaultEnrolledAt,
         consentStatus: "pending",
@@ -124,10 +152,29 @@ describe("activateEnrollment", () => {
     });
   });
 
+  it("throws group_full when the offer group is at capacity", async () => {
+    mockTransaction({
+      row: {
+        enrollmentId,
+        offerGroupId,
+        enrollmentStatus: "pending",
+        enrolledAt: defaultEnrolledAt,
+        consentStatus: "complete",
+        dateOfBirth: "1990-01-01",
+      },
+      offerGroup: { capacity: 20, enrolledCount: 20 },
+    });
+
+    await expect(activateEnrollment(ownerSession, tenantSlug, enrollmentId)).rejects.toMatchObject({
+      code: "group_full",
+    });
+  });
+
   it("activates adult enrollments with pending consent", async () => {
     mockTransaction({
       row: {
         enrollmentId,
+        offerGroupId,
         enrollmentStatus: "pending",
         enrolledAt: defaultEnrolledAt,
         consentStatus: "pending",
@@ -145,6 +192,7 @@ describe("activateEnrollment", () => {
     mockTransaction({
       row: {
         enrollmentId,
+        offerGroupId,
         enrollmentStatus: "pending",
         enrolledAt: defaultEnrolledAt,
         consentStatus: "complete",
@@ -161,6 +209,7 @@ describe("activateEnrollment", () => {
     mockTransaction({
       row: {
         enrollmentId,
+        offerGroupId,
         enrollmentStatus: "pending",
         enrolledAt: new Date("2026-06-26T12:00:00.000Z"),
         consentStatus: "pending",

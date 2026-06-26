@@ -48,6 +48,8 @@
     "./member/is-minor": "./src/member/is-minor.ts",
     "./enrollment/can-activate-enrollment": "./src/enrollment/can-activate-enrollment.ts",
     "./enrollment/activate-enrollment": "./src/enrollment/activate-enrollment.ts",
+    "./enrollment/can-enroll-member": "./src/enrollment/can-enroll-member.ts",
+    "./enrollment/enroll-member": "./src/enrollment/enroll-member.ts",
     "./auth/portal-auth": "./src/auth/portal-auth.ts",
     "./auth/portal-route-handler": "./src/auth/portal-route-handler.ts",
     "./auth/get-portal-session": "./src/auth/get-portal-session.ts",

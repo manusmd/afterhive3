@@ -39,13 +39,21 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     if (error instanceof ActivateEnrollmentError) {
-      const status =
-        error.code === "tenant_not_found" || error.code === "enrollment_not_found"
-          ? 404
-          : error.code === "consent_required"
-            ? 403
-            : 400;
-      return NextResponse.json({ error: error.code }, { status });
+      switch (error.code) {
+        case "tenant_not_found":
+        case "enrollment_not_found":
+          return NextResponse.json({ error: error.code }, { status: 404 });
+        case "consent_required":
+          return NextResponse.json({ error: error.code }, { status: 403 });
+        case "group_full":
+          return NextResponse.json({ error: error.code }, { status: 409 });
+        case "invalid_status":
+          return NextResponse.json({ error: error.code }, { status: 400 });
+        default: {
+          const _exhaustive: never = error.code;
+          return NextResponse.json({ error: _exhaustive }, { status: 400 });
+        }
+      }
     }
 
     throw error;

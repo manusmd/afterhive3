@@ -369,6 +369,35 @@
         }
       }
     },
+    "enrollment": {
+      "enroll": {
+        "title": "Mitglied einschreiben",
+        "member": { "label": "Mitglied" },
+        "offerGroup": { "label": "Angebotsgruppe" },
+        "submit": "Einschreiben",
+        "success": {
+          "active": "Mitglied aktiv eingeschrieben.",
+          "pending": "Einschreibung angelegt (Status: ausstehend, Einwilligung erforderlich).",
+          "waitlisted": "Auf Warteliste gesetzt (Position {position})."
+        },
+        "empty": {
+          "noMembersOrGroups": "Keine Mitglieder oder Angebotsgruppen verfuegbar.",
+          "noOfferGroups": "Keine Angebotsgruppen verfuegbar. Erstellen Sie zuerst ein Angebot.",
+          "noMembers": "Keine Mitglieder verfuegbar. Konvertieren Sie zuerst einen Lead."
+        },
+        "error": {
+          "missingFields": "Mitglied und Angebotsgruppe sind erforderlich.",
+          "memberNotFound": "Mitglied nicht gefunden.",
+          "offerGroupNotFound": "Angebotsgruppe nicht gefunden.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "groupClosed": "Diese Gruppe ist geschlossen.",
+          "groupFull": "Gruppe ist voll und Warteliste ist deaktiviert.",
+          "alreadyEnrolled": "Mitglied ist bereits eingeschrieben.",
+          "alreadyWaitlisted": "Mitglied steht bereits auf der Warteliste.",
+          "default": "Einschreibung fehlgeschlagen."
+        }
+      }
+    },
     "settings": {
       "forbidden": {
         "message": "Ihr Konto hat keine Berechtigung fuer diesen Bereich.",

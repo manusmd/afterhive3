@@ -1,4 +1,6 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { canEnrollMember } from "@afterhive/api/enrollment/can-enroll-member";
+import { listEnrollFormOptions } from "@afterhive/api/enrollment/enroll-member";
 import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { listOfferFormLocations } from "@afterhive/api/offer/create-offer";
@@ -12,6 +14,7 @@ import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { CreateOfferForm } from "./CreateOfferForm";
+import { EnrollMemberForm } from "./EnrollMemberForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
@@ -47,7 +50,13 @@ export default async function OffersPage({ params }: OffersPageProps) {
     session.locationIds,
     session.roleAssignments,
   );
+  const showEnrollForm = canEnrollMember(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
   const locations = showCreateForm ? await listOfferFormLocations(session, tenantSlug) : [];
+  const enrollOptions = showEnrollForm ? await listEnrollFormOptions(session, tenantSlug) : null;
   const offers = await listOffers(session, tenantSlug);
 
   return (
@@ -60,6 +69,23 @@ export default async function OffersPage({ params }: OffersPageProps) {
 
         {showCreateForm ? (
           <CreateOfferForm tenantSlug={tenantSlug} locations={locations} />
+        ) : null}
+
+        {showEnrollForm && enrollOptions ? (
+          <Stack spacing={1}>
+            <Typography variant="h6">{t("admin.enrollment.enroll.title")}</Typography>
+            <EnrollMemberForm
+              tenantSlug={tenantSlug}
+              offerGroups={enrollOptions.offerGroups.map((group) => ({
+                id: group.offerGroupId,
+                label: group.label,
+              }))}
+              members={enrollOptions.members.map((member) => ({
+                id: member.memberProfileId,
+                label: member.label,
+              }))}
+            />
+          </Stack>
         ) : null}
 
         <Stack spacing={2}>

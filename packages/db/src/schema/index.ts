@@ -11,6 +11,7 @@ export * from "./offer-groups";
 export * from "./recurrence-rules";
 export * from "./sessions";
 export * from "./enrollments";
+export * from "./waitlist-entries";
 export * from "./relationships";
 export * from "./consent-records";
 export * from "./documents";

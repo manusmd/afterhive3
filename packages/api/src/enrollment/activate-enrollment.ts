@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
-import { enrollments, memberProfiles, persons, tenants } from "@afterhive/db/schema";
+import { enrollments, memberProfiles, offerGroups, persons, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { canActivateEnrollment } from "./can-activate-enrollment";
 
@@ -16,7 +16,8 @@ export class ActivateEnrollmentError extends Error {
       | "tenant_not_found"
       | "enrollment_not_found"
       | "invalid_status"
-      | "consent_required",
+      | "consent_required"
+      | "group_full",
   ) {
     super(code);
     this.name = "ActivateEnrollmentError";
@@ -39,6 +40,7 @@ export async function activateEnrollment(
     const [row] = await tx
       .select({
         enrollmentId: enrollments.id,
+        offerGroupId: enrollments.offerGroupId,
         enrollmentStatus: enrollments.status,
         enrolledAt: enrollments.enrolledAt,
         consentStatus: memberProfiles.consentStatus,
@@ -78,6 +80,20 @@ export async function activateEnrollment(
       throw new ActivateEnrollmentError("consent_required");
     }
 
+    const [group] = await tx
+      .select({
+        capacity: offerGroups.capacity,
+        enrolledCount: offerGroups.enrolledCount,
+      })
+      .from(offerGroups)
+      .where(eq(offerGroups.id, row.offerGroupId))
+      .for("update")
+      .limit(1);
+
+    if (!group || group.enrolledCount >= group.capacity) {
+      throw new ActivateEnrollmentError("group_full");
+    }
+
     const [updated] = await tx
       .update(enrollments)
       .set({
@@ -94,6 +110,16 @@ export async function activateEnrollment(
     if (!updated?.activatedAt) {
       throw new ActivateEnrollmentError("invalid_status");
     }
+
+    const nextEnrolledCount = group.enrolledCount + 1;
+
+    await tx
+      .update(offerGroups)
+      .set({
+        enrolledCount: nextEnrolledCount,
+        ...(nextEnrolledCount >= group.capacity ? { status: "full" as const } : {}),
+      })
+      .where(eq(offerGroups.id, row.offerGroupId));
 
     return {
       enrollmentId: updated.id,
