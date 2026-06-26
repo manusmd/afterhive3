@@ -20,7 +20,7 @@ const officeSession: SessionContext = {
   surface: "tenant_admin",
   tenantId,
   tenantSlug: "demo-club",
-  roles: ["office_staff"],
+  roles: ["tenant_office"],
   locationIds: [locationNorth],
 };
 
@@ -107,7 +107,7 @@ describe("listLeads", () => {
       listLeads({
         userId: "staff-1",
         surface: "tenant_admin",
-        roles: ["office_staff"],
+        roles: ["tenant_office"],
       }),
     ).resolves.toEqual([]);
     expect(getDb).not.toHaveBeenCalled();

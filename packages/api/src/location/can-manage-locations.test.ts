@@ -9,7 +9,7 @@ describe("canViewLocations", () => {
   });
 
   it("denies office staff and coach", () => {
-    expect(canViewLocations(["office_staff"])).toBe(false);
+    expect(canViewLocations(["tenant_office"])).toBe(false);
     expect(canViewLocations(["tenant_coach"])).toBe(false);
     expect(canViewLocations([])).toBe(false);
   });
@@ -23,6 +23,6 @@ describe("canCreateLocation", () => {
 
   it("denies location manager and office staff", () => {
     expect(canCreateLocation(["tenant_location_manager"])).toBe(false);
-    expect(canCreateLocation(["office_staff"])).toBe(false);
+    expect(canCreateLocation(["tenant_office"])).toBe(false);
   });
 });

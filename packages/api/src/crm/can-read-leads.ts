@@ -1,7 +1,7 @@
 const LEAD_READERS = new Set([
   "tenant_owner",
   "tenant_admin",
-  "office_staff",
+  "tenant_office",
   "tenant_finance",
   "tenant_location_manager",
 ]);

@@ -5,13 +5,14 @@ describe("canReadLeads", () => {
   it("allows owner, admin, office, finance, and location manager", () => {
     expect(canReadLeads(["tenant_owner"])).toBe(true);
     expect(canReadLeads(["tenant_admin"])).toBe(true);
-    expect(canReadLeads(["office_staff"])).toBe(true);
+    expect(canReadLeads(["tenant_office"])).toBe(true);
     expect(canReadLeads(["tenant_finance"])).toBe(true);
     expect(canReadLeads(["tenant_location_manager"])).toBe(true);
   });
 
-  it("denies coach and empty roles", () => {
+  it("denies coach, legacy office_staff, and empty roles", () => {
     expect(canReadLeads(["tenant_coach"])).toBe(false);
+    expect(canReadLeads(["office_staff"])).toBe(false);
     expect(canReadLeads([])).toBe(false);
   });
 });

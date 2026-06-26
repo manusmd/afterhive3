@@ -101,7 +101,7 @@ async function main() {
   await db.insert(roleAssignments).values({
     tenantId: tenant.id,
     membershipId: staffMembership.id,
-    role: "office_staff",
+    role: "tenant_office",
     locationIds: [locationA.id],
   });
 
