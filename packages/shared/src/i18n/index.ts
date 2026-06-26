@@ -12,6 +12,8 @@ export function getMessages(locale: string = DEFAULT_LOCALE): Messages {
 export {
   translateLeadSource,
   translateLeadStatus,
+  translateOfferStatus,
+  translateOfferType,
   translateStaffRole,
   translateSubscriptionStatus,
   translateTenantPlan,

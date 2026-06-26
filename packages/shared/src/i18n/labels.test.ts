@@ -3,6 +3,8 @@ import { getMessages } from "./index";
 import {
   translateLeadSource,
   translateLeadStatus,
+  translateOfferStatus,
+  translateOfferType,
   translateStaffRole,
   translateSubscriptionStatus,
   translateTenantPlan,
@@ -26,6 +28,11 @@ describe("i18n display labels", () => {
 
   it("translates staff role codes", () => {
     expect(translateStaffRole(t, "tenant_office")).toBe("Buero");
+  });
+
+  it("translates offer type and status values", () => {
+    expect(translateOfferType(t, "course")).toBe("Kurs");
+    expect(translateOfferStatus(t, "draft")).toBe("Entwurf");
   });
 
   it("falls back to raw values for unknown codes", () => {

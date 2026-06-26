@@ -11,11 +11,14 @@ import {
   locations,
   memberProfiles,
   offerGroups,
+  offers,
   persons,
   platformMemberships,
+  recurrenceRules,
   relationships,
   roleAssignments,
   session,
+  sessions,
   staffInvites,
   tenantMemberships,
   tenantSubscriptions,
@@ -32,9 +35,12 @@ async function main() {
   await db.delete(consentRecords);
   await db.delete(documents);
   await db.delete(enrollments);
+  await db.delete(sessions);
+  await db.delete(recurrenceRules);
+  await db.delete(offerGroups);
+  await db.delete(offers);
   await db.delete(relationships);
   await db.delete(memberProfiles);
-  await db.delete(offerGroups);
   await db.delete(roleAssignments);
   await db.delete(staffInvites);
   await db.delete(leads);
