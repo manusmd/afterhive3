@@ -50,6 +50,13 @@
       "when": 1782483000000,
       "tag": "0006_lead_lost_reason",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1782484000000,
+      "tag": "0007_import_jobs",
+      "breakpoints": true
     }
   ]
 }

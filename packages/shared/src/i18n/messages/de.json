@@ -22,6 +22,8 @@
     },
     "nav": {
       "dashboard": "Dashboard",
+      "leads": "Leads",
+      "import": "Import",
       "locations": "Standorte",
       "team": "Team"
     },
@@ -34,6 +36,7 @@
       "signedInAs": "Angemeldet als {userId} in {tenantSlug}",
       "nav": {
         "leads": "Leads",
+        "import": "Import",
         "locations": "Standorte",
         "team": "Team"
       },
@@ -198,6 +201,48 @@
           "notFound": "Lead nicht gefunden.",
           "default": "Status konnte nicht aktualisiert werden."
         }
+      }
+    },
+    "import": {
+      "title": "CSV-Import",
+      "upload": "CSV-Datei auswaehlen",
+      "submit": "Import starten",
+      "submitting": "Import laeuft…",
+      "noLocations": "Keine Standorte verfuegbar.",
+      "mapping": {
+        "firstName": "Spalte Vorname",
+        "lastName": "Spalte Nachname",
+        "source": "Spalte Quelle",
+        "locationName": "Spalte Standortname",
+        "locationNameHelper": "CSV-Werte muessen exakt einem Standortnamen entsprechen.",
+        "none": "Nicht zuordnen"
+      },
+      "defaultLocation": {
+        "label": "Standard-Standort"
+      },
+      "preview": {
+        "title": "Vorschau (max. 5 Zeilen)"
+      },
+      "result": {
+        "summary": "{imported} importiert, {failed} fehlgeschlagen"
+      },
+      "errors": {
+        "title": "Zeilenfehler",
+        "row": "Zeile {row}: {message}"
+      },
+      "rowError": {
+        "missingRequiredFields": "Vorname und Nachname fehlen",
+        "invalidLocation": "Standort ungueltig",
+        "locationForbidden": "Keine Berechtigung fuer diesen Standort",
+        "insertFailed": "Lead konnte nicht gespeichert werden"
+      },
+      "error": {
+        "invalidCsv": "CSV ist leer oder ungueltig.",
+        "invalidMapping": "Bitte Vorname- und Nachname-Spalten zuordnen.",
+        "invalidLocation": "Standard-Standort ist ungueltig.",
+        "tooManyRows": "Maximal 500 Zeilen pro Import.",
+        "forbidden": "Keine Berechtigung.",
+        "default": "Import fehlgeschlagen."
       }
     },
     "settings": {
