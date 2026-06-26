@@ -1,5 +1,6 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
+import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { listOfferFormLocations } from "@afterhive/api/offer/create-offer";
 import { listOffers } from "@afterhive/api/offer/list-offers";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
@@ -28,7 +29,7 @@ export default async function OffersPage({ params }: OffersPageProps) {
 
   const pageTitle = t("admin.offers.title");
 
-  if (!canCreateOffer(session.roles)) {
+  if (!canReadOffers(session.roles, session.locationIds)) {
     return (
       <SurfaceShell surface="admin" title={pageTitle}>
         <Stack spacing={2}>
@@ -41,7 +42,12 @@ export default async function OffersPage({ params }: OffersPageProps) {
     );
   }
 
-  const locations = await listOfferFormLocations(session, tenantSlug);
+  const showCreateForm = canCreateOffer(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
+  const locations = showCreateForm ? await listOfferFormLocations(session, tenantSlug) : [];
   const offers = await listOffers(session, tenantSlug);
 
   return (
@@ -52,7 +58,9 @@ export default async function OffersPage({ params }: OffersPageProps) {
           <StaffLogoutButton tenantSlug={tenantSlug} />
         </Stack>
 
-        <CreateOfferForm tenantSlug={tenantSlug} locations={locations} />
+        {showCreateForm ? (
+          <CreateOfferForm tenantSlug={tenantSlug} locations={locations} />
+        ) : null}
 
         <Stack spacing={2}>
           <Typography variant="h6">

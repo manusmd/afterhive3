@@ -344,6 +344,7 @@
         "startTime": { "label": "Startzeit (UTC)" },
         "durationMinutes": { "label": "Dauer (Minuten)" },
         "generateWeeks": { "label": "Termine fuer Wochen" },
+        "noLocations": "Kein Standort zugewiesen. Bitte wenden Sie sich an einen Administrator.",
         "submit": "Angebot erstellen",
         "submitting": "Wird erstellt…",
         "success": "Angebot erstellt. {sessions} Termine generiert.",

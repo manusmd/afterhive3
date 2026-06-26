@@ -113,7 +113,7 @@ export function CreateOfferForm({ tenantSlug, locations }: CreateOfferFormProps)
   }
 
   if (locations.length === 0) {
-    return null;
+    return <Alert severity="warning">{t("admin.offers.create.noLocations")}</Alert>;
   }
 
   return (

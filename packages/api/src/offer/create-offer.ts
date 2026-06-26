@@ -60,6 +60,7 @@ export class CreateOfferError extends Error {
 
 const MAX_NAME_LENGTH = 255;
 const DEFAULT_TIMEZONE = "Europe/Berlin";
+const MAX_GENERATE_WEEKS = 52;
 
 function addWeeks(date: Date, weeks: number) {
   const result = new Date(date);
@@ -89,7 +90,8 @@ export function validateCreateOfferInput(input: CreateOfferInput) {
     !Number.isInteger(input.recurrence.durationMinutes) ||
     input.recurrence.durationMinutes < 1 ||
     !Number.isInteger(input.recurrence.generateWeeks) ||
-    input.recurrence.generateWeeks < 1
+    input.recurrence.generateWeeks < 1 ||
+    input.recurrence.generateWeeks > MAX_GENERATE_WEEKS
   ) {
     return "missing_fields" as const;
   }
@@ -137,7 +139,7 @@ export async function createOffer(
     throw new CreateOfferError("tenant_not_found");
   }
 
-  if (!canCreateOffer(session.roles)) {
+  if (!canCreateOffer(session.roles, session.locationIds, session.roleAssignments)) {
     throw new CreateOfferError("forbidden");
   }
 

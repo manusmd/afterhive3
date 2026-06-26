@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
+import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { CreateOfferError, createOffer } from "@afterhive/api/offer/create-offer";
 import { listOffers } from "@afterhive/api/offer/list-offers";
 
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
 
   const session = await getAdminSessionContext(tenantSlug, request.headers);
 
-  if (!session || !canCreateOffer(session.roles)) {
+  if (!session || !canReadOffers(session.roles, session.locationIds)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!canCreateOffer(session.roles)) {
+  if (!canCreateOffer(session.roles, session.locationIds, session.roleAssignments)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
