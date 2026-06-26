@@ -51,7 +51,7 @@ MVP backlog with acceptance criteria (export to Linear).
 |-------|-----|
 | US-100 Create lead | Lead appears in list with source/status (PROC-crm.createLead) — **Linear MAN-177** |
 | US-101 Convert lead | Conversion creates person; lead status converted; history preserved (Flow 03) — **Linear MAN-178** |
-| US-102 Lead pipeline | Status transitions follow state machine |
+| US-102 Lead pipeline | Status transitions follow state machine — **Linear MAN-179** |
 
 ## EPIC-011: Import export merge
 

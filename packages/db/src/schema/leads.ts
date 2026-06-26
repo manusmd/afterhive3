@@ -15,6 +15,7 @@ export const leads = pgTable("leads", {
   lastName: varchar("last_name", { length: 255 }).notNull(),
   status: varchar("status", { length: 32 }).notNull().default("new"),
   source: varchar("source", { length: 32 }).notNull().default("manual"),
+  lostReason: varchar("lost_reason", { length: 500 }),
   convertedPersonId: uuid("converted_person_id").references(() => persons.id, {
     onDelete: "set null",
   }),

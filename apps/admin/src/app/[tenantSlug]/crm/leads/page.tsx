@@ -1,7 +1,12 @@
 import { canConvertLead, isLeadConvertibleStatus } from "@afterhive/api/crm/can-convert-lead";
 import { canCreateLead } from "@afterhive/api/crm/can-create-lead";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
+import { canUpdateLeadStatus } from "@afterhive/api/crm/can-update-lead";
 import { listLeadFormLocations } from "@afterhive/api/crm/create-lead";
+import {
+  canReopenLostLead,
+  getAllowedLeadTransitions,
+} from "@afterhive/api/crm/lead-status";
 import { listLeads } from "@afterhive/api/crm/list-leads";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import {
@@ -20,8 +25,18 @@ import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { ConvertLeadButton } from "./ConvertLeadButton";
 import { CreateLeadForm } from "./CreateLeadForm";
+import { LeadStatusActions } from "./LeadStatusActions";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
+
+function resolveLeadPipelineTransitions(
+  roles: string[],
+  currentStatus: string,
+): string[] {
+  return getAllowedLeadTransitions(currentStatus).filter(
+    (status) => status !== "new" || canReopenLostLead(roles),
+  );
+}
 
 type LeadsPageProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -62,6 +77,12 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
     session.locationIds,
     session.roleAssignments,
   );
+  const showPipelineAction = canUpdateLeadStatus(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
+  const showRowActions = showConvertAction || showPipelineAction;
   const scopedLocations =
     session.locationIds === undefined
       ? t("admin.leads.visibleLocations.all")
@@ -73,7 +94,7 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
     t("admin.leads.table.location"),
     t("admin.leads.table.status"),
     t("admin.leads.table.source"),
-    ...(showConvertAction ? [t("admin.leads.table.actions")] : []),
+    ...(showRowActions ? [t("admin.leads.table.actions")] : []),
   ];
 
   return (
@@ -121,7 +142,14 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                     </Box>
                   </Box>
                   <Box component="tbody">
-                    {leads.map((lead) => (
+                    {leads.map((lead) => {
+                      const pipelineTransitions = showPipelineAction
+                        ? resolveLeadPipelineTransitions(session.roles, lead.status)
+                        : [];
+                      const showConvertButton =
+                        showConvertAction && isLeadConvertibleStatus(lead.status);
+
+                      return (
                       <Box component="tr" key={lead.id}>
                         <Box
                           component="td"
@@ -147,27 +175,41 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                         >
                           {translateLeadSource(t, lead.source)}
                         </Box>
-                        {showConvertAction && isLeadConvertibleStatus(lead.status) ? (
+                        {showRowActions ? (
                           <Box
                             component="td"
                             sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
                           >
-                            <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
+                            <Stack spacing={1}>
+                              {pipelineTransitions.length > 0 ? (
+                                <LeadStatusActions
+                                  tenantSlug={tenantSlug}
+                                  leadId={lead.id}
+                                  allowedTransitions={pipelineTransitions}
+                                />
+                              ) : null}
+                              {showConvertButton ? (
+                                <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
+                              ) : null}
+                            </Stack>
                           </Box>
-                        ) : showConvertAction ? (
-                          <Box
-                            component="td"
-                            sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
-                          />
                         ) : null}
                       </Box>
-                    ))}
+                      );
+                    })}
                   </Box>
                 </Box>
               </Box>
 
               <Stack spacing={1.5} sx={{ display: { xs: "flex", md: "none" } }}>
-                {leads.map((lead) => (
+                {leads.map((lead) => {
+                  const pipelineTransitions = showPipelineAction
+                    ? resolveLeadPipelineTransitions(session.roles, lead.status)
+                    : [];
+                  const showConvertButton =
+                    showConvertAction && isLeadConvertibleStatus(lead.status);
+
+                  return (
                   <Box
                     key={lead.id}
                     sx={{
@@ -184,13 +226,23 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                       {lead.locationName} · {translateLeadStatus(t, lead.status)} ·{" "}
                       {translateLeadSource(t, lead.source)}
                     </Typography>
-                    {showConvertAction && isLeadConvertibleStatus(lead.status) ? (
+                    {pipelineTransitions.length > 0 ? (
+                      <Box sx={{ mt: 1 }}>
+                        <LeadStatusActions
+                          tenantSlug={tenantSlug}
+                          leadId={lead.id}
+                          allowedTransitions={pipelineTransitions}
+                        />
+                      </Box>
+                    ) : null}
+                    {showConvertButton ? (
                       <Box sx={{ mt: 1 }}>
                         <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
                       </Box>
                     ) : null}
                   </Box>
-                ))}
+                  );
+                })}
               </Stack>
             </>
           )}

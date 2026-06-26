@@ -180,6 +180,24 @@
           "notFound": "Lead nicht gefunden.",
           "default": "Konvertierung fehlgeschlagen."
         }
+      },
+      "pipeline": {
+        "nextStatus": { "label": "Naechster Schritt" },
+        "lostReason": { "label": "Verlustgrund" },
+        "submit": "Status aktualisieren",
+        "actions": {
+          "contacted": "Als kontaktiert markieren",
+          "qualified": "Als qualifiziert markieren",
+          "lost": "Als verloren markieren",
+          "new": "Wieder oeffnen"
+        },
+        "error": {
+          "invalidTransition": "Dieser Statuswechsel ist nicht erlaubt.",
+          "missingLostReason": "Bitte einen Verlustgrund angeben.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "notFound": "Lead nicht gefunden.",
+          "default": "Status konnte nicht aktualisiert werden."
+        }
       }
     },
     "settings": {

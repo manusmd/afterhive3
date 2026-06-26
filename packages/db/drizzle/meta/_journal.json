@@ -43,6 +43,13 @@
       "when": 1782482000000,
       "tag": "0005_persons_and_lead_conversion",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1782483000000,
+      "tag": "0006_lead_lost_reason",
+      "breakpoints": true
     }
   ]
 }
