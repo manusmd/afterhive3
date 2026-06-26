@@ -29,7 +29,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showLocations = canViewLocations(session.roles);
   const showTeam = canAssignRoles(session.roles);
   const showLeads = canReadLeads(session.roles, session.locationIds);
-  const showPersons = canReadPersons(session.roles);
+  const showPersons = canReadPersons(session.roles, session.locationIds);
   const showImport = canRunImport(session.roles, session.locationIds, session.roleAssignments);
 
   return (

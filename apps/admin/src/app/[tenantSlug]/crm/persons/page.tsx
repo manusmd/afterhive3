@@ -28,7 +28,7 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
 
   const personsTitle = t("admin.persons.title");
 
-  if (!canReadPersons(session.roles)) {
+  if (!canReadPersons(session.roles, session.locationIds)) {
     return (
       <SurfaceShell surface="admin" title={personsTitle}>
         <Stack spacing={2}>

@@ -45,7 +45,8 @@ export async function POST(request: Request) {
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     if (error instanceof MergePersonsError) {
-      const status = error.code === "tenant_not_found" ? 404 : 400;
+      const status =
+        error.code === "tenant_not_found" || error.code === "person_not_found" ? 404 : 400;
       return NextResponse.json({ error: error.code }, { status });
     }
 

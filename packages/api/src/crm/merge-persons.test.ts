@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionContext } from "@afterhive/domain";
-import { MergePersonsError, mergePersons } from "./merge-persons";
+import { mergePersons } from "./merge-persons";
+
 const tenantId = "tenant-1";
 const tenantSlug = "demo-club";
 const winnerId = "person-winner";
@@ -28,62 +29,55 @@ type MockPerson = {
   deletedAt: Date | null;
 };
 
-function mockTransaction(options: {
+function createTransactionMock(options: {
   winner: MockPerson | null;
   loser: MockPerson | null;
   repointedLeadIds?: string[];
   deleteLoser?: boolean;
 }) {
-  const transaction = vi.fn(async (callback: (tx: unknown) => Promise<unknown>) => {
-    const tx = {
-      select: () => ({
-        from: () => ({
-          innerJoin: () => ({
-            where: () => ({
-              for: () => ({
-                limit: () => {
-                  let callCount = 0;
-                  return Promise.resolve(
-                    (() => {
-                      callCount += 1;
-                      if (callCount === 1) {
-                        return options.winner ? [options.winner] : [];
-                      }
-                      return options.loser ? [options.loser] : [];
-                    })(),
-                  );
-                },
-              }),
+  let selectCount = 0;
+  let updateCount = 0;
+
+  return {
+    select: () => ({
+      from: () => ({
+        innerJoin: () => ({
+          where: () => ({
+            for: () => ({
+              limit: () => {
+                selectCount += 1;
+                if (selectCount === 1) {
+                  return Promise.resolve(options.winner ? [options.winner] : []);
+                }
+                return Promise.resolve(options.loser ? [options.loser] : []);
+              },
             }),
           }),
         }),
       }),
-      update: (table: unknown) => {
-        const isLeadsUpdate = table !== undefined;
-        return {
-          set: () => ({
-            where: () => ({
-              returning: () =>
-                Promise.resolve(
-                  isLeadsUpdate
-                    ? (options.repointedLeadIds ?? []).map((id) => ({ id }))
-                    : options.deleteLoser === false
-                      ? []
-                      : [{ id: loserId }],
-                ),
-            }),
-          }),
-        };
-      },
-      insert: () => ({
-        values: vi.fn(async () => undefined),
+    }),
+    update: () => ({
+      set: () => ({
+        where: () => ({
+          returning: () => {
+            updateCount += 1;
+            if (updateCount === 1) {
+              return Promise.resolve(
+                (options.repointedLeadIds ?? []).map((id) => ({ id })),
+              );
+            }
+            if (options.deleteLoser === false) {
+              return Promise.resolve([]);
+            }
+            return Promise.resolve([{ id: loserId }]);
+          },
+        }),
       }),
-    };
-
-    return callback(tx);
-  });
-
-  getDb.mockReturnValue({ transaction });
+    }),
+    insert: () => ({
+      values: vi.fn(async () => undefined),
+    }),
+  };
 }
 
 describe("mergePersons", () => {
@@ -100,7 +94,11 @@ describe("mergePersons", () => {
   });
 
   it("throws person_not_found when a person is missing", async () => {
-    mockTransaction({ winner: null, loser: null });
+    getDb.mockReturnValue({
+      transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
+        callback(createTransactionMock({ winner: null, loser: null })),
+      ),
+    });
 
     await expect(
       mergePersons(ownerSession, tenantSlug, { winnerId, loserId }),
@@ -108,7 +106,63 @@ describe("mergePersons", () => {
   });
 
   it("throws already_deleted when loser is soft-deleted", async () => {
-    mockTransaction({
+    getDb.mockReturnValue({
+      transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
+        callback(
+          createTransactionMock({
+            winner: {
+              id: winnerId,
+              firstName: "Anna",
+              lastName: "Nord",
+              deletedAt: null,
+            },
+            loser: {
+              id: loserId,
+              firstName: "Anna",
+              lastName: "Alt",
+              deletedAt: new Date("2026-06-26T12:00:00.000Z"),
+            },
+          }),
+        ),
+      ),
+    });
+
+    await expect(
+      mergePersons(ownerSession, tenantSlug, { winnerId, loserId }),
+    ).rejects.toMatchObject({ code: "already_deleted" });
+  });
+
+  it("throws already_deleted when loser delete update matches no row", async () => {
+    getDb.mockReturnValue({
+      transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
+        callback(
+          createTransactionMock({
+            winner: {
+              id: winnerId,
+              firstName: "Anna",
+              lastName: "Nord",
+              deletedAt: null,
+            },
+            loser: {
+              id: loserId,
+              firstName: "Anna",
+              lastName: "Alt",
+              deletedAt: null,
+            },
+            deleteLoser: false,
+          }),
+        ),
+      ),
+    });
+
+    await expect(
+      mergePersons(ownerSession, tenantSlug, { winnerId, loserId }),
+    ).rejects.toMatchObject({ code: "already_deleted" });
+  });
+
+  it("repoints lead FKs, soft-deletes loser, and writes audit entry", async () => {
+    const insertValues = vi.fn(async () => undefined);
+    const tx = createTransactionMock({
       winner: {
         id: winnerId,
         firstName: "Anna",
@@ -119,67 +173,19 @@ describe("mergePersons", () => {
         id: loserId,
         firstName: "Anna",
         lastName: "Alt",
-        deletedAt: new Date("2026-06-26T12:00:00.000Z"),
+        deletedAt: null,
       },
+      repointedLeadIds: ["lead-1", "lead-2"],
     });
 
-    await expect(
-      mergePersons(ownerSession, tenantSlug, { winnerId, loserId }),
-    ).rejects.toMatchObject({ code: "already_deleted" });
-  });
-
-  it("repoints lead FKs, soft-deletes loser, and writes audit entry", async () => {
-    const insertValues = vi.fn(async () => undefined);
-
     getDb.mockReturnValue({
-      transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) => {
-        let selectCount = 0;
-
-        const tx = {
-          select: () => ({
-            from: () => ({
-              innerJoin: () => ({
-                where: () => ({
-                  for: () => ({
-                    limit: () => {
-                      selectCount += 1;
-                      if (selectCount === 1) {
-                        return Promise.resolve([
-                          {
-                            id: winnerId,
-                            firstName: "Anna",
-                            lastName: "Nord",
-                            deletedAt: null,
-                          },
-                        ]);
-                      }
-                      return Promise.resolve([
-                        {
-                          id: loserId,
-                          firstName: "Anna",
-                          lastName: "Alt",
-                          deletedAt: null,
-                        },
-                      ]);
-                    },
-                  }),
-                }),
-              }),
-            }),
-          }),
-          update: () => ({
-            set: () => ({
-              where: () => ({
-                returning: () => Promise.resolve([{ id: "lead-1" }, { id: "lead-2" }]),
-              }),
-            }),
-          }),
+      transaction: vi.fn(async (callback: (txArg: unknown) => Promise<unknown>) => {
+        return callback({
+          ...tx,
           insert: () => ({
             values: insertValues,
           }),
-        };
-
-        return callback(tx);
+        });
       }),
     });
 
