@@ -1,0 +1,180 @@
+x-app-env: &app-env
+  DATABASE_URL: postgresql://afterhive:afterhive@postgres:5432/afterhive
+  REDIS_URL: redis://redis:6379
+  MEILI_HOST: http://meilisearch:7700
+  MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-afterhive-dev-master-key}
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production-min-32-chars}
+  APP_URL: ${APP_URL:-http://localhost}
+  SENTRY_DSN: ${SENTRY_DSN:-}
+  SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-development}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: afterhive
+      POSTGRES_USER: afterhive
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-afterhive}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afterhive -d afterhive"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-afterhive-dev-master-key}
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilidata:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: builder
+    command: pnpm db:migrate
+    environment:
+      <<: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  platform:
+    build:
+      context: .
+      target: next-runner
+      args:
+        APP_NAME: platform
+    environment:
+      <<: *app-env
+      PORT: 3001
+      BASE_PATH: /platform
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  admin:
+    build:
+      context: .
+      target: next-runner
+      args:
+        APP_NAME: admin
+    environment:
+      <<: *app-env
+      PORT: 3002
+      BASE_PATH: /app
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  portal:
+    build:
+      context: .
+      target: next-runner
+      args:
+        APP_NAME: portal
+    environment:
+      <<: *app-env
+      PORT: 3003
+      BASE_PATH: /portal
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  marketplace:
+    build:
+      context: .
+      target: next-runner
+      args:
+        APP_NAME: marketplace
+    environment:
+      <<: *app-env
+      PORT: 3004
+      BASE_PATH: /discover
+      HOSTNAME: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: .
+      target: worker-runner
+    environment:
+      <<: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - platform
+      - admin
+      - portal
+      - marketplace
+
+volumes:
+  pgdata:
+  redisdata:
+  meilidata:

@@ -1,0 +1,26 @@
+{
+  "name": "@afterhive/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./health": "./src/health/index.ts",
+    "./health/route-handler": "./src/health/route-handler.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@afterhive/db": "workspace:*",
+    "@afterhive/shared": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "ioredis": "^5.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.32",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "common": {
+    "appName": "Afterhive",
+    "loading": "Laden…",
+    "healthOk": "System bereit"
+  },
+  "surfaces": {
+    "platform": "Plattform",
+    "admin": "Verwaltung",
+    "portal": "Portal",
+    "marketplace": "Entdecken"
+  }
+}

@@ -4,6 +4,12 @@
 
 MVP backlog with acceptance criteria (export to Linear).
 
+## SETUP-001: Monorepo + Docker + health checks
+
+| Story | AC |
+|-------|-----|
+| SETUP-001 | Turborepo four apps + worker + packages; Docker Compose; Drizzle base; per-app health; MUI shells; policy skeleton — **Linear MAN-211** |
+
 ## EPIC-001: Platform tenant lifecycle
 
 | Story | AC |

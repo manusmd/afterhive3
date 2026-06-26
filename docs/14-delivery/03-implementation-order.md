@@ -4,7 +4,9 @@
 
 Phased build aligned to specs and dependency order.
 
-## Phase 0 — Foundations (EPIC-001, 002, 004, 005)
+## Phase 0 — Foundations (SETUP-001, EPIC-001, 002, 004, 005)
+
+**Linear:** [SETUP-001 / MAN-211](https://linear.app/manuweb/issue/MAN-211) blocks all Phase 0 epics.
 
 - Turborepo scaffold: `apps/platform`, `apps/admin`, `apps/portal`, `apps/marketplace`, `apps/worker`; packages `db`, `domain`, `api`, `ui`, `shared`
 - Docker Compose (four web services + nginx), Drizzle schema base

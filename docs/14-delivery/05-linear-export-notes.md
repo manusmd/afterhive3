@@ -32,6 +32,7 @@ Link blocks: Phase N+1 epic blocked by Phase N exit criteria
 **Status:** Synced to Linear project [Afterhive](https://linear.app/manuweb/project/afterhive-9438c620d7c3) (team Manuweb).
 
 - 18 epic parent issues (`MAN-148` … `MAN-169`)
+- 1 setup issue: [SETUP-001 / MAN-211](https://linear.app/manuweb/issue/MAN-211) (blocks Phase 0 epics)
 - 45 user story sub-issues with AC checklists
 - 9 phase milestones (Phase 0–8)
 - Epic-level `blockedBy` dependencies per implementation order
