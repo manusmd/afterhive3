@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
 import { leads, persons, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
@@ -43,41 +43,46 @@ export async function convertLead(
     : session.locationIds;
 
   const db = getDb();
-
-  const [lead] = await db
-    .select({
-      id: leads.id,
-      tenantId: leads.tenantId,
-      locationId: leads.locationId,
-      firstName: leads.firstName,
-      lastName: leads.lastName,
-      status: leads.status,
-      convertedPersonId: leads.convertedPersonId,
-    })
-    .from(leads)
-    .innerJoin(tenants, eq(leads.tenantId, tenants.id))
-    .where(and(eq(leads.id, leadId), eq(tenants.slug, tenantSlug), eq(leads.tenantId, session.tenantId)))
-    .limit(1);
-
-  if (!lead) {
-    throw new ConvertLeadError("lead_not_found");
-  }
-
-  if (lead.convertedPersonId || lead.status === "converted") {
-    throw new ConvertLeadError("already_converted");
-  }
-
-  if (!isLeadConvertibleStatus(lead.status)) {
-    throw new ConvertLeadError("invalid_status");
-  }
-
-  if (!isWithinLocationScope(lead.locationId, convertLocationIds)) {
-    throw new ConvertLeadError("location_forbidden");
-  }
-
   const convertedAt = new Date();
 
-  const result = await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
+    const [lead] = await tx
+      .select({
+        id: leads.id,
+        locationId: leads.locationId,
+        firstName: leads.firstName,
+        lastName: leads.lastName,
+        status: leads.status,
+        convertedPersonId: leads.convertedPersonId,
+      })
+      .from(leads)
+      .innerJoin(tenants, eq(leads.tenantId, tenants.id))
+      .where(
+        and(
+          eq(leads.id, leadId),
+          eq(tenants.slug, tenantSlug),
+          eq(leads.tenantId, session.tenantId!),
+        ),
+      )
+      .for("update")
+      .limit(1);
+
+    if (!lead) {
+      throw new ConvertLeadError("lead_not_found");
+    }
+
+    if (lead.convertedPersonId || lead.status === "converted") {
+      throw new ConvertLeadError("already_converted");
+    }
+
+    if (!isLeadConvertibleStatus(lead.status)) {
+      throw new ConvertLeadError("invalid_status");
+    }
+
+    if (!isWithinLocationScope(lead.locationId, convertLocationIds)) {
+      throw new ConvertLeadError("location_forbidden");
+    }
+
     const [person] = await tx
       .insert(persons)
       .values({
@@ -94,12 +99,22 @@ export async function convertLead(
         convertedPersonId: person.id,
         convertedAt,
       })
-      .where(eq(leads.id, lead.id))
+      .where(
+        and(
+          eq(leads.id, lead.id),
+          eq(leads.status, "qualified"),
+          isNull(leads.convertedPersonId),
+        ),
+      )
       .returning({
         id: leads.id,
         status: leads.status,
         convertedAt: leads.convertedAt,
       });
+
+    if (!updatedLead) {
+      throw new ConvertLeadError("already_converted");
+    }
 
     return {
       leadId: updatedLead.id,
@@ -108,6 +123,4 @@ export async function convertLead(
       convertedAt: updatedLead.convertedAt!.toISOString(),
     };
   });
-
-  return result;
 }

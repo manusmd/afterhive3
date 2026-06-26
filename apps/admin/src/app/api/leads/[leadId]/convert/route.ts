@@ -32,7 +32,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const result = await convertLead(session, tenantSlug, leadId);
-    return NextResponse.json(result);
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
     if (error instanceof ConvertLeadError) {
       const status =
