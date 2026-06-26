@@ -9,7 +9,11 @@
     "./health/route-handler": "./src/health/route-handler.ts",
     "./auth/route-handler": "./src/auth/route-handler.ts",
     "./auth/admin-auth": "./src/auth/admin-auth.ts",
-    "./auth/get-admin-session": "./src/auth/get-admin-session.ts"
+    "./auth/get-admin-session": "./src/auth/get-admin-session.ts",
+    "./auth/invite-staff": "./src/auth/invite-staff.ts",
+    "./auth/accept-staff-invite": "./src/auth/accept-staff-invite.ts",
+    "./auth/can-assign-roles": "./src/auth/can-assign-roles.ts",
+    "./auth/tenant-locations": "./src/auth/tenant-locations.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

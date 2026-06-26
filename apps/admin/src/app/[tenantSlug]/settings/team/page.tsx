@@ -1,0 +1,70 @@
+import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
+import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { listPendingStaffInvites } from "@afterhive/api/auth/invite-staff";
+import { listTenantLocations } from "@afterhive/api/auth/tenant-locations";
+import { SurfaceShell } from "@afterhive/ui";
+import { Chip, Stack, Typography } from "@mui/material";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { InviteStaffForm } from "./InviteStaffForm";
+
+type TeamSettingsPageProps = {
+  params: Promise<{ tenantSlug: string }>;
+};
+
+export default async function TeamSettingsPage({ params }: TeamSettingsPageProps) {
+  const { tenantSlug } = await params;
+  const session = await getAdminSessionContext(tenantSlug, await headers());
+
+  if (!session) {
+    redirect(`/${tenantSlug}/login`);
+  }
+
+  if (!canAssignRoles(session.roles)) {
+    redirect(`/${tenantSlug}`);
+  }
+
+  const tenantLocations = await listTenantLocations(tenantSlug);
+  const pendingInvites = await listPendingStaffInvites(tenantSlug);
+
+  return (
+    <SurfaceShell surface="admin" title="Team & Rollen">
+      <Stack spacing={4}>
+        <InviteStaffForm tenantSlug={tenantSlug} locations={tenantLocations} />
+        <Stack spacing={1}>
+          <Typography variant="h6">Offene Einladungen</Typography>
+          {pendingInvites.length === 0 ? (
+            <Typography color="text.secondary">Keine offenen Einladungen.</Typography>
+          ) : (
+            pendingInvites.map((invite) => (
+              <Stack
+                key={invite.id}
+                direction="row"
+                spacing={1}
+                sx={{ flexWrap: "wrap" }}
+                useFlexGap
+              >
+                <Typography>{invite.email}</Typography>
+                <Chip label={invite.role} size="small" />
+                {invite.locationIds?.length ? (
+                  <Chip
+                    label={invite.locationIds
+                      .map(
+                        (id) =>
+                          tenantLocations.find((location) => location.id === id)?.name ?? id,
+                      )
+                      .join(", ")}
+                    size="small"
+                    variant="outlined"
+                  />
+                ) : (
+                  <Chip label="alle Standorte" size="small" variant="outlined" />
+                )}
+              </Stack>
+            ))
+          )}
+        </Stack>
+      </Stack>
+    </SurfaceShell>
+  );
+}
