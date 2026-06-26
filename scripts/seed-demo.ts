@@ -5,6 +5,7 @@ import { getDb } from "@afterhive/db";
 import {
   account,
   consentRecords,
+  documents,
   enrollments,
   leads,
   locations,
@@ -29,6 +30,7 @@ async function main() {
   const portalAuth = getPortalAuth();
 
   await db.delete(consentRecords);
+  await db.delete(documents);
   await db.delete(enrollments);
   await db.delete(relationships);
   await db.delete(memberProfiles);
@@ -210,11 +212,49 @@ async function main() {
     consentStatus: "pending",
   });
 
+  if (ownerSignUp.user) {
+    await db.insert(documents).values([
+      {
+        tenantId: tenant.id,
+        storageKey: `${tenant.id}/documents/demo-club-info/club-info.pdf`,
+        filename: "club-info.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 1024,
+        sha256: "demo-club-info-sha256",
+        visibility: "portal",
+        uploadedByUserId: ownerSignUp.user.id,
+      },
+      {
+        tenantId: tenant.id,
+        storageKey: `${tenant.id}/documents/demo-member-doc/member-form.pdf`,
+        filename: "member-form.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 2048,
+        sha256: "demo-member-form-sha256",
+        visibility: "both",
+        linkedEntityType: "person",
+        linkedEntityId: minorPerson.id,
+        uploadedByUserId: ownerSignUp.user.id,
+      },
+      {
+        tenantId: tenant.id,
+        storageKey: `${tenant.id}/documents/demo-internal/internal-only.pdf`,
+        filename: "internal-only.pdf",
+        mimeType: "application/pdf",
+        sizeBytes: 512,
+        sha256: "demo-internal-sha256",
+        visibility: "internal",
+        uploadedByUserId: ownerSignUp.user.id,
+      },
+    ]);
+  }
+
   console.log("Platform: platform@afterhive.de / Platform1234!");
   console.log("Seeded demo tenant:", tenant.slug);
   console.log("Staff: staff@demo-club.de / Demo1234! → location", locationA.name, "(1 qualified lead)");
   console.log("Owner: owner@demo-club.de / Demo1234! → all locations (2 leads)");
   console.log("Guardian: guardian@demo-club.de / Demo1234! → portal consent for", minorPerson.firstName);
+  console.log("Portal documents: /portal/demo-club/documents (2 visible, 1 internal hidden)");
   console.log("Other location:", locationB.name);
 }
 

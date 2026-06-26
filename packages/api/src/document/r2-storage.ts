@@ -1,4 +1,5 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getEnv } from "@afterhive/shared";
 
 export type DocumentStoragePutInput = {
@@ -7,8 +8,14 @@ export type DocumentStoragePutInput = {
   contentType: string;
 };
 
+export type DocumentStorageGetSignedUrlInput = {
+  key: string;
+  expiresInSeconds: number;
+};
+
 export type DocumentStorage = {
   putObject(input: DocumentStoragePutInput): Promise<void>;
+  getSignedUrl(input: DocumentStorageGetSignedUrlInput): Promise<string>;
 };
 
 let storageOverride: DocumentStorage | null = null;
@@ -42,6 +49,16 @@ function createR2Storage(): DocumentStorage {
           Body: input.body,
           ContentType: input.contentType,
         }),
+      );
+    },
+    async getSignedUrl(input) {
+      return getSignedUrl(
+        client,
+        new GetObjectCommand({
+          Bucket: env.R2_BUCKET_NAME,
+          Key: input.key,
+        }),
+        { expiresIn: input.expiresInSeconds },
       );
     },
   };

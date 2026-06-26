@@ -434,7 +434,7 @@
     },
     "home": {
       "title": "Self-Service-Portal",
-      "subtitle": "Verwalten Sie Einwilligungen und Mitgliederdaten."
+      "subtitle": "Verwalten Sie Einwilligungen, Dokumente und Mitgliederdaten."
     },
     "login": {
       "title": "Anmelden",
@@ -460,6 +460,17 @@
         "alreadyGranted": "Einwilligung wurde bereits erteilt.",
         "personNotFound": "Person nicht gefunden.",
         "default": "Einwilligung fehlgeschlagen."
+      }
+    },
+    "documents": {
+      "title": "Dokumente",
+      "empty": "Keine Dokumente verfuegbar.",
+      "download": "Herunterladen",
+      "downloading": "Wird geladen…",
+      "error": {
+        "forbidden": "Kein Zugriff auf dieses Dokument.",
+        "notFound": "Dokument nicht gefunden.",
+        "default": "Download fehlgeschlagen."
       }
     }
   },
