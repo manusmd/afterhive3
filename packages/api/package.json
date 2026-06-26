@@ -53,7 +53,9 @@
     "./auth/get-portal-session": "./src/auth/get-portal-session.ts",
     "./portal/grant-consent": "./src/portal/grant-consent.ts",
     "./gdpr/can-export-person": "./src/gdpr/can-export-person.ts",
-    "./gdpr/export-person": "./src/gdpr/export-person.ts"
+    "./gdpr/export-person": "./src/gdpr/export-person.ts",
+    "./gdpr/can-anonymize-person": "./src/gdpr/can-anonymize-person.ts",
+    "./gdpr/anonymize-person": "./src/gdpr/anonymize-person.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

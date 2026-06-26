@@ -3,6 +3,7 @@ import { canMergePersons } from "@afterhive/api/crm/can-merge-persons";
 import { canReadPersons } from "@afterhive/api/crm/can-read-persons";
 import { listPersons } from "@afterhive/api/crm/list-persons";
 import { canExportPerson } from "@afterhive/api/gdpr/can-export-person";
+import { canAnonymizePerson } from "@afterhive/api/gdpr/can-anonymize-person";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
@@ -44,11 +45,9 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
 
   const persons = await listPersons(session);
   const showMergeForm = canMergePersons(session.roles);
-  const showPrivacyLink = canExportPerson(
-    session.roles,
-    session.locationIds,
-    session.roleAssignments,
-  );
+  const showPrivacyLink =
+    canExportPerson(session.roles, session.locationIds, session.roleAssignments) ||
+    canAnonymizePerson(session.roles, session.locationIds, session.roleAssignments);
   const tableHeadings = [
     t("admin.persons.table.name"),
     t("admin.persons.table.createdAt"),
