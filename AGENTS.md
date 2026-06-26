@@ -104,6 +104,7 @@ Link commits and PRs to the Linear issue when possible.
 
 - One PR per ticket / branch.
 - **Push implies PR:** if the user says push (or commit and push), push to origin and create the PR with `gh pr create` before finishing — do not stop at push only.
+- **Cursor automations:** triggers fire on PR **opened** or **pushed**, not on reopen. If an automation was skipped or disabled on the first run, close the PR and create a new one (`gh pr create`), or push a new commit to the branch — do not rely on `gh pr reopen`.
 - Summary: what changed and why (not a file list).
 - Test plan: commands run (`pnpm test`, manual URLs, seed data used).
 - Do not commit `.env` or secrets.
