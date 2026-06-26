@@ -64,6 +64,7 @@ export function ImportLeadsForm({ tenantSlug, locations }: ImportLeadsFormProps)
         return t("admin.import.error.invalidLocation");
       case "too_many_rows":
         return t("admin.import.error.tooManyRows");
+      case "location_forbidden":
       case "forbidden":
         return t("admin.import.error.forbidden");
       default:
@@ -95,6 +96,10 @@ export function ImportLeadsForm({ tenantSlug, locations }: ImportLeadsFormProps)
     setFileName(file.name);
     setResult(null);
     setError(null);
+    setFirstNameColumn("");
+    setLastNameColumn("");
+    setSourceColumn("");
+    setLocationCodeColumn("");
     setCsvContent(await file.text());
   }
 
@@ -220,11 +225,11 @@ export function ImportLeadsForm({ tenantSlug, locations }: ImportLeadsFormProps)
             </FormControl>
             <FormControl fullWidth>
               <InputLabel id="import-location-column">
-                {t("admin.import.mapping.locationCode")}
+                {t("admin.import.mapping.locationName")}
               </InputLabel>
               <Select
                 labelId="import-location-column"
-                label={t("admin.import.mapping.locationCode")}
+                label={t("admin.import.mapping.locationName")}
                 value={locationCodeColumn}
                 onChange={(event) => setLocationCodeColumn(event.target.value)}
               >
@@ -235,6 +240,9 @@ export function ImportLeadsForm({ tenantSlug, locations }: ImportLeadsFormProps)
                   </MenuItem>
                 ))}
               </Select>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                {t("admin.import.mapping.locationNameHelper")}
+              </Typography>
             </FormControl>
             {!locationCodeColumn ? (
               <FormControl fullWidth required>

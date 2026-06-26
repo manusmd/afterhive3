@@ -192,3 +192,20 @@ export async function importLeadsCsv(
     result,
   };
 }
+
+export async function listImportFormLocations(session: SessionContext, tenantSlug: string) {
+  const locations = await listTenantLocations(tenantSlug);
+  const importLocationIds = session.roleAssignments
+    ? resolveImportLocationIds(session.roles, session.roleAssignments)
+    : session.locationIds;
+
+  if (importLocationIds === undefined) {
+    return locations;
+  }
+
+  if (importLocationIds.length === 0) {
+    return [];
+  }
+
+  return locations.filter((location) => importLocationIds.includes(location.id));
+}

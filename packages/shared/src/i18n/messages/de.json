@@ -213,7 +213,8 @@
         "firstName": "Spalte Vorname",
         "lastName": "Spalte Nachname",
         "source": "Spalte Quelle",
-        "locationCode": "Spalte Standort",
+        "locationName": "Spalte Standortname",
+        "locationNameHelper": "CSV-Werte muessen exakt einem Standortnamen entsprechen.",
         "none": "Nicht zuordnen"
       },
       "defaultLocation": {

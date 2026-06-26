@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionContext } from "@afterhive/domain";
-import { ImportLeadsCsvError, importLeadsCsv, validateLeadImportMapping } from "./import-leads-csv";
+import {
+  importLeadsCsv,
+  listImportFormLocations,
+  validateLeadImportMapping,
+} from "./import-leads-csv";
 
 const tenantId = "tenant-1";
 const tenantSlug = "demo-club";
@@ -28,6 +32,41 @@ const ownerSession: SessionContext = {
   roles: ["tenant_owner"],
   locationIds: undefined,
 };
+
+const officeSession: SessionContext = {
+  userId: "office-1",
+  surface: "tenant_admin",
+  tenantId,
+  tenantSlug,
+  roles: ["tenant_office"],
+  locationIds: [locationNorth],
+};
+
+function mockImportDb() {
+  let insertCount = 0;
+
+  getDb.mockReturnValue({
+    insert: vi.fn(() => {
+      insertCount += 1;
+      if (insertCount === 1) {
+        return {
+          values: vi.fn(() => ({
+            returning: vi.fn(async () => [{ id: "job-1" }]),
+          })),
+        };
+      }
+
+      return {
+        values: vi.fn(async () => undefined),
+      };
+    }),
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(async () => undefined),
+      })),
+    })),
+  });
+}
 
 describe("validateLeadImportMapping", () => {
   it("requires first and last name columns", () => {
@@ -65,30 +104,47 @@ describe("importLeadsCsv", () => {
     expect(getDb).not.toHaveBeenCalled();
   });
 
-  it("imports valid rows and reports row errors", async () => {
-    let insertCount = 0;
-
-    getDb.mockReturnValue({
-      insert: vi.fn(() => {
-        insertCount += 1;
-        if (insertCount === 1) {
-          return {
-            values: vi.fn(() => ({
-              returning: vi.fn(async () => [{ id: "job-1" }]),
-            })),
-          };
-        }
-
-        return {
-          values: vi.fn(async () => undefined),
-        };
+  it("throws location_forbidden for out-of-scope defaultLocationId", async () => {
+    await expect(
+      importLeadsCsv(officeSession, tenantSlug, {
+        csvContent: "first_name,last_name\nAnna,Nord",
+        mapping: { firstName: "first_name", lastName: "last_name" },
+        defaultLocationId: locationSouth,
       }),
-      update: vi.fn(() => ({
-        set: vi.fn(() => ({
-          where: vi.fn(async () => undefined),
-        })),
-      })),
+    ).rejects.toMatchObject({ code: "location_forbidden" });
+
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
+  it("throws too_many_rows when csv exceeds the limit", async () => {
+    const rows = Array.from({ length: 501 }, (_, index) => `Anna${index},Test`).join("\n");
+
+    await expect(
+      importLeadsCsv(ownerSession, tenantSlug, {
+        csvContent: `first_name,last_name\n${rows}`,
+        mapping: { firstName: "first_name", lastName: "last_name" },
+        defaultLocationId: locationNorth,
+      }),
+    ).rejects.toMatchObject({ code: "too_many_rows" });
+
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
+  it("imports rows with in-scope defaultLocationId", async () => {
+    mockImportDb();
+
+    const outcome = await importLeadsCsv(officeSession, tenantSlug, {
+      csvContent: "first_name,last_name\nAnna,Nord",
+      mapping: { firstName: "first_name", lastName: "last_name" },
+      defaultLocationId: locationNorth,
     });
+
+    expect(outcome.result.imported).toBe(1);
+    expect(outcome.result.failed).toBe(0);
+  });
+
+  it("imports valid rows and reports row errors", async () => {
+    mockImportDb();
 
     const csvContent = [
       "first_name,last_name,location_code",
@@ -114,5 +170,35 @@ describe("importLeadsCsv", () => {
       { row: 3, message: "missing_required_fields" },
       { row: 4, message: "invalid_location" },
     ]);
+  });
+});
+
+describe("listImportFormLocations", () => {
+  it("returns all tenant locations for unrestricted roles", async () => {
+    const locations = await listImportFormLocations(ownerSession, tenantSlug);
+
+    expect(locations.map((location) => location.id)).toEqual([locationNorth, locationSouth]);
+  });
+
+  it("returns only import-scoped locations for scoped roles", async () => {
+    const locations = await listImportFormLocations(officeSession, tenantSlug);
+
+    expect(locations.map((location) => location.id)).toEqual([locationNorth]);
+  });
+
+  it("filters by role assignments when present", async () => {
+    const session: SessionContext = {
+      ...ownerSession,
+      roles: ["tenant_finance", "tenant_office"],
+      locationIds: undefined,
+      roleAssignments: [
+        { role: "tenant_finance", locationIds: null },
+        { role: "tenant_office", locationIds: [locationNorth] },
+      ],
+    };
+
+    const locations = await listImportFormLocations(session, tenantSlug);
+
+    expect(locations.map((location) => location.id)).toEqual([locationNorth]);
   });
 });

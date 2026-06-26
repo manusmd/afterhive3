@@ -1,6 +1,6 @@
-import { listTenantLocations } from "@afterhive/api/auth/tenant-locations";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canRunImport } from "@afterhive/api/crm/can-run-import";
+import { listImportFormLocations } from "@afterhive/api/crm/import-leads-csv";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Stack } from "@mui/material";
@@ -40,7 +40,7 @@ export default async function ImportPage({ params }: ImportPageProps) {
     );
   }
 
-  const locations = await listTenantLocations(tenantSlug);
+  const locations = await listImportFormLocations(session, tenantSlug);
 
   return (
     <SurfaceShell surface="admin" title={importTitle}>

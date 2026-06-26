@@ -58,7 +58,12 @@ export async function POST(request: Request) {
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     if (error instanceof ImportLeadsCsvError) {
-      const status = error.code === "tenant_not_found" ? 404 : 400;
+      const status =
+        error.code === "tenant_not_found"
+          ? 404
+          : error.code === "location_forbidden"
+            ? 403
+            : 400;
       return NextResponse.json({ error: error.code }, { status });
     }
 
