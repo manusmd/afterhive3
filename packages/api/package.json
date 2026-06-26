@@ -23,7 +23,11 @@
     "./platform/can-list-tenants": "./src/platform/can-list-tenants.ts",
     "./platform/suspend-tenant": "./src/platform/suspend-tenant.ts",
     "./platform/can-suspend-tenant": "./src/platform/can-suspend-tenant.ts",
-    "./platform/suspend-tenant-validation": "./src/platform/suspend-tenant-validation.ts"
+    "./platform/suspend-tenant-validation": "./src/platform/suspend-tenant-validation.ts",
+    "./location/list-locations": "./src/location/list-locations.ts",
+    "./location/create-location": "./src/location/create-location.ts",
+    "./location/can-manage-locations": "./src/location/can-manage-locations.ts",
+    "./location/location-name": "./src/location/location-name.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

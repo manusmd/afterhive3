@@ -1,6 +1,9 @@
+import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { canViewLocations } from "@afterhive/api/location/can-manage-locations";
 import { SurfaceShell } from "@afterhive/ui";
-import { Chip, Stack, Typography } from "@mui/material";
+import { Button, Chip, Stack, Typography } from "@mui/material";
+import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
@@ -17,6 +20,9 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
     redirect(`/${tenantSlug}/login`);
   }
 
+  const showLocations = canViewLocations(session.roles);
+  const showTeam = canAssignRoles(session.roles);
+
   return (
     <SurfaceShell surface="admin" title="Dashboard">
       <Stack spacing={2}>
@@ -26,6 +32,20 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
         <Typography color="text.secondary">
           Angemeldet als {session.userId} in {session.tenantSlug}
         </Typography>
+        {showLocations || showTeam ? (
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
+            {showLocations ? (
+              <Link href={`/${tenantSlug}/settings/locations`}>
+                <Button variant="outlined">Standorte</Button>
+              </Link>
+            ) : null}
+            {showTeam ? (
+              <Link href={`/${tenantSlug}/settings/team`}>
+                <Button variant="outlined">Team</Button>
+              </Link>
+            ) : null}
+          </Stack>
+        ) : null}
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
           {session.roles.map((role) => (
             <Chip key={role} label={role} size="small" />
