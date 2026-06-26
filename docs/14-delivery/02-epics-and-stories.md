@@ -92,7 +92,7 @@ MVP backlog with acceptance criteria (export to Linear).
 
 | Story | AC |
 |-------|-----|
-| US-220 Create offer | Offer + group + recurrence generates sessions |
+| US-220 Create offer | Offer + group + recurrence generates sessions — **Linear MAN-190** |
 | US-221 Conflict detection | Staff double-book blocked server-side |
 
 ## EPIC-025: Club sport

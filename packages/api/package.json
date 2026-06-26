@@ -60,7 +60,11 @@
     "./document/upload-document": "./src/document/upload-document.ts",
     "./document/can-read-portal-documents": "./src/document/can-read-portal-documents.ts",
     "./document/list-portal-documents": "./src/document/list-portal-documents.ts",
-    "./document/get-document-signed-url": "./src/document/get-document-signed-url.ts"
+    "./document/get-document-signed-url": "./src/document/get-document-signed-url.ts",
+    "./offer/can-create-offer": "./src/offer/can-create-offer.ts",
+    "./offer/create-offer": "./src/offer/create-offer.ts",
+    "./offer/list-offers": "./src/offer/list-offers.ts",
+    "./schedule/generate-sessions": "./src/schedule/generate-sessions.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

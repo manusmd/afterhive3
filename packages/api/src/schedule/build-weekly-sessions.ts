@@ -1,0 +1,59 @@
+const BYDAY_TO_JS_DAY: Record<string, number> = {
+  SU: 0,
+  MO: 1,
+  TU: 2,
+  WE: 3,
+  TH: 4,
+  FR: 5,
+  SA: 6,
+};
+
+export function parseWeeklyByDay(rrule: string): number | null {
+  if (!rrule.includes("FREQ=WEEKLY")) {
+    return null;
+  }
+
+  const match = rrule.match(/BYDAY=([A-Z]{2})/);
+  if (!match) {
+    return null;
+  }
+
+  return BYDAY_TO_JS_DAY[match[1]] ?? null;
+}
+
+export type WeeklySessionOccurrence = {
+  startsAt: Date;
+  endsAt: Date;
+};
+
+export function buildWeeklySessionOccurrences(input: {
+  dtstart: Date;
+  durationMinutes: number;
+  rrule: string;
+  rangeEnd: Date;
+}): WeeklySessionOccurrence[] {
+  const targetDay = parseWeeklyByDay(input.rrule);
+  if (targetDay === null) {
+    return [];
+  }
+
+  const occurrences: WeeklySessionOccurrence[] = [];
+  const cursor = new Date(input.dtstart);
+
+  while (cursor.getUTCDay() !== targetDay) {
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  while (cursor <= input.rangeEnd) {
+    const startsAt = new Date(cursor);
+    const endsAt = new Date(startsAt.getTime() + input.durationMinutes * 60_000);
+
+    if (startsAt >= input.dtstart) {
+      occurrences.push({ startsAt, endsAt });
+    }
+
+    cursor.setUTCDate(cursor.getUTCDate() + 7);
+  }
+
+  return occurrences;
+}

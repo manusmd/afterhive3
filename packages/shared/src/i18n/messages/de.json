@@ -26,6 +26,7 @@
       "persons": "Personen",
       "import": "Import",
       "documents": "Dokumente",
+      "offers": "Angebote",
       "locations": "Standorte",
       "team": "Team"
     },
@@ -41,6 +42,7 @@
         "persons": "Personen",
         "import": "Import",
         "documents": "Dokumente",
+        "offers": "Angebote",
         "locations": "Standorte",
         "team": "Team"
       },
@@ -317,6 +319,40 @@
           "fileTooLarge": "Datei ist groesser als 25 MB.",
           "forbidden": "Keine Berechtigung.",
           "default": "Upload fehlgeschlagen."
+        }
+      }
+    },
+    "offers": {
+      "title": "Angebote",
+      "list": {
+        "title": "Angebote ({count})",
+        "empty": "Noch keine Angebote."
+      },
+      "create": {
+        "name": { "label": "Angebotsname" },
+        "groupName": { "label": "Gruppenname" },
+        "location": { "label": "Standort" },
+        "capacity": { "label": "Kapazitaet" },
+        "weekday": {
+          "label": "Wochentag",
+          "monday": "Montag",
+          "tuesday": "Dienstag",
+          "wednesday": "Mittwoch",
+          "thursday": "Donnerstag",
+          "friday": "Freitag"
+        },
+        "startTime": { "label": "Startzeit (UTC)" },
+        "durationMinutes": { "label": "Dauer (Minuten)" },
+        "generateWeeks": { "label": "Termine fuer Wochen" },
+        "submit": "Angebot erstellen",
+        "submitting": "Wird erstellt…",
+        "success": "Angebot erstellt. {sessions} Termine generiert.",
+        "error": {
+          "missingFields": "Bitte alle Pflichtfelder ausfuellen.",
+          "invalidLocation": "Standort ungueltig.",
+          "forbidden": "Keine Berechtigung.",
+          "invalidRecurrence": "Wiederholung ungueltig.",
+          "default": "Angebot konnte nicht erstellt werden."
         }
       }
     },
