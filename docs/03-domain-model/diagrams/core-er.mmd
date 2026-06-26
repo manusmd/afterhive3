@@ -1,0 +1,25 @@
+erDiagram
+  Tenant ||--o{ TenantMembership : has
+  User ||--o{ TenantMembership : has
+  TenantMembership ||--o{ RoleAssignment : has
+  Tenant ||--o{ Location : has
+  Tenant ||--o{ Person : has
+  Tenant ||--o{ Lead : has
+  Household ||--o{ Person : contains
+  Person ||--o{ Relationship : from
+  Person ||--o{ MemberProfile : has
+  Person ||--o{ CustomerProfile : has
+  Lead ||--o| Person : converts_to
+  MemberProfile ||--o{ Enrollment : has
+  Offer ||--o{ OfferGroup : has
+  OfferGroup ||--o{ Session : schedules
+  OfferGroup ||--o{ Enrollment : receives
+  Session ||--o{ AttendanceRecord : tracks
+  Team ||--o{ RosterEntry : has
+  Department ||--o{ Team : has
+  CustomerProfile ||--o{ Contract : signs
+  Contract ||--o{ Invoice : generates
+  Invoice ||--o{ PaymentRecord : paid_by
+  Thread ||--o{ Message : contains
+  Tenant ||--o| ProviderProfile : publishes
+  Offer ||--o| PublicOfferProjection : exposes
