@@ -1,26 +1,52 @@
 import { getAdminAuth } from "@afterhive/api/auth/admin-auth";
+import { getPlatformAuth } from "@afterhive/api/auth/platform-auth";
 import { getDb } from "@afterhive/db";
 import {
   account,
   locations,
+  platformMemberships,
   roleAssignments,
   session,
+  staffInvites,
   tenantMemberships,
+  tenantSubscriptions,
   tenants,
   user,
 } from "@afterhive/db/schema";
 
 async function main() {
   const db = getDb();
-  const auth = getAdminAuth();
+  const adminAuth = getAdminAuth();
+  const platformAuth = getPlatformAuth();
 
   await db.delete(roleAssignments);
+  await db.delete(staffInvites);
   await db.delete(tenantMemberships);
+  await db.delete(tenantSubscriptions);
+  await db.delete(platformMemberships);
   await db.delete(locations);
   await db.delete(tenants);
   await db.delete(session);
   await db.delete(account);
   await db.delete(user);
+
+  const platformSignUp = await platformAuth.api.signUpEmail({
+    body: {
+      email: "platform@afterhive.de",
+      password: "Platform1234!",
+      name: "Platform Admin",
+    },
+  });
+
+  if (!platformSignUp.user) {
+    throw new Error("Failed to seed platform admin");
+  }
+
+  await db.insert(platformMemberships).values({
+    userId: platformSignUp.user.id,
+    role: "platform_superadmin",
+    status: "active",
+  });
 
   const [tenant] = await db
     .insert(tenants)
@@ -32,6 +58,14 @@ async function main() {
     })
     .returning();
 
+  await db.insert(tenantSubscriptions).values({
+    tenantId: tenant.id,
+    stripeCustomerId: "cus_dev_demo_club",
+    planId: "starter",
+    status: "active",
+    modulesEntitled: ["crm", "scheduling", "billing"],
+  });
+
   const [locationA, locationB] = await db
     .insert(locations)
     .values([
@@ -40,7 +74,7 @@ async function main() {
     ])
     .returning();
 
-  const staffSignUp = await auth.api.signUpEmail({
+  const staffSignUp = await adminAuth.api.signUpEmail({
     body: {
       email: "staff@demo-club.de",
       password: "Demo1234!",
@@ -69,7 +103,7 @@ async function main() {
     locationIds: [locationA.id],
   });
 
-  const ownerSignUp = await auth.api.signUpEmail({
+  const ownerSignUp = await adminAuth.api.signUpEmail({
     body: {
       email: "owner@demo-club.de",
       password: "Demo1234!",
@@ -96,6 +130,7 @@ async function main() {
     });
   }
 
+  console.log("Platform: platform@afterhive.de / Platform1234!");
   console.log("Seeded demo tenant:", tenant.slug);
   console.log("Staff: staff@demo-club.de / Demo1234! → location", locationA.name);
   console.log("Owner: owner@demo-club.de / Demo1234! → all locations");

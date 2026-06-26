@@ -13,7 +13,12 @@
     "./auth/invite-staff": "./src/auth/invite-staff.ts",
     "./auth/accept-staff-invite": "./src/auth/accept-staff-invite.ts",
     "./auth/can-assign-roles": "./src/auth/can-assign-roles.ts",
-    "./auth/tenant-locations": "./src/auth/tenant-locations.ts"
+    "./auth/tenant-locations": "./src/auth/tenant-locations.ts",
+    "./auth/platform-auth": "./src/auth/platform-auth.ts",
+    "./auth/platform-route-handler": "./src/auth/platform-route-handler.ts",
+    "./auth/get-platform-session": "./src/auth/get-platform-session.ts",
+    "./platform/create-tenant": "./src/platform/create-tenant.ts",
+    "./platform/can-create-tenant": "./src/platform/can-create-tenant.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -3,3 +3,5 @@ export * from "./tenants";
 export * from "./locations";
 export * from "./memberships";
 export * from "./staff-invites";
+export * from "./platform-memberships";
+export * from "./tenant-subscriptions";
