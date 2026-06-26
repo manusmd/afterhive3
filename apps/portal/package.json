@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@afterhive/api": "workspace:*",
+    "@afterhive/domain": "workspace:*",
     "@afterhive/shared": "workspace:*",
     "@afterhive/ui": "workspace:*",
     "@mui/material": "^9.1.2",
     "@sentry/nextjs": "^9.30.0",
+    "better-auth": "^1.6.22",
     "next": "^16.2.9",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
