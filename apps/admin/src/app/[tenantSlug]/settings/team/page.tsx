@@ -4,6 +4,7 @@ import { listPendingStaffInvites } from "@afterhive/api/auth/invite-staff";
 import { listTenantLocations } from "@afterhive/api/auth/tenant-locations";
 import { SurfaceShell } from "@afterhive/ui";
 import { Chip, Stack, Typography } from "@mui/material";
+import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { InviteStaffForm } from "./InviteStaffForm";
@@ -31,7 +32,11 @@ export default async function TeamSettingsPage({ params }: TeamSettingsPageProps
   return (
     <SurfaceShell surface="admin" title="Team & Rollen">
       <Stack spacing={4}>
-        <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
+        <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
+          <Stack direction="row" spacing={1}>
+            <Link href={`/${tenantSlug}`}>Dashboard</Link>
+            <Link href={`/${tenantSlug}/settings/locations`}>Standorte</Link>
+          </Stack>
           <StaffLogoutButton tenantSlug={tenantSlug} />
         </Stack>
         <InviteStaffForm tenantSlug={tenantSlug} locations={tenantLocations} />
