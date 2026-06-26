@@ -64,6 +64,13 @@
       "when": 1782485000000,
       "tag": "0008_person_merge_audit",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782486000000,
+      "tag": "0009_guardian_consent_base",
+      "breakpoints": true
     }
   ]
 }
