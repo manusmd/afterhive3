@@ -64,7 +64,7 @@ MVP backlog with acceptance criteria (export to Linear).
 
 | Story | AC |
 |-------|-----|
-| US-120 Minor block | Enrollment blocked until consent complete (Flow 12) |
+| US-120 Minor block | Enrollment blocked until consent complete (Flow 12) — **Linear MAN-181** |
 | US-121 Portal consent | Guardian can grant via SCR-portal-consent |
 
 ## EPIC-013: GDPR

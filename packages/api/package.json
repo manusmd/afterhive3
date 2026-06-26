@@ -44,7 +44,10 @@
     "./crm/can-read-persons": "./src/crm/can-read-persons.ts",
     "./crm/can-merge-persons": "./src/crm/can-merge-persons.ts",
     "./crm/list-persons": "./src/crm/list-persons.ts",
-    "./crm/merge-persons": "./src/crm/merge-persons.ts"
+    "./crm/merge-persons": "./src/crm/merge-persons.ts",
+    "./member/is-minor": "./src/member/is-minor.ts",
+    "./enrollment/can-activate-enrollment": "./src/enrollment/can-activate-enrollment.ts",
+    "./enrollment/activate-enrollment": "./src/enrollment/activate-enrollment.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
