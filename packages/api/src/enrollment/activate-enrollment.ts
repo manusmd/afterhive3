@@ -40,6 +40,7 @@ export async function activateEnrollment(
       .select({
         enrollmentId: enrollments.id,
         enrollmentStatus: enrollments.status,
+        enrolledAt: enrollments.enrolledAt,
         consentStatus: memberProfiles.consentStatus,
         dateOfBirth: persons.dateOfBirth,
       })
@@ -71,7 +72,7 @@ export async function activateEnrollment(
       !canActivateEnrollment({
         dateOfBirth,
         consentStatus: row.consentStatus as "pending" | "complete",
-        activationDate,
+        enrollmentDate: row.enrolledAt,
       })
     ) {
       throw new ActivateEnrollmentError("consent_required");

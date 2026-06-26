@@ -23,9 +23,12 @@ const ownerSession: SessionContext = {
 type MockEnrollmentRow = {
   enrollmentId: string;
   enrollmentStatus: string;
+  enrolledAt: Date;
   consentStatus: string;
   dateOfBirth: string | null;
 };
+
+const defaultEnrolledAt = new Date("2026-06-26T12:00:00.000Z");
 
 function mockTransaction(options: {
   row: MockEnrollmentRow | null;
@@ -94,6 +97,7 @@ describe("activateEnrollment", () => {
       row: {
         enrollmentId,
         enrollmentStatus: "active",
+        enrolledAt: defaultEnrolledAt,
         consentStatus: "complete",
         dateOfBirth: "2015-01-01",
       },
@@ -109,6 +113,7 @@ describe("activateEnrollment", () => {
       row: {
         enrollmentId,
         enrollmentStatus: "pending",
+        enrolledAt: defaultEnrolledAt,
         consentStatus: "pending",
         dateOfBirth: "2015-01-01",
       },
@@ -124,6 +129,7 @@ describe("activateEnrollment", () => {
       row: {
         enrollmentId,
         enrollmentStatus: "pending",
+        enrolledAt: defaultEnrolledAt,
         consentStatus: "pending",
         dateOfBirth: "1990-01-01",
       },
@@ -140,6 +146,7 @@ describe("activateEnrollment", () => {
       row: {
         enrollmentId,
         enrollmentStatus: "pending",
+        enrolledAt: defaultEnrolledAt,
         consentStatus: "complete",
         dateOfBirth: "2015-01-01",
       },
@@ -148,5 +155,21 @@ describe("activateEnrollment", () => {
     const outcome = await activateEnrollment(ownerSession, tenantSlug, enrollmentId);
 
     expect(outcome.status).toBe("active");
+  });
+
+  it("throws consent_required when enrolled as a minor before their 18th birthday", async () => {
+    mockTransaction({
+      row: {
+        enrollmentId,
+        enrollmentStatus: "pending",
+        enrolledAt: new Date("2026-06-26T12:00:00.000Z"),
+        consentStatus: "pending",
+        dateOfBirth: "2008-06-27",
+      },
+    });
+
+    await expect(activateEnrollment(ownerSession, tenantSlug, enrollmentId)).rejects.toMatchObject({
+      code: "consent_required",
+    });
   });
 });

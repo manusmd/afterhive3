@@ -5,13 +5,13 @@ export type ConsentStatus = "pending" | "complete";
 export function canActivateEnrollment(input: {
   dateOfBirth: Date | null;
   consentStatus: ConsentStatus;
-  activationDate: Date;
+  enrollmentDate: Date;
 }) {
   if (!input.dateOfBirth) {
     return true;
   }
 
-  if (!isMinorAtDate(input.dateOfBirth, input.activationDate)) {
+  if (!isMinorAtDate(input.dateOfBirth, input.enrollmentDate)) {
     return true;
   }
 

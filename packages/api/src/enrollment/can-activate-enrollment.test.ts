@@ -1,15 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { canActivateEnrollment } from "./can-activate-enrollment";
 
-const activationDate = new Date("2026-06-26T12:00:00.000Z");
-
 describe("canActivateEnrollment", () => {
   it("allows adults even when consent is pending", () => {
     expect(
       canActivateEnrollment({
         dateOfBirth: new Date("1990-01-01"),
         consentStatus: "pending",
-        activationDate,
+        enrollmentDate: new Date("2026-06-26T12:00:00.000Z"),
       }),
     ).toBe(true);
   });
@@ -19,7 +17,7 @@ describe("canActivateEnrollment", () => {
       canActivateEnrollment({
         dateOfBirth: new Date("2015-01-01"),
         consentStatus: "pending",
-        activationDate,
+        enrollmentDate: new Date("2026-06-26T12:00:00.000Z"),
       }),
     ).toBe(false);
   });
@@ -29,7 +27,7 @@ describe("canActivateEnrollment", () => {
       canActivateEnrollment({
         dateOfBirth: new Date("2015-01-01"),
         consentStatus: "complete",
-        activationDate,
+        enrollmentDate: new Date("2026-06-26T12:00:00.000Z"),
       }),
     ).toBe(true);
   });
@@ -39,8 +37,18 @@ describe("canActivateEnrollment", () => {
       canActivateEnrollment({
         dateOfBirth: null,
         consentStatus: "pending",
-        activationDate,
+        enrollmentDate: new Date("2026-06-26T12:00:00.000Z"),
       }),
     ).toBe(true);
+  });
+
+  it("blocks activation when enrolled as a minor even if activation would be after 18th birthday", () => {
+    expect(
+      canActivateEnrollment({
+        dateOfBirth: new Date("2008-06-27"),
+        consentStatus: "pending",
+        enrollmentDate: new Date("2026-06-26T12:00:00.000Z"),
+      }),
+    ).toBe(false);
   });
 });
