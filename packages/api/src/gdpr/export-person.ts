@@ -106,6 +106,7 @@ export async function collectPersonExportCategories(
   const consent = await db
     .select({
       id: consentRecords.id,
+      personId: consentRecords.personId,
       type: consentRecords.type,
       granted: consentRecords.granted,
       grantedAt: consentRecords.grantedAt,
@@ -113,7 +114,15 @@ export async function collectPersonExportCategories(
       guardianPersonId: consentRecords.guardianPersonId,
     })
     .from(consentRecords)
-    .where(and(eq(consentRecords.tenantId, tenantId), eq(consentRecords.personId, personId)));
+    .where(
+      and(
+        eq(consentRecords.tenantId, tenantId),
+        or(
+          eq(consentRecords.personId, personId),
+          eq(consentRecords.guardianPersonId, personId),
+        ),
+      ),
+    );
 
   const relationshipRows = await db
     .select({

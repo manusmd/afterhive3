@@ -420,4 +420,78 @@ describe("collectPersonExportCategories", () => {
       locationSouth,
     ]);
   });
+
+  it("includes consent records granted by the exported guardian", async () => {
+    const guardianPersonId = "guardian-person";
+    const minorPersonId = "minor-person";
+    const grantedForMinor = {
+      id: "consent-1",
+      personId: minorPersonId,
+      type: "parental",
+      granted: true,
+      grantedAt: new Date("2024-04-01"),
+      method: "portal",
+      guardianPersonId: guardianPersonId,
+    };
+
+    let selectCall = 0;
+
+    getDb.mockReturnValue({
+      select: () => {
+        selectCall += 1;
+        const call = selectCall;
+
+        return {
+          from: () => ({
+            where: () => {
+              if (call === 1) {
+                return {
+                  limit: () =>
+                    Promise.resolve([
+                      {
+                        id: guardianPersonId,
+                        firstName: "Maria",
+                        lastName: "Muster",
+                        dateOfBirth: "1985-01-01",
+                        createdAt: new Date("2024-01-01"),
+                      },
+                    ]),
+                };
+              }
+
+              if (call === 2) {
+                return {
+                  limit: () => Promise.resolve([]),
+                };
+              }
+
+              if (call === 3) {
+                return Promise.resolve([grantedForMinor]);
+              }
+
+              if (call === 4 || call === 5) {
+                return Promise.resolve([]);
+              }
+
+              return Promise.resolve([]);
+            },
+          }),
+        };
+      },
+    });
+
+    const result = await collectPersonExportCategories(tenantId, guardianPersonId, undefined);
+    const consentEntries = result.consent as Array<{
+      id: string;
+      personId: string;
+      guardianPersonId: string;
+    }>;
+
+    expect(consentEntries).toHaveLength(1);
+    expect(consentEntries[0]).toMatchObject({
+      id: "consent-1",
+      personId: minorPersonId,
+      guardianPersonId: guardianPersonId,
+    });
+  });
 });
