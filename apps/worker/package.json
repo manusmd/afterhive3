@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --env-file=../../.env --import tsx src/index.ts",
-    "start": "node --env-file=../../.env dist/index.js",
+    "dev": "tsx src/index.ts",
+    "start": "DOTENV_CONFIG_PATH=../../.env node -r dotenv/config dist/index.js",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"

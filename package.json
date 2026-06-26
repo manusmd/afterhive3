@@ -9,7 +9,7 @@
     "typecheck": "turbo typecheck",
     "db:generate": "pnpm --filter @afterhive/db generate",
     "db:migrate": "pnpm --filter @afterhive/db migrate",
-    "db:seed": "node --env-file=.env --import tsx scripts/seed-demo.ts",
+    "db:seed": "tsx scripts/seed-demo.ts",
     "db:studio": "pnpm --filter @afterhive/db studio"
   },
   "devDependencies": {
