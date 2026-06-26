@@ -4,6 +4,7 @@ export * from "./locations";
 export * from "./import-jobs";
 export * from "./leads";
 export * from "./persons";
+export * from "./audit-log-entries";
 export * from "./memberships";
 export * from "./staff-invites";
 export * from "./platform-memberships";
