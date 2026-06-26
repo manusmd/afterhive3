@@ -14,7 +14,6 @@ export function AnonymizePersonButton({ tenantSlug, personId }: AnonymizePersonB
   const t = useT();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   function mapAnonymizeError(code?: string) {
@@ -34,7 +33,6 @@ export function AnonymizePersonButton({ tenantSlug, personId }: AnonymizePersonB
 
   async function onAnonymize() {
     setError(null);
-    setSuccess(null);
 
     if (!window.confirm(t("admin.persons.privacy.anonymize.confirm"))) {
       return;
@@ -64,9 +62,8 @@ export function AnonymizePersonButton({ tenantSlug, personId }: AnonymizePersonB
         return;
       }
 
-      setSuccess(t("admin.persons.privacy.anonymize.success"));
+      router.push(`/${tenantSlug}/crm/persons`);
       setLoading(false);
-      router.refresh();
     } catch {
       setError(mapAnonymizeError());
       setLoading(false);
@@ -76,7 +73,6 @@ export function AnonymizePersonButton({ tenantSlug, personId }: AnonymizePersonB
   return (
     <Stack spacing={2}>
       {error ? <Alert severity="error">{error}</Alert> : null}
-      {success ? <Alert severity="success">{success}</Alert> : null}
       <Button
         variant="outlined"
         color="error"

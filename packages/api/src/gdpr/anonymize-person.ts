@@ -3,7 +3,6 @@ import { getDb } from "@afterhive/db";
 import { auditLogEntries, leads, memberProfiles, persons, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import {
-  buildLocationScopeFilter,
   hasAllLocationsAccess,
   hasNoLocationAccess,
 } from "../location/location-scope";
@@ -47,20 +46,21 @@ async function assertPersonAnonymizeScope(
   }
 
   const db = getDb();
-  const scopeFilter = buildLocationScopeFilter(leads.locationId, anonymizeLocationIds);
-  const conditions = [eq(leads.tenantId, tenantId), eq(leads.convertedPersonId, personId)];
+  const convertedLeads = await db
+    .select({ id: leads.id, locationId: leads.locationId })
+    .from(leads)
+    .where(and(eq(leads.tenantId, tenantId), eq(leads.convertedPersonId, personId)));
 
-  if (scopeFilter) {
-    conditions.push(scopeFilter);
+  if (convertedLeads.length === 0) {
+    throw new AnonymizePersonError("location_forbidden");
   }
 
-  const [lead] = await db
-    .select({ id: leads.id })
-    .from(leads)
-    .where(and(...conditions))
-    .limit(1);
+  const allowedLocationIds = new Set(anonymizeLocationIds);
+  const hasOutOfScopeLead = convertedLeads.some(
+    (lead) => !allowedLocationIds.has(lead.locationId),
+  );
 
-  if (!lead) {
+  if (hasOutOfScopeLead) {
     throw new AnonymizePersonError("location_forbidden");
   }
 }

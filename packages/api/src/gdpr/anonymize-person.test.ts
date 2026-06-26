@@ -7,6 +7,7 @@ const tenantSlug = "demo-club";
 const personId = "person-1";
 const memberProfileId = "member-1";
 const locationNorth = "loc-north";
+const locationSouth = "loc-south";
 
 const getDb = vi.hoisted(() => vi.fn());
 
@@ -176,13 +177,11 @@ describe("anonymizePerson", () => {
     );
   });
 
-  it("throws location_forbidden for scoped admin without lead in scope", async () => {
+  it("throws location_forbidden for scoped admin without converted leads", async () => {
     getDb.mockReturnValue({
       select: () => ({
         from: () => ({
-          where: () => ({
-            limit: () => Promise.resolve([]),
-          }),
+          where: () => Promise.resolve([]),
         }),
       }),
     });
@@ -190,6 +189,29 @@ describe("anonymizePerson", () => {
     await expect(anonymizePerson(scopedAdminSession, tenantSlug, personId)).rejects.toMatchObject({
       code: "location_forbidden",
     });
+  });
+
+  it("throws location_forbidden when person has converted leads outside scope", async () => {
+    const transaction = vi.fn();
+
+    getDb.mockReturnValue({
+      select: () => ({
+        from: () => ({
+          where: () =>
+            Promise.resolve([
+              { id: "lead-north", locationId: locationNorth },
+              { id: "lead-south", locationId: locationSouth },
+            ]),
+        }),
+      }),
+      transaction,
+    });
+
+    await expect(anonymizePerson(scopedAdminSession, tenantSlug, personId)).rejects.toMatchObject({
+      code: "location_forbidden",
+    });
+
+    expect(transaction).not.toHaveBeenCalled();
   });
 
   it("throws already_anonymized when update returns no row", async () => {
