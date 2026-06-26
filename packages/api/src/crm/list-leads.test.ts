@@ -24,6 +24,11 @@ const officeSession: SessionContext = {
   locationIds: [locationNorth],
 };
 
+const unassignedOfficeSession: SessionContext = {
+  ...officeSession,
+  locationIds: [],
+};
+
 const fixtureRows = [
   {
     id: "lead-north",
@@ -83,12 +88,15 @@ function mockDbForSession(session: SessionContext) {
 }
 
 describe("resolveListLeadsLocationScope", () => {
-  it("returns undefined for all-location roles", () => {
+  it("passes through undefined for all-location sessions", () => {
     expect(resolveListLeadsLocationScope(undefined)).toBeUndefined();
-    expect(resolveListLeadsLocationScope([])).toBeUndefined();
   });
 
-  it("returns assigned location ids for scoped office staff", () => {
+  it("passes through empty arrays for unassigned scoped sessions", () => {
+    expect(resolveListLeadsLocationScope([])).toEqual([]);
+  });
+
+  it("passes through assigned location ids for scoped office staff", () => {
     expect(resolveListLeadsLocationScope([locationNorth])).toEqual([locationNorth]);
   });
 });
@@ -98,7 +106,7 @@ describe("listLeads", () => {
     buildLocationScopeFilter.mockReset();
     getDb.mockReset();
     buildLocationScopeFilter.mockImplementation((_, locationIds) =>
-      locationIds ? { type: "scope-filter" } : undefined,
+      locationIds === undefined ? undefined : { type: "scope-filter" },
     );
   });
 
@@ -110,6 +118,13 @@ describe("listLeads", () => {
         roles: ["tenant_office"],
       }),
     ).resolves.toEqual([]);
+    expect(getDb).not.toHaveBeenCalled();
+  });
+
+  it("returns no leads when scoped office staff have no assigned locations", async () => {
+    const items = await listLeads(unassignedOfficeSession);
+
+    expect(items).toEqual([]);
     expect(getDb).not.toHaveBeenCalled();
   });
 

@@ -12,7 +12,11 @@ export async function GET(request: Request) {
 
   const session = await getAdminSessionContext(tenantSlug, request.headers);
 
-  if (!session || !canReadLeads(session.roles)) {
+  if (!session) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  if (!canReadLeads(session.roles, session.locationIds)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 

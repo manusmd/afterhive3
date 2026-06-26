@@ -1,8 +1,12 @@
-import { inArray, type SQL } from "drizzle-orm";
+import { inArray, sql, type SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 
 export function hasAllLocationsAccess(locationIds?: string[]): boolean {
-  return !locationIds || locationIds.length === 0;
+  return locationIds === undefined;
+}
+
+export function hasNoLocationAccess(locationIds?: string[]): boolean {
+  return locationIds !== undefined && locationIds.length === 0;
 }
 
 export function buildLocationScopeFilter(
@@ -11,6 +15,10 @@ export function buildLocationScopeFilter(
 ): SQL | undefined {
   if (hasAllLocationsAccess(locationIds)) {
     return undefined;
+  }
+
+  if (hasNoLocationAccess(locationIds)) {
+    return sql`false`;
   }
 
   const scopedIds = locationIds ?? [];
@@ -23,6 +31,10 @@ export function isWithinLocationScope(
 ): boolean {
   if (hasAllLocationsAccess(locationIds)) {
     return true;
+  }
+
+  if (hasNoLocationAccess(locationIds)) {
+    return false;
   }
 
   const scopedIds = locationIds ?? [];

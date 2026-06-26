@@ -23,7 +23,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
 
   const showLocations = canViewLocations(session.roles);
   const showTeam = canAssignRoles(session.roles);
-  const showLeads = canReadLeads(session.roles);
+  const showLeads = canReadLeads(session.roles, session.locationIds);
 
   return (
     <SurfaceShell surface="admin" title="Dashboard">
@@ -59,10 +59,12 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
           ))}
         </Stack>
         <Typography variant="body2">
-          Standort-Scope:{" "}
-          {session.locationIds?.length
-            ? session.locationIds.join(", ")
-            : "alle Standorte"}
+          Sichtbare Standorte:{" "}
+          {session.locationIds === undefined
+            ? "alle Standorte"
+            : session.locationIds.length === 0
+              ? "keine zugewiesen"
+              : session.locationIds.join(", ")}
         </Typography>
       </Stack>
     </SurfaceShell>

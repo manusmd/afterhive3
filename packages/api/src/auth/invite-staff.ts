@@ -8,6 +8,7 @@ import {
   user,
 } from "@afterhive/db/schema";
 import { sendStaffInviteEmail } from "../email/send-staff-invite";
+import { validateStaffRoleLocations } from "../location/role-location-scope";
 
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -44,6 +45,11 @@ export async function inviteStaff(input: InviteStaffInput): Promise<InviteStaffR
 
   if (!tenant) {
     throw new InviteStaffError("tenant_not_found");
+  }
+
+  const locationValidation = validateStaffRoleLocations(input.role, input.locationIds);
+  if (!locationValidation.ok) {
+    throw new InviteStaffError(locationValidation.code);
   }
 
   const [existingUser] = await db
@@ -116,7 +122,9 @@ export async function inviteStaff(input: InviteStaffInput): Promise<InviteStaffR
 }
 
 export class InviteStaffError extends Error {
-  constructor(readonly code: "tenant_not_found" | "already_member" | "invite_pending") {
+  constructor(
+    readonly code: "tenant_not_found" | "already_member" | "invite_pending" | "locations_required",
+  ) {
     super(code);
     this.name = "InviteStaffError";
   }

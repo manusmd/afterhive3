@@ -2,24 +2,28 @@ import { describe, expect, it } from "vitest";
 import {
   buildLocationScopeFilter,
   hasAllLocationsAccess,
+  hasNoLocationAccess,
   isWithinLocationScope,
 } from "./location-scope";
 
 describe("hasAllLocationsAccess", () => {
-  it("treats undefined and empty arrays as all locations", () => {
+  it("treats undefined as all locations", () => {
     expect(hasAllLocationsAccess(undefined)).toBe(true);
-    expect(hasAllLocationsAccess([])).toBe(true);
   });
 
-  it("treats non-empty arrays as scoped", () => {
-    expect(hasAllLocationsAccess(["loc-1"])).toBe(false);
+  it("treats empty arrays as scoped with no access", () => {
+    expect(hasAllLocationsAccess([])).toBe(false);
+    expect(hasNoLocationAccess([])).toBe(true);
   });
 });
 
 describe("isWithinLocationScope", () => {
   it("allows any location when scope is all locations", () => {
     expect(isWithinLocationScope("loc-1", undefined)).toBe(true);
-    expect(isWithinLocationScope("loc-1", [])).toBe(true);
+  });
+
+  it("denies all locations when scope is empty", () => {
+    expect(isWithinLocationScope("loc-1", [])).toBe(false);
   });
 
   it("allows only assigned locations when scoped", () => {
@@ -31,7 +35,10 @@ describe("isWithinLocationScope", () => {
 describe("buildLocationScopeFilter", () => {
   it("returns undefined for all-locations scope", () => {
     expect(buildLocationScopeFilter({} as never, undefined)).toBeUndefined();
-    expect(buildLocationScopeFilter({} as never, [])).toBeUndefined();
+  });
+
+  it("returns a blocking filter for empty scoped assignments", () => {
+    expect(buildLocationScopeFilter({} as never, [])).toBeDefined();
   });
 
   it("returns an inArray filter for scoped sessions", () => {

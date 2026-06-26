@@ -21,7 +21,7 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
     redirect(`/${tenantSlug}/login`);
   }
 
-  if (!canReadLeads(session.roles)) {
+  if (!canReadLeads(session.roles, session.locationIds)) {
     return (
       <SurfaceShell surface="admin" title="Leads">
         <Stack spacing={2}>
@@ -35,9 +35,12 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
   }
 
   const leads = await listLeads(session);
-  const scopedLocations = session.locationIds?.length
-    ? `${session.locationIds.length} Standort(e)`
-    : "alle Standorte";
+  const scopedLocations =
+    session.locationIds === undefined
+      ? "alle Standorte"
+      : session.locationIds.length === 0
+        ? "keine Standorte zugewiesen"
+        : `${session.locationIds.length} Standort(e)`;
 
   return (
     <SurfaceShell surface="admin" title="Leads">
@@ -48,13 +51,13 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
         </Stack>
 
         <Typography color="text.secondary">
-          Sichtbarer Standort-Scope: {scopedLocations}
+          Sichtbare Standorte: {scopedLocations}
         </Typography>
 
         <Stack spacing={2}>
           <Typography variant="h6">Leads ({leads.length})</Typography>
           {leads.length === 0 ? (
-            <Typography color="text.secondary">Keine Leads in Ihrem Standort-Scope.</Typography>
+            <Typography color="text.secondary">Keine Leads in Ihren sichtbaren Standorten.</Typography>
           ) : (
             <>
               <Box sx={{ display: { xs: "none", md: "block" } }}>

@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
 import { roleAssignments, tenantMemberships, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
+import { resolveSessionLocationIds } from "../location/role-location-scope";
 
 export async function resolveStaffSession(
   userId: string,
@@ -37,12 +38,12 @@ export async function resolveStaffSession(
     .where(eq(roleAssignments.membershipId, row.membershipId));
 
   const roleNames = roles.map((entry) => entry.role);
-  const hasAllLocations = roles.some(
-    (entry) => !entry.locationIds || entry.locationIds.length === 0,
+  const locationIds = resolveSessionLocationIds(
+    roles.map((entry) => ({
+      role: entry.role,
+      locationIds: entry.locationIds,
+    })),
   );
-  const locationIds = hasAllLocations
-    ? undefined
-    : [...new Set(roles.flatMap((entry) => entry.locationIds ?? []))];
 
   return {
     userId,

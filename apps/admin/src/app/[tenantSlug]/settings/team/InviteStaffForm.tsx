@@ -12,6 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { requiresAssignedLocations } from "@afterhive/api/location/role-location-scope";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -46,6 +47,12 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
     event.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (requiresAssignedLocations(role) && locationIds.length === 0) {
+      setError("Bitte mindestens einen Standort auswaehlen.");
+      return;
+    }
+
     setLoading(true);
 
     const response = await fetch("/app/api/staff/invite", {
@@ -57,7 +64,11 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
       body: JSON.stringify({
         email,
         role,
-        locationIds: locationIds.length ? locationIds : undefined,
+        locationIds: requiresAssignedLocations(role)
+          ? locationIds
+          : locationIds.length
+            ? locationIds
+            : undefined,
       }),
     });
 
@@ -105,7 +116,7 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
           </Select>
         </FormControl>
         {locations.length ? (
-          <FormControl fullWidth>
+          <FormControl fullWidth required={requiresAssignedLocations(role)}>
             <InputLabel id="invite-locations-label">Standorte</InputLabel>
             <Select
               labelId="invite-locations-label"
@@ -143,6 +154,8 @@ function mapInviteError(code?: string) {
       return "Es gibt bereits eine offene Einladung.";
     case "forbidden":
       return "Keine Berechtigung.";
+    case "locations_required":
+      return "Bitte mindestens einen Standort auswaehlen.";
     default:
       return "Einladung fehlgeschlagen.";
   }

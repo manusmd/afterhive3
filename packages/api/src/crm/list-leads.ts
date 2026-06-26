@@ -4,7 +4,7 @@ import { leads, locations } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import {
   buildLocationScopeFilter,
-  hasAllLocationsAccess,
+  hasNoLocationAccess,
 } from "../location/location-scope";
 
 export type LeadListItem = {
@@ -21,15 +21,11 @@ export type LeadListItem = {
 export function resolveListLeadsLocationScope(
   locationIds?: string[],
 ): string[] | undefined {
-  if (hasAllLocationsAccess(locationIds)) {
-    return undefined;
-  }
-
   return locationIds;
 }
 
 export async function listLeads(session: SessionContext): Promise<LeadListItem[]> {
-  if (!session.tenantId) {
+  if (!session.tenantId || hasNoLocationAccess(session.locationIds)) {
     return [];
   }
 
