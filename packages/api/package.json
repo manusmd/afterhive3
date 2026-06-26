@@ -6,7 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./health": "./src/health/index.ts",
-    "./health/route-handler": "./src/health/route-handler.ts"
+    "./health/route-handler": "./src/health/route-handler.ts",
+    "./auth/route-handler": "./src/auth/route-handler.ts",
+    "./auth/admin-auth": "./src/auth/admin-auth.ts",
+    "./auth/get-admin-session": "./src/auth/get-admin-session.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -15,7 +18,9 @@
   },
   "dependencies": {
     "@afterhive/db": "workspace:*",
+    "@afterhive/domain": "workspace:*",
     "@afterhive/shared": "workspace:*",
+    "better-auth": "^1.6.22",
     "drizzle-orm": "^0.45.2",
     "ioredis": "^5.6.1"
   },

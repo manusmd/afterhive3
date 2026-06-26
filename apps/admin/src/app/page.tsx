@@ -1,11 +1,13 @@
-import { SurfaceShell } from "@afterhive/ui";
 import { Typography } from "@mui/material";
+import Link from "next/link";
+import { SurfaceShell } from "@afterhive/ui";
 
-export default function HomePage() {
+export default function AdminHomePage() {
   return (
     <SurfaceShell surface="admin" title="Tenant Admin">
       <Typography color="text.secondary">
-        Foundation shell — staff login ships in EPIC-002.
+        Oeffnen Sie{" "}
+        <Link href="/app/demo-club/login">/app/demo-club/login</Link> fuer die Demo-Anmeldung.
       </Typography>
     </SurfaceShell>
   );

@@ -8,6 +8,13 @@
       "when": 1782477379734,
       "tag": "0000_burly_mindworm",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782478000000,
+      "tag": "0001_auth_and_memberships",
+      "breakpoints": true
     }
   ]
 }
