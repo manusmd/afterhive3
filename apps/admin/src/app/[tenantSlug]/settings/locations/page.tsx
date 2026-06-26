@@ -5,6 +5,7 @@ import {
   canViewLocations,
 } from "@afterhive/api/location/can-manage-locations";
 import { listLocations } from "@afterhive/api/location/list-locations";
+import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -13,6 +14,8 @@ import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { CreateLocationForm } from "./CreateLocationForm";
+
+const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
 type LocationsSettingsPageProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -26,14 +29,16 @@ export default async function LocationsSettingsPage({ params }: LocationsSetting
     redirect(`/${tenantSlug}/login`);
   }
 
+  const locationsTitle = t("admin.locations.title");
+
   if (!canViewLocations(session.roles)) {
     return (
-      <SurfaceShell surface="admin" title="Standorte">
+      <SurfaceShell surface="admin" title={locationsTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
           </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title="Standorte" />
+          <SettingsForbidden tenantSlug={tenantSlug} title={locationsTitle} />
         </Stack>
       </SurfaceShell>
     );
@@ -42,14 +47,20 @@ export default async function LocationsSettingsPage({ params }: LocationsSetting
   const locations = await listLocations(tenantSlug);
   const showCreateForm = canCreateLocation(session.roles);
   const showTeam = canAssignRoles(session.roles);
+  const tableHeadings = [
+    t("admin.locations.table.name"),
+    t("admin.locations.table.created"),
+  ];
 
   return (
-    <SurfaceShell surface="admin" title="Standorte">
+    <SurfaceShell surface="admin" title={locationsTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Stack direction="row" spacing={1}>
-            <Link href={`/${tenantSlug}`}>Dashboard</Link>
-            {showTeam ? <Link href={`/${tenantSlug}/settings/team`}>Team</Link> : null}
+            <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
+            {showTeam ? (
+              <Link href={`/${tenantSlug}/settings/team`}>{t("admin.nav.team")}</Link>
+            ) : null}
           </Stack>
           <StaffLogoutButton tenantSlug={tenantSlug} />
         </Stack>
@@ -57,18 +68,18 @@ export default async function LocationsSettingsPage({ params }: LocationsSetting
         {showCreateForm ? <CreateLocationForm tenantSlug={tenantSlug} /> : null}
 
         <Stack spacing={2}>
-          <Typography variant="h6">Standorte ({locations.length})</Typography>
+          <Typography variant="h6">
+            {t("admin.locations.list.title", { count: locations.length })}
+          </Typography>
           {locations.length === 0 ? (
-            <Typography color="text.secondary">
-              Mindestens ein Standort ist erforderlich. Legen Sie den ersten Standort an.
-            </Typography>
+            <Typography color="text.secondary">{t("admin.locations.list.empty")}</Typography>
           ) : (
             <>
               <Box sx={{ display: { xs: "none", md: "block" } }}>
                 <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
                   <Box component="thead">
                     <Box component="tr">
-                      {["Name", "Erstellt"].map((heading) => (
+                      {tableHeadings.map((heading) => (
                         <Box
                           component="th"
                           key={heading}

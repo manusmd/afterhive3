@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@afterhive/ui";
 import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -11,11 +12,23 @@ type AcceptInviteFormProps = {
 };
 
 export function AcceptInviteForm({ tenantSlug, token, email }: AcceptInviteFormProps) {
+  const t = useT();
   const router = useRouter();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function mapAcceptError(code?: string) {
+    switch (code) {
+      case "invalid_invite":
+        return t("admin.invite.accept.error.invalidInvite");
+      case "already_member":
+        return t("admin.invite.accept.error.alreadyMember");
+      default:
+        return t("admin.invite.accept.error.default");
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,18 +63,18 @@ export function AcceptInviteForm({ tenantSlug, token, email }: AcceptInviteFormP
     <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 420 }}>
       <Stack spacing={2}>
         <Typography variant="body2" color="text.secondary">
-          Einladung fuer {email}
+          {t("admin.invite.accept.forEmail", { email })}
         </Typography>
         {error ? <Alert severity="error">{error}</Alert> : null}
         <TextField
-          label="Name"
+          label={t("admin.invite.accept.name.label")}
           required
           fullWidth
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
         <TextField
-          label="Passwort"
+          label={t("admin.invite.accept.password.label")}
           type="password"
           autoComplete="new-password"
           required
@@ -70,20 +83,9 @@ export function AcceptInviteForm({ tenantSlug, token, email }: AcceptInviteFormP
           onChange={(event) => setPassword(event.target.value)}
         />
         <Button type="submit" variant="contained" disabled={loading}>
-          Konto aktivieren
+          {t("admin.invite.accept.submit")}
         </Button>
       </Stack>
     </Box>
   );
-}
-
-function mapAcceptError(code?: string) {
-  switch (code) {
-    case "invalid_invite":
-      return "Einladung ungueltig oder abgelaufen.";
-    case "already_member":
-      return "Konto ist bereits aktiv.";
-    default:
-      return "Aktivierung fehlgeschlagen.";
-  }
 }

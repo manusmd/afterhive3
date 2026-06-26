@@ -6,8 +6,9 @@ Monorepo for the Afterhive MVP: platform backoffice, tenant admin, member portal
 
 **Always start a new branch for each ticket.** Do not implement Linear issues directly on `main`.
 
-1. Confirm the Linear issue ID and title (e.g. `MAN-151`, suspend tenant).
-2. Create a branch from up-to-date `main`:
+1. **Confirm the issue in Linear first** (via MCP: `get_issue` or `list_issues`). Verify the issue ID, title, milestone/phase, and any `blockedBy` relations match the work you plan to do.
+2. **If Linear is unreachable, stop.** Do not start a new ticket from docs, git history, or epic sequence alone — wait until Linear can confirm the next issue.
+3. Create a branch from up-to-date `main`:
 
 ```bash
 git checkout main
@@ -15,16 +16,16 @@ git pull
 git checkout -b man-151-us-003-suspend-tenant
 ```
 
-3. Do the work on that branch only.
-4. Run checks before opening a PR:
+4. Do the work on that branch only.
+5. Run checks before opening a PR:
 
 ```bash
 pnpm typecheck
 pnpm test
 ```
 
-5. Commit with a message that references the ticket when relevant.
-6. Push the branch and open a PR from the feature branch into `main`.
+6. Commit with a message that references the ticket when relevant.
+7. Push the branch and open a PR from the feature branch into `main`.
 
 When the user asks to **push**, always push **and** open the PR in the same turn (unless a PR for that branch already exists).
 
@@ -79,7 +80,7 @@ Demo credentials come from `pnpm db:seed` (platform admin, tenant staff, owner).
 
 Follow `docs/14-delivery/03-implementation-order.md`. Phase 0 foundations first. Linear project: [Afterhive](https://linear.app/manuweb/project/afterhive-9438c620d7c3).
 
-When picking up work, mark the Linear issue **In Progress** and **Done** when complete.
+When picking up work, confirm the issue in Linear (including phase and blockers), mark it **In Progress**, and **Done** when complete. Do not start Phase N+1 work while Linear shows Phase N milestone items still open unless the specific story is explicitly unblocked.
 
 ## Code conventions
 

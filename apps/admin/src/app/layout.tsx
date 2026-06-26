@@ -1,11 +1,13 @@
-import { AdminThemeProvider } from "@afterhive/ui";
+import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AdminI18nProvider } from "@/components/AdminI18nProvider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
+const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
 export const metadata: Metadata = {
-  title: "Afterhive Admin",
+  title: t("admin.meta.title"),
 };
 
 export default function RootLayout({
@@ -14,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="de" className={inter.className}>
       <body>
-        <AdminThemeProvider>{children}</AdminThemeProvider>
+        <AdminI18nProvider>{children}</AdminI18nProvider>
       </body>
     </html>
   );

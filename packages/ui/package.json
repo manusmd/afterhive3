@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./theme": "./src/theme/index.ts",
-    "./providers": "./src/providers/AppThemeProvider.tsx"
+    "./providers": "./src/providers/AppThemeProvider.tsx",
+    "./i18n": "./src/providers/I18nProvider.tsx"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -14,6 +15,7 @@
     "build": "tsc --noEmit"
   },
   "dependencies": {
+    "@afterhive/shared": "workspace:*",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^9.1.2",

@@ -1,9 +1,10 @@
 "use client";
 
+import type { TenantStatus } from "@afterhive/api/platform/list-tenants";
+import { useT } from "@afterhive/ui";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { TenantStatus } from "@afterhive/api/platform/list-tenants";
 
 type SuspendTenantButtonProps = {
   tenantId: string;
@@ -12,16 +13,32 @@ type SuspendTenantButtonProps = {
 };
 
 export function SuspendTenantButton({ tenantId, tenantName, status }: SuspendTenantButtonProps) {
+  const t = useT();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function mapSuspendError(code?: string) {
+    switch (code) {
+      case "already_suspended":
+        return t("platform.tenants.suspend.error.alreadySuspended");
+      case "already_closed":
+        return t("platform.tenants.suspend.error.alreadyClosed");
+      case "forbidden":
+        return t("platform.tenants.suspend.error.forbidden");
+      default:
+        return t("platform.tenants.suspend.error.default");
+    }
+  }
 
   if (status === "suspended" || status === "closed") {
     return null;
   }
 
   async function onSuspend() {
-    const confirmed = window.confirm(`Tenant "${tenantName}" wirklich sperren?`);
+    const confirmed = window.confirm(
+      t("platform.tenants.suspend.confirm", { tenantName }),
+    );
 
     if (!confirmed) {
       return;
@@ -55,22 +72,9 @@ export function SuspendTenantButton({ tenantId, tenantName, status }: SuspendTen
         </Button>
       ) : (
         <Button size="small" color="warning" disabled={loading} onClick={onSuspend}>
-          Sperren
+          {t("platform.tenants.suspend.button")}
         </Button>
       )}
     </>
   );
-}
-
-function mapSuspendError(code?: string) {
-  switch (code) {
-    case "already_suspended":
-      return "Bereits gesperrt";
-    case "already_closed":
-      return "Geschlossen";
-    case "forbidden":
-      return "Keine Berechtigung";
-    default:
-      return "Sperren fehlgeschlagen";
-  }
 }

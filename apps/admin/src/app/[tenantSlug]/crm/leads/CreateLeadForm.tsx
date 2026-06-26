@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@afterhive/ui";
 import {
   Alert,
   Box,
@@ -25,12 +26,30 @@ type CreateLeadFormProps = {
 };
 
 export function CreateLeadForm({ tenantSlug, locations }: CreateLeadFormProps) {
+  const t = useT();
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [locationId, setLocationId] = useState(locations[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function mapCreateLeadError(code?: string) {
+    switch (code) {
+      case "missing_fields":
+      case "empty":
+        return t("admin.leads.create.error.missingFields");
+      case "too_long":
+        return t("admin.leads.create.error.tooLong");
+      case "invalid_location":
+        return t("admin.leads.create.error.invalidLocation");
+      case "location_forbidden":
+      case "forbidden":
+        return t("admin.leads.create.error.forbidden");
+      default:
+        return t("admin.leads.create.error.default");
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,24 +101,26 @@ export function CreateLeadForm({ tenantSlug, locations }: CreateLeadFormProps) {
       <Stack spacing={2}>
         {error ? <Alert severity="error">{error}</Alert> : null}
         <TextField
-          label="Vorname"
+          label={t("admin.leads.create.firstName.label")}
           required
           fullWidth
           value={firstName}
           onChange={(event) => setFirstName(event.target.value)}
         />
         <TextField
-          label="Nachname"
+          label={t("admin.leads.create.lastName.label")}
           required
           fullWidth
           value={lastName}
           onChange={(event) => setLastName(event.target.value)}
         />
         <FormControl fullWidth required>
-          <InputLabel id="create-lead-location-label">Standort</InputLabel>
+          <InputLabel id="create-lead-location-label">
+            {t("admin.leads.create.location.label")}
+          </InputLabel>
           <Select
             labelId="create-lead-location-label"
-            label="Standort"
+            label={t("admin.leads.create.location.label")}
             value={locationId}
             onChange={(event) => setLocationId(event.target.value)}
           >
@@ -111,26 +132,9 @@ export function CreateLeadForm({ tenantSlug, locations }: CreateLeadFormProps) {
           </Select>
         </FormControl>
         <Button type="submit" variant="contained" disabled={loading}>
-          Lead anlegen
+          {t("admin.leads.create.submit")}
         </Button>
       </Stack>
     </Box>
   );
-}
-
-function mapCreateLeadError(code?: string) {
-  switch (code) {
-    case "missing_fields":
-    case "empty":
-      return "Vorname, Nachname und Standort sind erforderlich.";
-    case "too_long":
-      return "Name ist zu lang (max. 255 Zeichen).";
-    case "invalid_location":
-      return "Standort ist ungueltig.";
-    case "location_forbidden":
-    case "forbidden":
-      return "Keine Berechtigung fuer diesen Standort.";
-    default:
-      return "Lead konnte nicht angelegt werden.";
-  }
 }

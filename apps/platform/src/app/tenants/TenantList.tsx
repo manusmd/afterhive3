@@ -1,5 +1,7 @@
 "use client";
 
+import type { TenantStatus } from "@afterhive/api/platform/list-tenants";
+import { useT } from "@afterhive/ui";
 import {
   Alert,
   Box,
@@ -14,31 +16,31 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
-import type { TenantStatus } from "@afterhive/api/platform/list-tenants";
 import { SuspendTenantButton } from "@/components/SuspendTenantButton";
 
-const STATUS_OPTIONS: { value: TenantStatus | ""; label: string }[] = [
-  { value: "", label: "Alle Status" },
-  { value: "trial", label: "Trial" },
-  { value: "active", label: "Aktiv" },
-  { value: "suspended", label: "Gesperrt" },
-  { value: "closed", label: "Geschlossen" },
-];
-
-const PLAN_OPTIONS = [
-  { value: "", label: "Alle Plaene" },
-  { value: "starter", label: "Starter" },
-  { value: "growth", label: "Growth" },
-  { value: "enterprise", label: "Enterprise" },
-];
-
 export function TenantListFilters() {
+  const t = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
 
   const status = searchParams.get("status") ?? "";
   const plan = searchParams.get("plan") ?? "";
+
+  const statusOptions: { value: TenantStatus | ""; label: string }[] = [
+    { value: "", label: t("platform.tenants.filters.status.all") },
+    { value: "trial", label: t("platform.tenants.filters.status.trial") },
+    { value: "active", label: t("platform.tenants.filters.status.active") },
+    { value: "suspended", label: t("platform.tenants.filters.status.suspended") },
+    { value: "closed", label: t("platform.tenants.filters.status.closed") },
+  ];
+
+  const planOptions = [
+    { value: "", label: t("platform.tenants.filters.plan.all") },
+    { value: "starter", label: t("platform.tenants.filters.plan.starter") },
+    { value: "growth", label: t("platform.tenants.filters.plan.growth") },
+    { value: "enterprise", label: t("platform.tenants.filters.plan.enterprise") },
+  ];
 
   function updateFilters(nextStatus: string, nextPlan: string) {
     const params = new URLSearchParams();
@@ -65,32 +67,32 @@ export function TenantListFilters() {
       sx={{ alignItems: { sm: "center" } }}
     >
       <FormControl size="small" sx={{ minWidth: 180 }}>
-        <InputLabel id="tenant-status-filter">Status</InputLabel>
+        <InputLabel id="tenant-status-filter">{t("platform.tenants.filters.status.label")}</InputLabel>
         <Select
           labelId="tenant-status-filter"
-          label="Status"
+          label={t("platform.tenants.filters.status.label")}
           value={status}
           disabled={pending}
           onChange={(event) => updateFilters(event.target.value, plan)}
         >
-          {STATUS_OPTIONS.map((option) => (
-            <MenuItem key={option.label} value={option.value}>
+          {statusOptions.map((option) => (
+            <MenuItem key={option.value || "all"} value={option.value}>
               {option.label}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
       <FormControl size="small" sx={{ minWidth: 180 }}>
-        <InputLabel id="tenant-plan-filter">Plan</InputLabel>
+        <InputLabel id="tenant-plan-filter">{t("platform.tenants.filters.plan.label")}</InputLabel>
         <Select
           labelId="tenant-plan-filter"
-          label="Plan"
+          label={t("platform.tenants.filters.plan.label")}
           value={plan}
           disabled={pending}
           onChange={(event) => updateFilters(status, event.target.value)}
         >
-          {PLAN_OPTIONS.map((option) => (
-            <MenuItem key={option.label} value={option.value}>
+          {planOptions.map((option) => (
+            <MenuItem key={option.value || "all"} value={option.value}>
               {option.label}
             </MenuItem>
           ))}
@@ -98,7 +100,7 @@ export function TenantListFilters() {
       </FormControl>
       {status || plan ? (
         <Button component={Link} href="/tenants" disabled={pending}>
-          Filter zuruecksetzen
+          {t("platform.tenants.filters.reset")}
         </Button>
       ) : null}
     </Stack>
@@ -122,6 +124,7 @@ type TenantListProps = {
 };
 
 export function TenantList({ items, nextCursor, canSuspend = false }: TenantListProps) {
+  const t = useT();
   const searchParams = useSearchParams();
   const hasFilters = Boolean(searchParams.get("status") || searchParams.get("plan"));
 
@@ -129,11 +132,13 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
     return (
       <Box sx={{ py: 4 }}>
         <Typography color="text.secondary">
-          {hasFilters ? "Keine Tenants fuer diese Filter." : "Noch keine Tenants vorhanden."}
+          {hasFilters
+            ? t("platform.tenants.list.emptyFiltered")
+            : t("platform.tenants.list.empty")}
         </Typography>
         {!hasFilters ? (
           <Button component={Link} href="/tenants/new" variant="contained" sx={{ mt: 2 }}>
-            Ersten Tenant anlegen
+            {t("platform.tenants.list.createFirst")}
           </Button>
         ) : null}
       </Box>
@@ -148,13 +153,23 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
 
   const nextHref = nextCursor ? `/tenants?${nextParams.toString()}` : null;
 
+  const tableHeadings = [
+    t("platform.tenants.table.name"),
+    t("platform.tenants.table.slug"),
+    t("platform.tenants.table.status"),
+    t("platform.tenants.table.plan"),
+    t("platform.tenants.table.subscription"),
+    t("platform.tenants.table.created"),
+    ...(canSuspend ? [t("platform.tenants.table.actions")] : []),
+  ];
+
   return (
     <Stack spacing={2}>
       <Box sx={{ display: { xs: "none", md: "block" } }}>
         <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
           <Box component="thead">
             <Box component="tr">
-              {["Name", "Slug", "Status", "Plan", "Abonnement", "Erstellt", ...(canSuspend ? ["Aktionen"] : [])].map((heading) => (
+              {tableHeadings.map((heading) => (
                 <Box
                   component="th"
                   key={heading}
@@ -245,7 +260,7 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
       {nextHref ? (
         <Box>
           <Button component={Link} href={nextHref} variant="outlined">
-            Naechste Seite
+            {t("platform.tenants.pagination.next")}
           </Button>
         </Box>
       ) : null}
@@ -254,7 +269,9 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
 }
 
 export function TenantListError() {
-  return <Alert severity="error">Tenants konnten nicht geladen werden.</Alert>;
+  const t = useT();
+
+  return <Alert severity="error">{t("platform.tenants.list.error.loadFailed")}</Alert>;
 }
 
 function formatDate(value: string) {

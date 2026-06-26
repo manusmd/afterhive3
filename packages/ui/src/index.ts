@@ -7,3 +7,4 @@ export {
   PortalThemeProvider,
 } from "./providers/surface-providers";
 export { SurfaceShell } from "./shell/SurfaceShell";
+export { I18nProvider, useT } from "./providers/I18nProvider";

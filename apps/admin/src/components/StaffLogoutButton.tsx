@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@afterhive/ui";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +11,7 @@ type StaffLogoutButtonProps = {
 };
 
 export function StaffLogoutButton({ tenantSlug }: StaffLogoutButtonProps) {
+  const t = useT();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +24,7 @@ export function StaffLogoutButton({ tenantSlug }: StaffLogoutButtonProps) {
 
   return (
     <Button variant="outlined" onClick={logout} disabled={loading}>
-      Abmelden
+      {t("common.logout")}
     </Button>
   );
 }

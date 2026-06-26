@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@afterhive/ui";
 import { Alert, Box, Button, Stack, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -9,10 +10,24 @@ type CreateLocationFormProps = {
 };
 
 export function CreateLocationForm({ tenantSlug }: CreateLocationFormProps) {
+  const t = useT();
   const router = useRouter();
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function mapCreateLocationError(code?: string) {
+    switch (code) {
+      case "empty":
+        return t("admin.locations.create.error.empty");
+      case "too_long":
+        return t("admin.locations.create.error.tooLong");
+      case "forbidden":
+        return t("admin.locations.create.error.forbidden");
+      default:
+        return t("admin.locations.create.error.default");
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,29 +60,16 @@ export function CreateLocationForm({ tenantSlug }: CreateLocationFormProps) {
       <Stack spacing={2}>
         {error ? <Alert severity="error">{error}</Alert> : null}
         <TextField
-          label="Standortname"
+          label={t("admin.locations.create.name.label")}
           required
           fullWidth
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
         <Button type="submit" variant="contained" disabled={loading}>
-          Standort anlegen
+          {t("admin.locations.create.submit")}
         </Button>
       </Stack>
     </Box>
   );
-}
-
-function mapCreateLocationError(code?: string) {
-  switch (code) {
-    case "empty":
-      return "Name darf nicht leer sein.";
-    case "too_long":
-      return "Name ist zu lang (max. 255 Zeichen).";
-    case "forbidden":
-      return "Keine Berechtigung.";
-    default:
-      return "Standort konnte nicht angelegt werden.";
-  }
 }

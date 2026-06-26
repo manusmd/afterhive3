@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@afterhive/ui";
 import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -9,6 +10,7 @@ type CreateTenantFormProps = {
 };
 
 export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
+  const t = useT();
   const router = useRouter();
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -17,6 +19,21 @@ export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  function mapCreateTenantError(code?: string) {
+    switch (code) {
+      case "invalid_slug":
+        return t("platform.tenants.create.error.invalidSlug");
+      case "slug_taken":
+        return t("platform.tenants.create.error.slugTaken");
+      case "owner_invite_failed":
+        return t("platform.tenants.create.error.ownerInviteFailed");
+      case "forbidden":
+        return t("platform.tenants.create.error.forbidden");
+      default:
+        return t("platform.tenants.create.error.default");
+    }
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,7 +65,10 @@ export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
     };
 
     setSuccess(
-      `Tenant ${result.slug} erstellt. Owner-Einladung versendet. Stripe: ${result.stripeCustomerId}`,
+      t("platform.tenants.create.success", {
+        slug: result.slug,
+        stripeCustomerId: result.stripeCustomerId,
+      }),
     );
     setName("");
     setSlug("");
@@ -64,33 +84,33 @@ export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
     <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 560 }}>
       <Stack spacing={2}>
         <Typography variant="body2" color="text.secondary">
-          Erstellt Tenant, Stripe-Kunde (Stub) und Owner-Einladung.
+          {t("platform.tenants.create.description")}
         </Typography>
         {error ? <Alert severity="error">{error}</Alert> : null}
         {success ? <Alert severity="success">{success}</Alert> : null}
         <TextField
-          label="Name"
+          label={t("platform.tenants.create.name.label")}
           required
           fullWidth
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
         <TextField
-          label="Slug"
+          label={t("platform.tenants.create.slug.label")}
           required
           fullWidth
-          helperText="Kleinbuchstaben, Zahlen und Bindestriche"
+          helperText={t("platform.tenants.create.slug.helper")}
           value={slug}
           onChange={(event) => setSlug(event.target.value)}
         />
         <TextField
-          label="Rechtlicher Name"
+          label={t("platform.tenants.create.legalName.label")}
           fullWidth
           value={legalName}
           onChange={(event) => setLegalName(event.target.value)}
         />
         <TextField
-          label="Owner E-Mail"
+          label={t("platform.tenants.create.ownerEmail.label")}
           type="email"
           required
           fullWidth
@@ -98,24 +118,9 @@ export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
           onChange={(event) => setOwnerEmail(event.target.value)}
         />
         <Button type="submit" variant="contained" disabled={loading}>
-          Tenant anlegen
+          {t("platform.tenants.create.submit")}
         </Button>
       </Stack>
     </Box>
   );
-}
-
-function mapCreateTenantError(code?: string) {
-  switch (code) {
-    case "invalid_slug":
-      return "Slug ungueltig (3–48 Zeichen, a-z, 0-9, Bindestriche).";
-    case "slug_taken":
-      return "Dieser Slug ist bereits vergeben.";
-    case "owner_invite_failed":
-      return "Owner-Einladung fehlgeschlagen.";
-    case "forbidden":
-      return "Keine Berechtigung.";
-    default:
-      return "Tenant konnte nicht erstellt werden.";
-  }
 }

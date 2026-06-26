@@ -3,6 +3,7 @@ import { canCreateTenant } from "@afterhive/api/platform/can-create-tenant";
 import { canListTenants } from "@afterhive/api/platform/can-list-tenants";
 import { canSuspendTenant } from "@afterhive/api/platform/can-suspend-tenant";
 import { listTenants, parseTenantStatus } from "@afterhive/api/platform/list-tenants";
+import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Stack } from "@mui/material";
 import { headers } from "next/headers";
@@ -10,6 +11,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { PlatformToolbar } from "@/components/PlatformToolbar";
 import { TenantList, TenantListError, TenantListFilters } from "./TenantList";
+
+const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
 type TenantsPageProps = {
   searchParams: Promise<{
@@ -42,14 +45,14 @@ export default async function TenantsPage({ searchParams }: TenantsPageProps) {
     });
   } catch {
     return (
-      <SurfaceShell surface="platform" title="Tenants">
+      <SurfaceShell surface="platform" title={t("platform.tenants.title")}>
         <TenantListError />
       </SurfaceShell>
     );
   }
 
   return (
-    <SurfaceShell surface="platform" title="Tenants">
+    <SurfaceShell surface="platform" title={t("platform.tenants.title")}>
       <Stack spacing={3}>
         <PlatformToolbar showCreateTenant={canCreateTenant(session.roles)} />
         <Suspense fallback={null}>

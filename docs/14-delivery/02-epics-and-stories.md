@@ -43,7 +43,7 @@ MVP backlog with acceptance criteria (export to Linear).
 
 | Story | AC |
 |-------|-----|
-| US-040 German UI | All MVP screens use i18n keys; default de |
+| US-040 German UI | All MVP screens use i18n keys; default de — **Linear MAN-173** |
 
 ## EPIC-010: CRM leads
 
