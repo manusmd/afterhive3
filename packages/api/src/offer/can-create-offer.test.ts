@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { canCreateOffer } from "./can-create-offer";
+import { canCreateOffer, resolveOfferCreateLocationIds } from "./can-create-offer";
 
 const locationNorth = "loc-north";
+const locationSouth = "loc-south";
 
 describe("canCreateOffer", () => {
   it("allows owner and admin regardless of location scope", () => {
@@ -25,5 +26,22 @@ describe("canCreateOffer", () => {
     expect(canCreateOffer(["tenant_finance"], undefined)).toBe(false);
     expect(canCreateOffer(["office_staff"], [locationNorth])).toBe(false);
     expect(canCreateOffer([])).toBe(false);
+  });
+
+  it("does not expand scoped creators to all locations when finance is present", () => {
+    const assignments = [
+      { role: "tenant_finance", locationIds: null },
+      { role: "tenant_office", locationIds: [locationNorth] },
+    ];
+
+    expect(canCreateOffer(["tenant_finance", "tenant_office"], undefined, assignments)).toBe(
+      true,
+    );
+    expect(
+      resolveOfferCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
+    ).toEqual([locationNorth]);
+    expect(
+      resolveOfferCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
+    ).not.toContain(locationSouth);
   });
 });

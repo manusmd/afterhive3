@@ -12,7 +12,7 @@ import {
 import type { SessionContext } from "@afterhive/domain";
 import { listTenantLocations } from "../auth/tenant-locations";
 import { isWithinLocationScope } from "../location/location-scope";
-import { canCreateOffer } from "./can-create-offer";
+import { canCreateOffer, resolveOfferCreateLocationIds } from "./can-create-offer";
 import { buildWeeklySessionOccurrences } from "../schedule/build-weekly-sessions";
 
 export type CreateOfferInput = {
@@ -118,16 +118,19 @@ export function validateCreateOfferInput(input: CreateOfferInput) {
 
 export async function listOfferFormLocations(session: SessionContext, tenantSlug: string) {
   const locations = await listTenantLocations(tenantSlug);
+  const createLocationIds = session.roleAssignments
+    ? resolveOfferCreateLocationIds(session.roles, session.roleAssignments)
+    : session.locationIds;
 
-  if (session.locationIds === undefined) {
+  if (createLocationIds === undefined) {
     return locations;
   }
 
-  if (session.locationIds.length === 0) {
+  if (createLocationIds.length === 0) {
     return [];
   }
 
-  return locations.filter((location) => session.locationIds!.includes(location.id));
+  return locations.filter((location) => createLocationIds.includes(location.id));
 }
 
 export async function createOffer(
@@ -160,7 +163,11 @@ export async function createOffer(
     throw new CreateOfferError("invalid_location");
   }
 
-  if (!isWithinLocationScope(input.locationId, session.locationIds)) {
+  const createLocationIds = session.roleAssignments
+    ? resolveOfferCreateLocationIds(session.roles, session.roleAssignments)
+    : session.locationIds;
+
+  if (!isWithinLocationScope(input.locationId, createLocationIds)) {
     throw new CreateOfferError("location_forbidden");
   }
 
