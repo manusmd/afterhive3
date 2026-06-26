@@ -34,6 +34,7 @@ Address feedback on the current branch pull request: fetch review comments, fix 
    - Commit only relevant files (exclude artifacts like `next-env.d.ts`)
    - Push to the PR branch
    - Reply with: blockers addressed, tests run, commit hash, PR URL
+   - Do not edit the PR `Fixes MAN-<id>` line when pushing review fixes
 
 ## Guardrails
 

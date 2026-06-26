@@ -98,13 +98,27 @@ When picking up work, mark the Linear issue **In Progress** and **Done** when co
 | Screens (SCR-*) | `docs/08-app-surfaces/` |
 | Permissions | `docs/06-permissions/` |
 
-Link commits and PRs to the Linear issue when possible.
+Link commits and PRs to the Linear issue when possible. PR bodies must include `Fixes MAN-<id>` — see **Pull requests** below.
 
 ## Pull requests
 
 - One PR per ticket / branch.
 - **Push implies PR:** if the user says push (or commit and push), push to origin and create the PR with `gh pr create` before finishing — do not stop at push only.
+- **Linear auto-link:** include `Fixes MAN-<id>` in the PR body (GitHub + Linear integration). Use the exact Linear issue identifier, e.g. `Fixes MAN-186`. Place it after the summary (or in a dedicated line at the top of the body).
 - **Cursor automations:** triggers fire on PR **opened** or **pushed**, not on reopen. If an automation was skipped or disabled on the first run, close the PR and create a new one (`gh pr create`), or push a new commit to the branch — do not rely on `gh pr reopen`.
 - Summary: what changed and why (not a file list).
 - Test plan: commands run (`pnpm test`, manual URLs, seed data used).
 - Do not commit `.env` or secrets.
+
+Example PR body:
+
+```markdown
+## Summary
+- …
+
+Fixes MAN-186
+
+## Test plan
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
+```
