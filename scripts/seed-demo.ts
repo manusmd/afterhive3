@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import { getAdminAuth } from "@afterhive/api/auth/admin-auth";
 import { getDb } from "@afterhive/db";
 import {
