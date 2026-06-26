@@ -56,6 +56,7 @@ export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
     setOwnerEmail("");
     setLoading(false);
     onCreated?.(result);
+    router.push("/tenants");
     router.refresh();
   }
 

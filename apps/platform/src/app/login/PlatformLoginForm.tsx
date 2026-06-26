@@ -27,14 +27,23 @@ export function PlatformLoginForm() {
 
     const sessionResponse = await fetch("/platform/api/session");
 
-    if (!sessionResponse.ok) {
+    if (sessionResponse.status === 403) {
       await authClient.signOut();
-      setError("Kein aktiver Plattform-Zugang.");
+      setError(
+        "Dieses Konto hat keinen Plattform-Zugang. Tenant-Accounts melden sich im Admin-Portal an.",
+      );
       setLoading(false);
       return;
     }
 
-    router.push("/tenants/new");
+    if (!sessionResponse.ok) {
+      await authClient.signOut();
+      setError("Anmeldung fehlgeschlagen. Bitte erneut versuchen.");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/tenants");
     router.refresh();
   }
 

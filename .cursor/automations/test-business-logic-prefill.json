@@ -1,0 +1,44 @@
+{
+  "name": "Afterhive business logic tests",
+  "description": "On pull requests that touch packages/api, packages/domain, or packages/shared, ensure new business logic has unit tests and pnpm test passes.",
+  "workflow": {
+    "triggers": [
+      {
+        "git": {
+          "pullRequest": {
+            "action": "GIT_PULL_REQUEST_ACTION_OPENED",
+            "ignoreDraftPrs": true
+          }
+        }
+      },
+      {
+        "git": {
+          "pullRequest": {
+            "action": "GIT_PULL_REQUEST_ACTION_PUSHED",
+            "ignoreDraftPrs": true
+          }
+        }
+      }
+    ],
+    "actions": [
+      {
+        "prComment": {}
+      },
+      {
+        "manageCheckRun": {}
+      }
+    ],
+    "prompts": [
+      "This pull request changed business logic under packages/api, packages/domain, or packages/shared.\n\n1. Identify new or changed exported functions, validators, permission checks, and domain rules.\n2. For each one, ensure a colocated *.test.ts exists with meaningful unit tests. Add missing tests.\n3. Run `pnpm test` from the repo root and fix failures.\n4. Skip tests only for thin route handlers, UI components, and schema-only changes with no logic.\n5. Post a PR comment summarizing: files reviewed, tests added or updated, and the `pnpm test` result.\n6. If tests fail or required coverage is missing, set the check run to failure with a short explanation."
+    ],
+    "model": "",
+    "agentOptions": {
+      "skipInstall": false
+    },
+    "memoryEnabled": true,
+    "gitConfig": {
+      "repo": "",
+      "branch": "main"
+    }
+  }
+}

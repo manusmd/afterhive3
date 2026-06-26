@@ -18,7 +18,9 @@
     "./auth/platform-route-handler": "./src/auth/platform-route-handler.ts",
     "./auth/get-platform-session": "./src/auth/get-platform-session.ts",
     "./platform/create-tenant": "./src/platform/create-tenant.ts",
-    "./platform/can-create-tenant": "./src/platform/can-create-tenant.ts"
+    "./platform/can-create-tenant": "./src/platform/can-create-tenant.ts",
+    "./platform/list-tenants": "./src/platform/list-tenants.ts",
+    "./platform/can-list-tenants": "./src/platform/can-list-tenants.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

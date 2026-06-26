@@ -1,0 +1,17 @@
+---
+description: Require unit tests when adding or changing business logic
+globs: packages/api/src/**/*.ts,packages/domain/src/**/*.ts,packages/shared/src/**/*.ts
+alwaysApply: false
+---
+
+# Business logic tests
+
+When you add or change business logic in `packages/api`, `packages/domain`, or `packages/shared`:
+
+- Add or update a colocated `*.test.ts` for exported functions, validators, permission checks, and domain rules.
+- Prefer fast unit tests without a database for pure logic.
+- Use integration tests only when behavior depends on Postgres or external services.
+- Run `pnpm test` before finishing the task.
+- Do not add tests for thin route handlers, React components, or schema-only files unless they contain non-trivial logic.
+
+Test file naming: `feature-name.test.ts` next to `feature-name.ts`.

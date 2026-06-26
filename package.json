@@ -7,6 +7,8 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "pnpm --filter @afterhive/db generate",
     "db:migrate": "pnpm --filter @afterhive/db migrate",
     "db:seed": "tsx scripts/seed-demo.ts",
@@ -17,7 +19,8 @@
     "@afterhive/db": "workspace:*",
     "tsx": "^4.20.3",
     "turbo": "^2.5.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@10.12.1",
   "engines": {

@@ -10,7 +10,7 @@ export default async function HomePage() {
   const session = await getPlatformSessionContext(await headers());
 
   if (session) {
-    redirect("/tenants/new");
+    redirect("/tenants");
   }
 
   return (
@@ -19,9 +19,9 @@ export default async function HomePage() {
         <Typography color="text.secondary">
           Melden Sie sich an, um Tenants zu verwalten.
         </Typography>
-        <Button component={Link} href="/login" variant="contained">
-          Zum Login
-        </Button>
+        <Link href="/login">
+          <Button variant="contained">Zum Login</Button>
+        </Link>
       </Stack>
     </SurfaceShell>
   );

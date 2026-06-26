@@ -1,15 +1,34 @@
+import type { SessionContext } from "@afterhive/domain";
 import { getPlatformAuth } from "./platform-auth";
 import { resolvePlatformSession } from "./platform-session";
 
-export async function getPlatformSessionContext(requestHeaders: Headers) {
+export type PlatformSessionRequestResult =
+  | { kind: "unauthenticated" }
+  | { kind: "no_membership" }
+  | { kind: "active"; context: SessionContext };
+
+export async function resolvePlatformSessionRequest(
+  requestHeaders: Headers,
+): Promise<PlatformSessionRequestResult> {
   const auth = getPlatformAuth();
   const session = await auth.api.getSession({
     headers: requestHeaders,
   });
 
   if (!session?.user) {
-    return null;
+    return { kind: "unauthenticated" };
   }
 
-  return resolvePlatformSession(session.user.id);
+  const context = await resolvePlatformSession(session.user.id);
+
+  if (!context) {
+    return { kind: "no_membership" };
+  }
+
+  return { kind: "active", context };
+}
+
+export async function getPlatformSessionContext(requestHeaders: Headers) {
+  const result = await resolvePlatformSessionRequest(requestHeaders);
+  return result.kind === "active" ? result.context : null;
 }
