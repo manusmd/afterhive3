@@ -286,6 +286,18 @@
             "forbidden": "Keine Berechtigung.",
             "default": "Export fehlgeschlagen."
           }
+        },
+        "anonymize": {
+          "submit": "Person anonymisieren",
+          "submitting": "Anonymisierung läuft…",
+          "confirm": "Personendaten unwiderruflich anonymisieren? Rechnungsbezüge bleiben erhalten.",
+          "success": "Person wurde anonymisiert.",
+          "error": {
+            "personNotFound": "Person nicht gefunden.",
+            "alreadyAnonymized": "Person wurde bereits anonymisiert.",
+            "forbidden": "Keine Berechtigung.",
+            "default": "Anonymisierung fehlgeschlagen."
+          }
         }
       }
     },

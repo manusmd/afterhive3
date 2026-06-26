@@ -1,6 +1,7 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { listPersons } from "@afterhive/api/crm/list-persons";
 import { canExportPerson } from "@afterhive/api/gdpr/can-export-person";
+import { canAnonymizePerson } from "@afterhive/api/gdpr/can-anonymize-person";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Stack, Typography } from "@mui/material";
@@ -10,6 +11,7 @@ import { notFound, redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { ExportPersonButton } from "./ExportPersonButton";
+import { AnonymizePersonButton } from "./AnonymizePersonButton";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
@@ -26,7 +28,14 @@ export default async function PersonPrivacyPage({ params }: PersonPrivacyPagePro
     redirect(`/${tenantSlug}/login`);
   }
 
-  if (!canExportPerson(session.roles, session.locationIds, session.roleAssignments)) {
+  const canExport = canExportPerson(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
+  const canAnonymize = canAnonymizePerson(session.roles);
+
+  if (!canExport && !canAnonymize) {
     return (
       <SurfaceShell surface="admin" title={pageTitle}>
         <Stack spacing={2}>
@@ -64,7 +73,12 @@ export default async function PersonPrivacyPage({ params }: PersonPrivacyPagePro
           <Typography color="text.secondary">{t("admin.persons.privacy.description")}</Typography>
         </Stack>
 
-        <ExportPersonButton tenantSlug={tenantSlug} personId={personId} />
+        <Stack spacing={3}>
+          {canExport ? <ExportPersonButton tenantSlug={tenantSlug} personId={personId} /> : null}
+          {canAnonymize ? (
+            <AnonymizePersonButton tenantSlug={tenantSlug} personId={personId} />
+          ) : null}
+        </Stack>
       </Stack>
     </SurfaceShell>
   );

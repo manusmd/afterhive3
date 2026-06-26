@@ -72,7 +72,7 @@ MVP backlog with acceptance criteria (export to Linear).
 | Story | AC |
 |-------|-----|
 | US-130 Export | Export zip contains person data categories (Flow 13) — **Linear MAN-184** |
-| US-131 Anonymize | PII removed; invoices retained |
+| US-131 Anonymize | PII removed; invoices retained — **Linear MAN-183** |
 
 ## EPIC-015: Documents
 
