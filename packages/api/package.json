@@ -20,7 +20,10 @@
     "./platform/create-tenant": "./src/platform/create-tenant.ts",
     "./platform/can-create-tenant": "./src/platform/can-create-tenant.ts",
     "./platform/list-tenants": "./src/platform/list-tenants.ts",
-    "./platform/can-list-tenants": "./src/platform/can-list-tenants.ts"
+    "./platform/can-list-tenants": "./src/platform/can-list-tenants.ts",
+    "./platform/suspend-tenant": "./src/platform/suspend-tenant.ts",
+    "./platform/can-suspend-tenant": "./src/platform/can-suspend-tenant.ts",
+    "./platform/suspend-tenant-validation": "./src/platform/suspend-tenant-validation.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import type { TenantStatus } from "@afterhive/api/platform/list-tenants";
+import { SuspendTenantButton } from "@/components/SuspendTenantButton";
 
 const STATUS_OPTIONS: { value: TenantStatus | ""; label: string }[] = [
   { value: "", label: "Alle Status" },
@@ -117,9 +118,10 @@ type TenantListItemView = {
 type TenantListProps = {
   items: TenantListItemView[];
   nextCursor: string | null;
+  canSuspend?: boolean;
 };
 
-export function TenantList({ items, nextCursor }: TenantListProps) {
+export function TenantList({ items, nextCursor, canSuspend = false }: TenantListProps) {
   const searchParams = useSearchParams();
   const hasFilters = Boolean(searchParams.get("status") || searchParams.get("plan"));
 
@@ -152,7 +154,7 @@ export function TenantList({ items, nextCursor }: TenantListProps) {
         <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
           <Box component="thead">
             <Box component="tr">
-              {["Name", "Slug", "Status", "Plan", "Abonnement", "Erstellt"].map((heading) => (
+              {["Name", "Slug", "Status", "Plan", "Abonnement", "Erstellt", ...(canSuspend ? ["Aktionen"] : [])].map((heading) => (
                 <Box
                   component="th"
                   key={heading}
@@ -191,6 +193,15 @@ export function TenantList({ items, nextCursor }: TenantListProps) {
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
                   {formatDate(tenant.createdAt)}
                 </Box>
+                {canSuspend ? (
+                  <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
+                    <SuspendTenantButton
+                      tenantId={tenant.id}
+                      tenantName={tenant.name}
+                      status={tenant.status}
+                    />
+                  </Box>
+                ) : null}
               </Box>
             ))}
           </Box>
@@ -218,6 +229,15 @@ export function TenantList({ items, nextCursor }: TenantListProps) {
             <Typography variant="caption" color="text.secondary">
               {formatDate(tenant.createdAt)}
             </Typography>
+            {canSuspend ? (
+              <Box sx={{ mt: 1 }}>
+                <SuspendTenantButton
+                  tenantId={tenant.id}
+                  tenantName={tenant.name}
+                  status={tenant.status}
+                />
+              </Box>
+            ) : null}
           </Box>
         ))}
       </Stack>

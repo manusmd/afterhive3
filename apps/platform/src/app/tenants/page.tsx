@@ -1,6 +1,7 @@
 import { getPlatformSessionContext } from "@afterhive/api/auth/get-platform-session";
 import { canCreateTenant } from "@afterhive/api/platform/can-create-tenant";
 import { canListTenants } from "@afterhive/api/platform/can-list-tenants";
+import { canSuspendTenant } from "@afterhive/api/platform/can-suspend-tenant";
 import { listTenants, parseTenantStatus } from "@afterhive/api/platform/list-tenants";
 import { SurfaceShell } from "@afterhive/ui";
 import { Stack } from "@mui/material";
@@ -54,7 +55,11 @@ export default async function TenantsPage({ searchParams }: TenantsPageProps) {
         <Suspense fallback={null}>
           <Stack spacing={3}>
             <TenantListFilters />
-            <TenantList items={result.items} nextCursor={result.nextCursor} />
+            <TenantList
+              items={result.items}
+              nextCursor={result.nextCursor}
+              canSuspend={canSuspendTenant(session.roles)}
+            />
           </Stack>
         </Suspense>
       </Stack>
