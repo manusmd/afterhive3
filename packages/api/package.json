@@ -55,7 +55,9 @@
     "./gdpr/can-export-person": "./src/gdpr/can-export-person.ts",
     "./gdpr/export-person": "./src/gdpr/export-person.ts",
     "./gdpr/can-anonymize-person": "./src/gdpr/can-anonymize-person.ts",
-    "./gdpr/anonymize-person": "./src/gdpr/anonymize-person.ts"
+    "./gdpr/anonymize-person": "./src/gdpr/anonymize-person.ts",
+    "./document/can-upload-document": "./src/document/can-upload-document.ts",
+    "./document/upload-document": "./src/document/upload-document.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -66,6 +68,7 @@
     "@afterhive/db": "workspace:*",
     "@afterhive/domain": "workspace:*",
     "@afterhive/shared": "workspace:*",
+    "@aws-sdk/client-s3": "^3.1075.0",
     "better-auth": "^1.6.22",
     "drizzle-orm": "^0.45.2",
     "fflate": "^0.8.3",

@@ -78,7 +78,7 @@ MVP backlog with acceptance criteria (export to Linear).
 
 | Story | AC |
 |-------|-----|
-| US-150 Upload | File stored R2; metadata in DB |
+| US-150 Upload | File stored R2; metadata in DB — **Linear MAN-186** |
 | US-151 Portal download | Portal user downloads only allowed visibility |
 
 ## EPIC-020: Members enrollment
