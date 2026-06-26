@@ -57,7 +57,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
 
-  if (!body.firstName || !body.lastName || !body.locationId) {
+  if (
+    typeof body.firstName !== "string" ||
+    typeof body.lastName !== "string" ||
+    typeof body.locationId !== "string"
+  ) {
+    return NextResponse.json({ error: "invalid_body" }, { status: 400 });
+  }
+
+  if (!body.firstName.trim() || !body.lastName.trim() || !body.locationId.trim()) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });
   }
 

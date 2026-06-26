@@ -18,13 +18,31 @@ export function resolveLeadCreateLocationIds(
   roles: string[],
   assignments: RoleAssignmentLocation[],
 ): string[] | undefined {
-  if (roles.some((role) => UNRESTRICTED_LEAD_CREATORS.has(role))) {
+  const creatorAssignments = assignments.filter((entry) => LEAD_CREATORS.has(entry.role));
+
+  const hasUnrestrictedCreate = creatorAssignments.some(
+    (entry) =>
+      UNRESTRICTED_LEAD_CREATORS.has(entry.role) &&
+      (!entry.locationIds || entry.locationIds.length === 0),
+  );
+
+  if (hasUnrestrictedCreate) {
     return undefined;
   }
 
-  const scopedIds = assignments
-    .filter((entry) => SCOPED_LEAD_CREATORS.has(entry.role))
-    .flatMap((entry) => entry.locationIds ?? []);
+  const scopedIds = creatorAssignments.flatMap((entry) => {
+    const ids = entry.locationIds ?? [];
+
+    if (UNRESTRICTED_LEAD_CREATORS.has(entry.role) && ids.length > 0) {
+      return ids;
+    }
+
+    if (SCOPED_LEAD_CREATORS.has(entry.role) && ids.length > 0) {
+      return ids;
+    }
+
+    return [];
+  });
 
   return [...new Set(scopedIds)];
 }
@@ -38,13 +56,16 @@ export function canCreateLead(
     return false;
   }
 
-  if (roles.some((role) => UNRESTRICTED_LEAD_CREATORS.has(role))) {
-    return true;
-  }
-
   if (assignments) {
     const createScope = resolveLeadCreateLocationIds(roles, assignments);
-    return createScope !== undefined && createScope.length > 0;
+    if (createScope === undefined) {
+      return true;
+    }
+    return createScope.length > 0;
+  }
+
+  if (roles.some((role) => UNRESTRICTED_LEAD_CREATORS.has(role))) {
+    return true;
   }
 
   if (roles.some((role) => requiresAssignedLocations(role) && LEAD_CREATORS.has(role))) {

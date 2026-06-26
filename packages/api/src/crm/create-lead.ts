@@ -44,6 +44,14 @@ export function normalizeLeadName(value: string) {
 }
 
 export function validateCreateLeadInput(input: CreateLeadInput) {
+  if (
+    typeof input.firstName !== "string" ||
+    typeof input.lastName !== "string" ||
+    typeof input.locationId !== "string"
+  ) {
+    return { ok: false as const, code: "missing_fields" as const };
+  }
+
   const firstName = normalizeLeadName(input.firstName);
   const lastName = normalizeLeadName(input.lastName);
 

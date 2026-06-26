@@ -28,6 +28,16 @@ describe("validateCreateLeadInput", () => {
     ).toEqual({ ok: false, code: "missing_fields" });
   });
 
+  it("rejects non-string field values", () => {
+    expect(
+      validateCreateLeadInput({
+        firstName: 1,
+        lastName: "Nord",
+        locationId: "loc-a",
+      } as unknown as Parameters<typeof validateCreateLeadInput>[0]),
+    ).toEqual({ ok: false, code: "missing_fields" });
+  });
+
   it("rejects names that exceed the max length", () => {
     expect(
       validateCreateLeadInput({

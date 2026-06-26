@@ -60,4 +60,31 @@ describe("canCreateLead", () => {
       resolveLeadCreateLocationIds(["tenant_finance", "tenant_office"], assignments),
     ).not.toContain(locationSouth);
   });
+
+  it("honors non-empty location assignments on owner and admin roles", () => {
+    const assignments = [{ role: "tenant_admin", locationIds: [locationNorth] }];
+
+    expect(canCreateLead(["tenant_admin"], undefined, assignments)).toBe(true);
+    expect(resolveLeadCreateLocationIds(["tenant_admin"], assignments)).toEqual([
+      locationNorth,
+    ]);
+    expect(resolveLeadCreateLocationIds(["tenant_admin"], assignments)).not.toContain(
+      locationSouth,
+    );
+  });
+
+  it("returns all locations only when owner or admin has no location assignment", () => {
+    expect(
+      resolveLeadCreateLocationIds(
+        ["tenant_admin"],
+        [{ role: "tenant_admin", locationIds: [] }],
+      ),
+    ).toBeUndefined();
+    expect(
+      resolveLeadCreateLocationIds(
+        ["tenant_owner"],
+        [{ role: "tenant_owner", locationIds: null }],
+      ),
+    ).toBeUndefined();
+  });
 });
