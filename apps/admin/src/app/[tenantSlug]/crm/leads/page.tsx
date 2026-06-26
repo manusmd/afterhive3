@@ -1,9 +1,16 @@
+import { canConvertLead, isLeadConvertibleStatus } from "@afterhive/api/crm/can-convert-lead";
 import { canCreateLead } from "@afterhive/api/crm/can-create-lead";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { listLeadFormLocations } from "@afterhive/api/crm/create-lead";
 import { listLeads } from "@afterhive/api/crm/list-leads";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
-import { createTranslator, DEFAULT_LOCALE, getMessages, translateLeadSource, translateLeadStatus, translateStaffRole } from "@afterhive/shared/i18n";
+import {
+  createTranslator,
+  DEFAULT_LOCALE,
+  getMessages,
+  translateLeadSource,
+  translateLeadStatus,
+} from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -11,6 +18,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
+import { ConvertLeadButton } from "./ConvertLeadButton";
 import { CreateLeadForm } from "./CreateLeadForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -49,6 +57,11 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
     session.roleAssignments,
   );
   const formLocations = showCreateForm ? await listLeadFormLocations(session, tenantSlug) : [];
+  const showConvertAction = canConvertLead(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
   const scopedLocations =
     session.locationIds === undefined
       ? t("admin.leads.visibleLocations.all")
@@ -60,6 +73,7 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
     t("admin.leads.table.location"),
     t("admin.leads.table.status"),
     t("admin.leads.table.source"),
+    ...(showConvertAction ? [t("admin.leads.table.actions")] : []),
   ];
 
   return (
@@ -133,6 +147,19 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                         >
                           {translateLeadSource(t, lead.source)}
                         </Box>
+                        {showConvertAction && isLeadConvertibleStatus(lead.status) ? (
+                          <Box
+                            component="td"
+                            sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
+                          >
+                            <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
+                          </Box>
+                        ) : showConvertAction ? (
+                          <Box
+                            component="td"
+                            sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
+                          />
+                        ) : null}
                       </Box>
                     ))}
                   </Box>
@@ -157,6 +184,11 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                       {lead.locationName} · {translateLeadStatus(t, lead.status)} ·{" "}
                       {translateLeadSource(t, lead.source)}
                     </Typography>
+                    {showConvertAction && isLeadConvertibleStatus(lead.status) ? (
+                      <Box sx={{ mt: 1 }}>
+                        <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
+                      </Box>
+                    ) : null}
                   </Box>
                 ))}
               </Stack>

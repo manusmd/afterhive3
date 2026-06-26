@@ -5,6 +5,7 @@ import {
   account,
   leads,
   locations,
+  persons,
   platformMemberships,
   roleAssignments,
   session,
@@ -23,6 +24,7 @@ async function main() {
   await db.delete(roleAssignments);
   await db.delete(staffInvites);
   await db.delete(leads);
+  await db.delete(persons);
   await db.delete(tenantMemberships);
   await db.delete(tenantSubscriptions);
   await db.delete(platformMemberships);
@@ -138,7 +140,7 @@ async function main() {
       locationId: locationA.id,
       firstName: "Anna",
       lastName: "Nord",
-      status: "new",
+      status: "qualified",
       source: "manual",
     },
     {
@@ -153,7 +155,7 @@ async function main() {
 
   console.log("Platform: platform@afterhive.de / Platform1234!");
   console.log("Seeded demo tenant:", tenant.slug);
-  console.log("Staff: staff@demo-club.de / Demo1234! → location", locationA.name, "(1 lead)");
+  console.log("Staff: staff@demo-club.de / Demo1234! → location", locationA.name, "(1 qualified lead)");
   console.log("Owner: owner@demo-club.de / Demo1234! → all locations (2 leads)");
   console.log("Other location:", locationB.name);
 }

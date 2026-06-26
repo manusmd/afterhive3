@@ -155,7 +155,8 @@
         "name": "Name",
         "location": "Standort",
         "status": "Status",
-        "source": "Quelle"
+        "source": "Quelle",
+        "actions": "Aktionen"
       },
       "create": {
         "firstName": { "label": "Vorname" },
@@ -168,6 +169,16 @@
           "invalidLocation": "Standort ist ungueltig.",
           "forbidden": "Keine Berechtigung fuer diesen Standort.",
           "default": "Lead konnte nicht angelegt werden."
+        }
+      },
+      "convert": {
+        "button": "Konvertieren",
+        "error": {
+          "invalidStatus": "Nur qualifizierte Leads koennen konvertiert werden.",
+          "alreadyConverted": "Dieser Lead wurde bereits konvertiert.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "notFound": "Lead nicht gefunden.",
+          "default": "Konvertierung fehlgeschlagen."
         }
       }
     },
