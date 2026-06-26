@@ -7,7 +7,7 @@ describe("createTranslator", () => {
 
   it("resolves nested keys from the default catalog", () => {
     expect(t("admin.login.title")).toBe("Anmelden");
-    expect(t("platform.tenants.title")).toBe("Tenants");
+    expect(t("platform.tenants.title")).toBe("Mandanten");
   });
 
   it("interpolates placeholders", () => {

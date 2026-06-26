@@ -1,6 +1,11 @@
 "use client";
 
 import type { TenantStatus } from "@afterhive/api/platform/list-tenants";
+import {
+  translateSubscriptionStatus,
+  translateTenantPlan,
+  translateTenantStatus,
+} from "@afterhive/shared/i18n";
 import { useT } from "@afterhive/ui";
 import {
   Alert,
@@ -197,13 +202,13 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
                   {tenant.slug}
                 </Box>
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
-                  {tenant.status}
+                  {translateTenantStatus(t, tenant.status)}
                 </Box>
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
-                  {tenant.planId}
+                  {translateTenantPlan(t, tenant.planId)}
                 </Box>
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
-                  {tenant.subscriptionStatus}
+                  {translateSubscriptionStatus(t, tenant.subscriptionStatus)}
                 </Box>
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
                   {formatDate(tenant.createdAt)}
@@ -239,7 +244,8 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
               {tenant.slug}
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
-              {tenant.status} · {tenant.planId} · {tenant.subscriptionStatus}
+              {translateTenantStatus(t, tenant.status)} · {translateTenantPlan(t, tenant.planId)} ·{" "}
+              {translateSubscriptionStatus(t, tenant.subscriptionStatus)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {formatDate(tenant.createdAt)}

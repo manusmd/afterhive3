@@ -3,7 +3,7 @@ import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { listPendingStaffInvites } from "@afterhive/api/auth/invite-staff";
 import { listTenantLocations } from "@afterhive/api/auth/tenant-locations";
 import { canViewLocations } from "@afterhive/api/location/can-manage-locations";
-import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
+import { createTranslator, DEFAULT_LOCALE, getMessages, translateStaffRole } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Chip, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -73,7 +73,7 @@ export default async function TeamSettingsPage({ params }: TeamSettingsPageProps
                 useFlexGap
               >
                 <Typography>{invite.email}</Typography>
-                <Chip label={invite.role} size="small" />
+                <Chip label={translateStaffRole(t, invite.role)} size="small" />
                 {invite.locationIds?.length ? (
                   <Chip
                     label={invite.locationIds

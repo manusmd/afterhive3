@@ -3,7 +3,7 @@ import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { listLeadFormLocations } from "@afterhive/api/crm/create-lead";
 import { listLeads } from "@afterhive/api/crm/list-leads";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
-import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
+import { createTranslator, DEFAULT_LOCALE, getMessages, translateLeadSource, translateLeadStatus, translateStaffRole } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -125,13 +125,13 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                           component="td"
                           sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
                         >
-                          {lead.status}
+                          {translateLeadStatus(t, lead.status)}
                         </Box>
                         <Box
                           component="td"
                           sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
                         >
-                          {lead.source}
+                          {translateLeadSource(t, lead.source)}
                         </Box>
                       </Box>
                     ))}
@@ -154,7 +154,8 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                       {lead.firstName} {lead.lastName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {lead.locationName} · {lead.status} · {lead.source}
+                      {lead.locationName} · {translateLeadStatus(t, lead.status)} ·{" "}
+                      {translateLeadSource(t, lead.source)}
                     </Typography>
                   </Box>
                 ))}

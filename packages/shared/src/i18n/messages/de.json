@@ -137,6 +137,20 @@
         "title": "Leads ({count})",
         "empty": "Keine Leads in Ihren sichtbaren Standorten."
       },
+      "status": {
+        "new": "Neu",
+        "contacted": "Kontaktiert",
+        "qualified": "Qualifiziert",
+        "converted": "Konvertiert",
+        "lost": "Verloren"
+      },
+      "source": {
+        "manual": "Manuell",
+        "web": "Website",
+        "marketplace": "Marktplatz",
+        "import": "Import",
+        "phone": "Telefon"
+      },
       "table": {
         "name": "Name",
         "location": "Standort",
@@ -166,32 +180,32 @@
   },
   "platform": {
     "meta": {
-      "title": "Afterhive Platform"
+      "title": "Afterhive Plattform"
     },
     "home": {
-      "title": "Platform Backoffice",
-      "subtitle": "Melden Sie sich an, um Tenants zu verwalten.",
+      "title": "Plattform-Backoffice",
+      "subtitle": "Melden Sie sich an, um Mandanten zu verwalten.",
       "loginButton": "Zum Login"
     },
     "login": {
-      "title": "Platform Login",
+      "title": "Plattform-Anmeldung",
       "subtitle": "Melden Sie sich als Plattform-Administrator an. Demo: platform@afterhive.de",
       "email": { "label": "E-Mail" },
       "password": { "label": "Passwort" },
       "submit": "Anmelden",
       "error": {
         "invalidCredentials": "Anmeldung fehlgeschlagen. E-Mail oder Passwort ungueltig.",
-        "noPlatformAccess": "Dieses Konto hat keinen Plattform-Zugang. Tenant-Accounts melden sich im Admin-Portal an.",
+        "noPlatformAccess": "Dieses Konto hat keinen Plattform-Zugang. Mandanten-Accounts melden sich im Admin-Portal an.",
         "default": "Anmeldung fehlgeschlagen. Bitte erneut versuchen."
       }
     },
     "tenants": {
-      "title": "Tenants",
+      "title": "Mandanten",
       "create": {
-        "title": "Tenant anlegen",
+        "title": "Mandant anlegen",
         "backToList": "Zurueck zur Liste",
-        "toolbarButton": "Tenant anlegen",
-        "description": "Erstellt Tenant, Stripe-Kunde (Stub) und Owner-Einladung.",
+        "toolbarButton": "Mandant anlegen",
+        "description": "Erstellt Mandant, Stripe-Kunde (Stub) und Owner-Einladung.",
         "name": { "label": "Name" },
         "slug": {
           "label": "Slug",
@@ -199,21 +213,21 @@
         },
         "legalName": { "label": "Rechtlicher Name" },
         "ownerEmail": { "label": "Owner E-Mail" },
-        "submit": "Tenant anlegen",
-        "success": "Tenant {slug} erstellt. Owner-Einladung versendet. Stripe: {stripeCustomerId}",
+        "submit": "Mandant anlegen",
+        "success": "Mandant {slug} erstellt. Owner-Einladung versendet. Stripe: {stripeCustomerId}",
         "error": {
           "invalidSlug": "Slug ungueltig (3–48 Zeichen, a-z, 0-9, Bindestriche).",
           "slugTaken": "Dieser Slug ist bereits vergeben.",
           "ownerInviteFailed": "Owner-Einladung fehlgeschlagen.",
           "forbidden": "Keine Berechtigung.",
-          "default": "Tenant konnte nicht erstellt werden."
+          "default": "Mandant konnte nicht erstellt werden."
         }
       },
       "filters": {
         "status": {
           "label": "Status",
           "all": "Alle Status",
-          "trial": "Trial",
+          "trial": "Testphase",
           "active": "Aktiv",
           "suspended": "Gesperrt",
           "closed": "Geschlossen"
@@ -221,18 +235,24 @@
         "plan": {
           "label": "Plan",
           "all": "Alle Plaene",
-          "starter": "Starter",
-          "growth": "Growth",
-          "enterprise": "Enterprise"
+          "starter": "Einsteiger",
+          "growth": "Wachstum",
+          "enterprise": "Unternehmen"
         },
         "reset": "Filter zuruecksetzen"
       },
+      "subscription": {
+        "trialing": "Testphase",
+        "active": "Aktiv",
+        "pastDue": "Zahlung ueberfaellig",
+        "canceled": "Gekuendigt"
+      },
       "list": {
-        "emptyFiltered": "Keine Tenants fuer diese Filter.",
-        "empty": "Noch keine Tenants vorhanden.",
-        "createFirst": "Ersten Tenant anlegen",
+        "emptyFiltered": "Keine Mandanten fuer diese Filter.",
+        "empty": "Noch keine Mandanten vorhanden.",
+        "createFirst": "Ersten Mandanten anlegen",
         "error": {
-          "loadFailed": "Tenants konnten nicht geladen werden."
+          "loadFailed": "Mandanten konnten nicht geladen werden."
         }
       },
       "table": {
@@ -248,7 +268,7 @@
         "next": "Naechste Seite"
       },
       "suspend": {
-        "confirm": "Tenant \"{tenantName}\" wirklich sperren?",
+        "confirm": "Mandant \"{tenantName}\" wirklich sperren?",
         "button": "Sperren",
         "error": {
           "alreadySuspended": "Bereits gesperrt",
@@ -273,7 +293,7 @@
       "title": "Afterhive Entdecken"
     },
     "home": {
-      "title": "Marketplace",
+      "title": "Marktplatz",
       "subtitle": "Grundgeruest — oeffentliche Suche folgt in EPIC-050."
     }
   }
