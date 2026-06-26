@@ -20,3 +20,5 @@ Open the **Agents Window** and say:
 > Create a Cursor automation from `.cursor/automations/test-business-logic-prefill.json`
 
 After the Automations editor opens, set the GitHub repository and branch, then save.
+
+If a run was skipped, push a new commit to the PR branch to re-trigger the **pushed** event.
