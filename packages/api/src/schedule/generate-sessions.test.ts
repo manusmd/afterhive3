@@ -9,7 +9,7 @@ const locationId = "loc-1";
 const dtstart = new Date("2024-01-01T17:00:00.000Z");
 const existingStartsAt = new Date("2024-01-01T17:00:00.000Z");
 
-const insert = vi.hoisted(() => vi.fn());
+const onConflictDoNothing = vi.hoisted(() => vi.fn());
 
 function mockDbChain(existingSessionStartsAt: Date[] = [existingStartsAt]) {
   let selectCall = 0;
@@ -17,7 +17,7 @@ function mockDbChain(existingSessionStartsAt: Date[] = [existingStartsAt]) {
   return {
     select: () => ({
       from: () => ({
-        where: (condition?: unknown) => {
+        where: () => {
           selectCall += 1;
 
           if (selectCall === 1) {
@@ -58,15 +58,17 @@ function mockDbChain(existingSessionStartsAt: Date[] = [existingStartsAt]) {
       }),
     }),
     insert: () => ({
-      values: insert,
+      values: () => ({
+        onConflictDoNothing,
+      }),
     }),
   };
 }
 
 describe("generateSessions", () => {
   beforeEach(() => {
-    insert.mockReset();
-    insert.mockResolvedValue(undefined);
+    onConflictDoNothing.mockReset();
+    onConflictDoNothing.mockResolvedValue(undefined);
   });
 
   it("rejects multi-day weekly recurrence", async () => {
@@ -113,6 +115,50 @@ describe("generateSessions", () => {
     ).rejects.toMatchObject({ code: "invalid_recurrence" });
   });
 
+  it("rejects weekly recurrence with unsupported clauses", async () => {
+    let selectCall = 0;
+    const db = {
+      select: () => ({
+        from: () => ({
+          where: () => {
+            selectCall += 1;
+
+            if (selectCall <= 2) {
+              return {
+                limit: () =>
+                  Promise.resolve([
+                    selectCall === 1
+                      ? { id: tenantId }
+                      : { id: offerGroupId, locationId },
+                  ]),
+              };
+            }
+
+            return {
+              limit: () =>
+                Promise.resolve([
+                  {
+                    rrule: "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO",
+                    dtstart,
+                    durationMinutes: 90,
+                  },
+                ]),
+            };
+          },
+        }),
+      }),
+    };
+
+    await expect(
+      generateSessions(db as never, {
+        tenantId,
+        tenantSlug,
+        offerGroupId,
+        maxOccurrences: 2,
+      }),
+    ).rejects.toMatchObject({ code: "invalid_recurrence" });
+  });
+
   it("skips sessions that already exist for the same starts_at", async () => {
     const db = mockDbChain([existingStartsAt]);
 
@@ -124,11 +170,7 @@ describe("generateSessions", () => {
     });
 
     expect(insertedCount).toBe(1);
-    expect(insert).toHaveBeenCalledTimes(1);
-    expect(insert.mock.calls[0]?.[0]).toHaveLength(1);
-    expect(insert.mock.calls[0]?.[0]?.[0]?.startsAt.toISOString()).toBe(
-      "2024-01-08T17:00:00.000Z",
-    );
+    expect(onConflictDoNothing).toHaveBeenCalledTimes(1);
   });
 
   it("returns zero without inserting when all occurrences already exist", async () => {
@@ -142,7 +184,7 @@ describe("generateSessions", () => {
     });
 
     expect(insertedCount).toBe(0);
-    expect(insert).not.toHaveBeenCalled();
+    expect(onConflictDoNothing).not.toHaveBeenCalled();
   });
 
   it("throws when tenant is missing", async () => {

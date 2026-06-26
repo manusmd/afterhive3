@@ -96,4 +96,23 @@ describe("validateCreateOfferInput", () => {
       }),
     ).toBe("invalid_recurrence");
   });
+
+  it("rejects weekly recurrence with unsupported clauses", () => {
+    expect(
+      validateCreateOfferInput({
+        name: "Kids course",
+        type: "course",
+        locationId: "loc-1",
+        groupName: "Group A",
+        capacity: 20,
+        recurrence: {
+          dtstart: "2024-01-01T17:00:00.000Z",
+          durationMinutes: 90,
+          rrule: "FREQ=WEEKLY;INTERVAL=2;BYDAY=MO",
+          timezone: "Europe/Berlin",
+          generateWeeks: 8,
+        },
+      }),
+    ).toBe("invalid_recurrence");
+  });
 });

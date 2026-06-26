@@ -8,10 +8,19 @@ import {
 describe("isValidWeeklySingleDayRrule", () => {
   it("accepts a single weekly BYDAY", () => {
     expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;BYDAY=MO")).toBe(true);
+    expect(isValidWeeklySingleDayRrule("BYDAY=MO;FREQ=WEEKLY")).toBe(true);
   });
 
   it("rejects multi-day weekly rules", () => {
     expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;BYDAY=MO,WE")).toBe(false);
+  });
+
+  it("rejects unsupported RRULE clauses", () => {
+    expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;INTERVAL=2;BYDAY=MO")).toBe(false);
+    expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;COUNT=3;BYDAY=MO")).toBe(false);
+    expect(isValidWeeklySingleDayRrule("FREQ=WEEKLY;UNTIL=20251231T000000Z;BYDAY=MO")).toBe(
+      false,
+    );
   });
 
   it("rejects non-weekly rules", () => {

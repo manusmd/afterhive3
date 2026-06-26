@@ -117,16 +117,19 @@ export async function generateSessions(
     return 0;
   }
 
-  await db.insert(sessions).values(
-    newOccurrences.map((occurrence) => ({
-      tenantId: input.tenantId,
-      offerGroupId: group.id,
-      locationId: group.locationId,
-      startsAt: occurrence.startsAt,
-      endsAt: occurrence.endsAt,
-      status: "scheduled" as const,
-    })),
-  );
+  await db
+    .insert(sessions)
+    .values(
+      newOccurrences.map((occurrence) => ({
+        tenantId: input.tenantId,
+        offerGroupId: group.id,
+        locationId: group.locationId,
+        startsAt: occurrence.startsAt,
+        endsAt: occurrence.endsAt,
+        status: "scheduled" as const,
+      })),
+    )
+    .onConflictDoNothing({ target: [sessions.offerGroupId, sessions.startsAt] });
 
   return newOccurrences.length;
 }
