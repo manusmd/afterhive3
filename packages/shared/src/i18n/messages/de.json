@@ -25,6 +25,7 @@
       "leads": "Leads",
       "persons": "Personen",
       "import": "Import",
+      "documents": "Dokumente",
       "locations": "Standorte",
       "team": "Team"
     },
@@ -39,6 +40,7 @@
         "leads": "Leads",
         "persons": "Personen",
         "import": "Import",
+        "documents": "Dokumente",
         "locations": "Standorte",
         "team": "Team"
       },
@@ -298,6 +300,23 @@
             "forbidden": "Keine Berechtigung.",
             "default": "Anonymisierung fehlgeschlagen."
           }
+        }
+      }
+    },
+    "documents": {
+      "title": "Dokumente",
+      "upload": {
+        "hint": "Erlaubte Formate: PDF, JPEG, PNG, CSV, XLSX. Maximal 25 MB.",
+        "selectFile": "Datei auswaehlen",
+        "submit": "Hochladen",
+        "submitting": "Upload laeuft…",
+        "success": "{filename} hochgeladen ({size} Bytes).",
+        "error": {
+          "invalidFile": "Bitte eine gueltige Datei auswaehlen.",
+          "mimeNotAllowed": "Dateityp ist nicht erlaubt.",
+          "fileTooLarge": "Datei ist groesser als 25 MB.",
+          "forbidden": "Keine Berechtigung.",
+          "default": "Upload fehlgeschlagen."
         }
       }
     },

@@ -10,6 +10,7 @@ export * from "./offer-groups";
 export * from "./enrollments";
 export * from "./relationships";
 export * from "./consent-records";
+export * from "./documents";
 export * from "./memberships";
 export * from "./staff-invites";
 export * from "./platform-memberships";
