@@ -1,5 +1,7 @@
 "use client";
 
+import { requiresAssignedLocations } from "@afterhive/api/location/role-location-scope";
+import { useT } from "@afterhive/ui";
 import {
   Alert,
   Box,
@@ -12,7 +14,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { requiresAssignedLocations } from "@afterhive/api/location/role-location-scope";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -27,14 +28,15 @@ type InviteStaffFormProps = {
 };
 
 const STAFF_ROLES = [
-  { value: "tenant_admin", label: "Administrator" },
-  { value: "tenant_office", label: "Buero" },
-  { value: "tenant_coach", label: "Trainer" },
-  { value: "tenant_finance", label: "Finanzen" },
-  { value: "tenant_location_manager", label: "Standortleitung" },
-];
+  { value: "tenant_admin", labelKey: "admin.team.roles.administrator" },
+  { value: "tenant_office", labelKey: "admin.team.roles.office" },
+  { value: "tenant_coach", labelKey: "admin.team.roles.coach" },
+  { value: "tenant_finance", labelKey: "admin.team.roles.finance" },
+  { value: "tenant_location_manager", labelKey: "admin.team.roles.locationManager" },
+] as const;
 
 export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps) {
+  const t = useT();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("tenant_office");
@@ -43,13 +45,28 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  function mapInviteError(code?: string) {
+    switch (code) {
+      case "already_member":
+        return t("admin.team.invite.error.alreadyMember");
+      case "invite_pending":
+        return t("admin.team.invite.error.invitePending");
+      case "forbidden":
+        return t("admin.team.invite.error.forbidden");
+      case "locations_required":
+        return t("admin.team.invite.error.locationsRequired");
+      default:
+        return t("admin.team.invite.error.default");
+    }
+  }
+
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setSuccess(null);
 
     if (requiresAssignedLocations(role) && locationIds.length === 0) {
-      setError("Bitte mindestens einen Standort auswaehlen.");
+      setError(t("admin.team.invite.error.locationsRequired"));
       return;
     }
 
@@ -81,7 +98,7 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
 
     setEmail("");
     setLocationIds([]);
-    setSuccess("Einladung versendet.");
+    setSuccess(t("admin.team.invite.success"));
     setLoading(false);
     router.refresh();
   }
@@ -89,11 +106,11 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
   return (
     <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 520 }}>
       <Stack spacing={2}>
-        <Typography variant="h6">Mitarbeiter einladen</Typography>
+        <Typography variant="h6">{t("admin.team.invite.title")}</Typography>
         {error ? <Alert severity="error">{error}</Alert> : null}
         {success ? <Alert severity="success">{success}</Alert> : null}
         <TextField
-          label="E-Mail"
+          label={t("admin.team.invite.email.label")}
           type="email"
           required
           fullWidth
@@ -101,26 +118,28 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
           onChange={(event) => setEmail(event.target.value)}
         />
         <FormControl fullWidth>
-          <InputLabel id="invite-role-label">Rolle</InputLabel>
+          <InputLabel id="invite-role-label">{t("admin.team.invite.role.label")}</InputLabel>
           <Select
             labelId="invite-role-label"
-            label="Rolle"
+            label={t("admin.team.invite.role.label")}
             value={role}
             onChange={(event) => setRole(event.target.value)}
           >
             {STAFF_ROLES.map((entry) => (
               <MenuItem key={entry.value} value={entry.value}>
-                {entry.label}
+                {t(entry.labelKey)}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
         {locations.length ? (
           <FormControl fullWidth required={requiresAssignedLocations(role)}>
-            <InputLabel id="invite-locations-label">Standorte</InputLabel>
+            <InputLabel id="invite-locations-label">
+              {t("admin.team.invite.locations.label")}
+            </InputLabel>
             <Select
               labelId="invite-locations-label"
-              label="Standorte"
+              label={t("admin.team.invite.locations.label")}
               multiple
               value={locationIds}
               onChange={(event) => setLocationIds(event.target.value as string[])}
@@ -139,24 +158,9 @@ export function InviteStaffForm({ tenantSlug, locations }: InviteStaffFormProps)
           </FormControl>
         ) : null}
         <Button type="submit" variant="contained" disabled={loading}>
-          Einladung senden
+          {t("admin.team.invite.submit")}
         </Button>
       </Stack>
     </Box>
   );
-}
-
-function mapInviteError(code?: string) {
-  switch (code) {
-    case "already_member":
-      return "Diese Person ist bereits Mitglied.";
-    case "invite_pending":
-      return "Es gibt bereits eine offene Einladung.";
-    case "forbidden":
-      return "Keine Berechtigung.";
-    case "locations_required":
-      return "Bitte mindestens einen Standort auswaehlen.";
-    default:
-      return "Einladung fehlgeschlagen.";
-  }
 }

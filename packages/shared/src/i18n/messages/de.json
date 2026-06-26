@@ -2,12 +2,299 @@
   "common": {
     "appName": "Afterhive",
     "loading": "Laden…",
-    "healthOk": "System bereit"
+    "healthOk": "System bereit",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "loginSubmit": "Anmelden",
+    "logout": "Abmelden",
+    "forbidden": "Keine Berechtigung.",
+    "nameTooLong": "Name ist zu lang (max. 255 Zeichen)."
   },
   "surfaces": {
     "platform": "Plattform",
     "admin": "Verwaltung",
     "portal": "Portal",
     "marketplace": "Entdecken"
+  },
+  "admin": {
+    "meta": {
+      "title": "Afterhive Admin"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "locations": "Standorte",
+      "team": "Team"
+    },
+    "home": {
+      "title": "Tenant Admin",
+      "demoHint": "Oeffnen Sie {link} fuer die Demo-Anmeldung."
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "signedInAs": "Angemeldet als {userId} in {tenantSlug}",
+      "nav": {
+        "leads": "Leads",
+        "locations": "Standorte",
+        "team": "Team"
+      },
+      "visibleLocations": {
+        "label": "Sichtbare Standorte:",
+        "all": "alle Standorte",
+        "none": "keine zugewiesen"
+      }
+    },
+    "login": {
+      "title": "Anmelden",
+      "subtitle": "Melden Sie sich als Mitarbeitende:r an.",
+      "demoHint": "Demo: staff@demo-club.de fuer Buero-Zugang, owner@demo-club.de fuer Standorte und Team (Passwort Demo1234!).",
+      "tenantLabel": "Verein: {tenantSlug}",
+      "email": { "label": "E-Mail" },
+      "password": { "label": "Passwort" },
+      "submit": "Anmelden",
+      "error": {
+        "invalidCredentials": "Anmeldung fehlgeschlagen. E-Mail oder Passwort ungueltig.",
+        "noTenantAccess": "Kein aktiver Zugang fuer diesen Verein."
+      }
+    },
+    "invite": {
+      "title": {
+        "invalid": "Einladung",
+        "accept": "Einladung annehmen"
+      },
+      "invalidMessage": "Diese Einladung ist ungueltig oder abgelaufen.",
+      "accept": {
+        "forEmail": "Einladung fuer {email}",
+        "name": { "label": "Name" },
+        "password": { "label": "Passwort" },
+        "submit": "Konto aktivieren",
+        "error": {
+          "invalidInvite": "Einladung ungueltig oder abgelaufen.",
+          "alreadyMember": "Konto ist bereits aktiv.",
+          "default": "Aktivierung fehlgeschlagen."
+        }
+      }
+    },
+    "team": {
+      "title": "Team & Rollen",
+      "pendingInvites": {
+        "title": "Offene Einladungen",
+        "empty": "Keine offenen Einladungen.",
+        "allLocations": "alle Standorte"
+      },
+      "invite": {
+        "title": "Mitarbeiter einladen",
+        "email": { "label": "E-Mail" },
+        "role": { "label": "Rolle" },
+        "locations": { "label": "Standorte" },
+        "submit": "Einladung senden",
+        "success": "Einladung versendet.",
+        "error": {
+          "locationsRequired": "Bitte mindestens einen Standort auswaehlen.",
+          "alreadyMember": "Diese Person ist bereits Mitglied.",
+          "invitePending": "Es gibt bereits eine offene Einladung.",
+          "forbidden": "Keine Berechtigung.",
+          "default": "Einladung fehlgeschlagen."
+        }
+      },
+      "roles": {
+        "administrator": "Administrator",
+        "office": "Buero",
+        "coach": "Trainer",
+        "finance": "Finanzen",
+        "locationManager": "Standortleitung"
+      }
+    },
+    "locations": {
+      "title": "Standorte",
+      "list": {
+        "title": "Standorte ({count})",
+        "empty": "Mindestens ein Standort ist erforderlich. Legen Sie den ersten Standort an."
+      },
+      "table": {
+        "name": "Name",
+        "created": "Erstellt"
+      },
+      "create": {
+        "name": { "label": "Standortname" },
+        "submit": "Standort anlegen",
+        "error": {
+          "empty": "Name darf nicht leer sein.",
+          "tooLong": "Name ist zu lang (max. 255 Zeichen).",
+          "forbidden": "Keine Berechtigung.",
+          "default": "Standort konnte nicht angelegt werden."
+        }
+      }
+    },
+    "leads": {
+      "title": "Leads",
+      "visibleLocations": {
+        "label": "Sichtbare Standorte:",
+        "all": "alle Standorte",
+        "none": "keine Standorte zugewiesen",
+        "count": "{count} Standort(e)"
+      },
+      "list": {
+        "title": "Leads ({count})",
+        "empty": "Keine Leads in Ihren sichtbaren Standorten."
+      },
+      "status": {
+        "new": "Neu",
+        "contacted": "Kontaktiert",
+        "qualified": "Qualifiziert",
+        "converted": "Konvertiert",
+        "lost": "Verloren"
+      },
+      "source": {
+        "manual": "Manuell",
+        "web": "Website",
+        "marketplace": "Marktplatz",
+        "import": "Import",
+        "phone": "Telefon"
+      },
+      "table": {
+        "name": "Name",
+        "location": "Standort",
+        "status": "Status",
+        "source": "Quelle"
+      },
+      "create": {
+        "firstName": { "label": "Vorname" },
+        "lastName": { "label": "Nachname" },
+        "location": { "label": "Standort" },
+        "submit": "Lead anlegen",
+        "error": {
+          "missingFields": "Vorname, Nachname und Standort sind erforderlich.",
+          "tooLong": "Name ist zu lang (max. 255 Zeichen).",
+          "invalidLocation": "Standort ist ungueltig.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "default": "Lead konnte nicht angelegt werden."
+        }
+      }
+    },
+    "settings": {
+      "forbidden": {
+        "message": "Ihr Konto hat keine Berechtigung fuer diesen Bereich.",
+        "backToDashboard": "Zurueck zum Dashboard"
+      }
+    }
+  },
+  "platform": {
+    "meta": {
+      "title": "Afterhive Plattform"
+    },
+    "home": {
+      "title": "Plattform-Backoffice",
+      "subtitle": "Melden Sie sich an, um Mandanten zu verwalten.",
+      "loginButton": "Zum Login"
+    },
+    "login": {
+      "title": "Plattform-Anmeldung",
+      "subtitle": "Melden Sie sich als Plattform-Administrator an. Demo: platform@afterhive.de",
+      "email": { "label": "E-Mail" },
+      "password": { "label": "Passwort" },
+      "submit": "Anmelden",
+      "error": {
+        "invalidCredentials": "Anmeldung fehlgeschlagen. E-Mail oder Passwort ungueltig.",
+        "noPlatformAccess": "Dieses Konto hat keinen Plattform-Zugang. Mandanten-Accounts melden sich im Admin-Portal an.",
+        "default": "Anmeldung fehlgeschlagen. Bitte erneut versuchen."
+      }
+    },
+    "tenants": {
+      "title": "Mandanten",
+      "create": {
+        "title": "Mandant anlegen",
+        "backToList": "Zurueck zur Liste",
+        "toolbarButton": "Mandant anlegen",
+        "description": "Erstellt Mandant, Stripe-Kunde (Stub) und Owner-Einladung.",
+        "name": { "label": "Name" },
+        "slug": {
+          "label": "Slug",
+          "helper": "Kleinbuchstaben, Zahlen und Bindestriche"
+        },
+        "legalName": { "label": "Rechtlicher Name" },
+        "ownerEmail": { "label": "Owner E-Mail" },
+        "submit": "Mandant anlegen",
+        "success": "Mandant {slug} erstellt. Owner-Einladung versendet. Stripe: {stripeCustomerId}",
+        "error": {
+          "invalidSlug": "Slug ungueltig (3–48 Zeichen, a-z, 0-9, Bindestriche).",
+          "slugTaken": "Dieser Slug ist bereits vergeben.",
+          "ownerInviteFailed": "Owner-Einladung fehlgeschlagen.",
+          "forbidden": "Keine Berechtigung.",
+          "default": "Mandant konnte nicht erstellt werden."
+        }
+      },
+      "filters": {
+        "status": {
+          "label": "Status",
+          "all": "Alle Status",
+          "trial": "Testphase",
+          "active": "Aktiv",
+          "suspended": "Gesperrt",
+          "closed": "Geschlossen"
+        },
+        "plan": {
+          "label": "Plan",
+          "all": "Alle Plaene",
+          "starter": "Einsteiger",
+          "growth": "Wachstum",
+          "enterprise": "Unternehmen"
+        },
+        "reset": "Filter zuruecksetzen"
+      },
+      "subscription": {
+        "trialing": "Testphase",
+        "active": "Aktiv",
+        "pastDue": "Zahlung ueberfaellig",
+        "canceled": "Gekuendigt"
+      },
+      "list": {
+        "emptyFiltered": "Keine Mandanten fuer diese Filter.",
+        "empty": "Noch keine Mandanten vorhanden.",
+        "createFirst": "Ersten Mandanten anlegen",
+        "error": {
+          "loadFailed": "Mandanten konnten nicht geladen werden."
+        }
+      },
+      "table": {
+        "name": "Name",
+        "slug": "Slug",
+        "status": "Status",
+        "plan": "Plan",
+        "subscription": "Abonnement",
+        "created": "Erstellt",
+        "actions": "Aktionen"
+      },
+      "pagination": {
+        "next": "Naechste Seite"
+      },
+      "suspend": {
+        "confirm": "Mandant \"{tenantName}\" wirklich sperren?",
+        "button": "Sperren",
+        "error": {
+          "alreadySuspended": "Bereits gesperrt",
+          "alreadyClosed": "Geschlossen",
+          "forbidden": "Keine Berechtigung",
+          "default": "Sperren fehlgeschlagen"
+        }
+      }
+    }
+  },
+  "portal": {
+    "meta": {
+      "title": "Afterhive Portal"
+    },
+    "home": {
+      "title": "Self-Service-Portal",
+      "subtitle": "Grundgeruest — Mitglieder-Flows folgen in EPIC-040."
+    }
+  },
+  "marketplace": {
+    "meta": {
+      "title": "Afterhive Entdecken"
+    },
+    "home": {
+      "title": "Marktplatz",
+      "subtitle": "Grundgeruest — oeffentliche Suche folgt in EPIC-050."
+    }
   }
 }

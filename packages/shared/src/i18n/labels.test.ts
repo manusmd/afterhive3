@@ -1,0 +1,34 @@
+import { describe, expect, it } from "vitest";
+import { getMessages } from "./index";
+import {
+  translateLeadSource,
+  translateLeadStatus,
+  translateStaffRole,
+  translateSubscriptionStatus,
+  translateTenantPlan,
+  translateTenantStatus,
+} from "./labels";
+import { createTranslator, DEFAULT_LOCALE } from "./translate";
+
+describe("i18n display labels", () => {
+  const t = createTranslator(getMessages(DEFAULT_LOCALE));
+
+  it("translates tenant status, plan, and subscription values", () => {
+    expect(translateTenantStatus(t, "trial")).toBe("Testphase");
+    expect(translateTenantPlan(t, "starter")).toBe("Einsteiger");
+    expect(translateSubscriptionStatus(t, "past_due")).toBe("Zahlung ueberfaellig");
+  });
+
+  it("translates lead status and source values", () => {
+    expect(translateLeadStatus(t, "new")).toBe("Neu");
+    expect(translateLeadSource(t, "manual")).toBe("Manuell");
+  });
+
+  it("translates staff role codes", () => {
+    expect(translateStaffRole(t, "tenant_office")).toBe("Buero");
+  });
+
+  it("falls back to raw values for unknown codes", () => {
+    expect(translateLeadStatus(t, "unknown")).toBe("unknown");
+  });
+});

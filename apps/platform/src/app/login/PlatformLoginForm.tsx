@@ -1,11 +1,13 @@
 "use client";
 
-import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { useT } from "@afterhive/ui";
+import { Alert, Box, Button, Stack, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 export function PlatformLoginForm() {
+  const t = useT();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +22,7 @@ export function PlatformLoginForm() {
     const result = await authClient.signIn.email({ email, password });
 
     if (result.error) {
-      setError("Anmeldung fehlgeschlagen. E-Mail oder Passwort ungueltig.");
+      setError(t("platform.login.error.invalidCredentials"));
       setLoading(false);
       return;
     }
@@ -29,16 +31,14 @@ export function PlatformLoginForm() {
 
     if (sessionResponse.status === 403) {
       await authClient.signOut();
-      setError(
-        "Dieses Konto hat keinen Plattform-Zugang. Tenant-Accounts melden sich im Admin-Portal an.",
-      );
+      setError(t("platform.login.error.noPlatformAccess"));
       setLoading(false);
       return;
     }
 
     if (!sessionResponse.ok) {
       await authClient.signOut();
-      setError("Anmeldung fehlgeschlagen. Bitte erneut versuchen.");
+      setError(t("platform.login.error.default"));
       setLoading(false);
       return;
     }
@@ -52,7 +52,7 @@ export function PlatformLoginForm() {
       <Stack spacing={2}>
         {error ? <Alert severity="error">{error}</Alert> : null}
         <TextField
-          label="E-Mail"
+          label={t("platform.login.email.label")}
           type="email"
           autoComplete="email"
           required
@@ -61,7 +61,7 @@ export function PlatformLoginForm() {
           onChange={(event) => setEmail(event.target.value)}
         />
         <TextField
-          label="Passwort"
+          label={t("platform.login.password.label")}
           type="password"
           autoComplete="current-password"
           required
@@ -70,7 +70,7 @@ export function PlatformLoginForm() {
           onChange={(event) => setPassword(event.target.value)}
         />
         <Button type="submit" variant="contained" disabled={loading}>
-          Anmelden
+          {t("platform.login.submit")}
         </Button>
       </Stack>
     </Box>

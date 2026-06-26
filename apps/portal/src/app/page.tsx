@@ -1,12 +1,13 @@
+import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Typography } from "@mui/material";
 
+const t = createTranslator(getMessages(DEFAULT_LOCALE));
+
 export default function HomePage() {
   return (
-    <SurfaceShell surface="portal" title="Self-Service Portal">
-      <Typography color="text.secondary">
-        Foundation shell — member flows ship in EPIC-040.
-      </Typography>
+    <SurfaceShell surface="portal" title={t("portal.home.title")}>
+      <Typography color="text.secondary">{t("portal.home.subtitle")}</Typography>
     </SurfaceShell>
   );
 }

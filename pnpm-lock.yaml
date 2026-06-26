@@ -310,6 +310,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@afterhive/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.17)(react@19.2.7)

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@afterhive/ui";
 import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -10,6 +11,7 @@ type LoginFormProps = {
 };
 
 export function LoginForm({ tenantSlug }: LoginFormProps) {
+  const t = useT();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +34,7 @@ export function LoginForm({ tenantSlug }: LoginFormProps) {
     });
 
     if (result.error) {
-      setError("Anmeldung fehlgeschlagen. E-Mail oder Passwort ungueltig.");
+      setError(t("admin.login.error.invalidCredentials"));
       setLoading(false);
       return;
     }
@@ -45,7 +47,7 @@ export function LoginForm({ tenantSlug }: LoginFormProps) {
 
     if (!sessionResponse.ok) {
       await authClient.signOut();
-      setError("Kein aktiver Zugang fuer diesen Verein.");
+      setError(t("admin.login.error.noTenantAccess"));
       setLoading(false);
       return;
     }
@@ -58,11 +60,11 @@ export function LoginForm({ tenantSlug }: LoginFormProps) {
     <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 420 }}>
       <Stack spacing={2}>
         <Typography variant="body2" color="text.secondary">
-          Verein: {tenantSlug}
+          {t("admin.login.tenantLabel", { tenantSlug })}
         </Typography>
         {error ? <Alert severity="error">{error}</Alert> : null}
         <TextField
-          label="E-Mail"
+          label={t("admin.login.email.label")}
           type="email"
           autoComplete="email"
           required
@@ -71,7 +73,7 @@ export function LoginForm({ tenantSlug }: LoginFormProps) {
           onChange={(event) => setEmail(event.target.value)}
         />
         <TextField
-          label="Passwort"
+          label={t("admin.login.password.label")}
           type="password"
           autoComplete="current-password"
           required
@@ -80,7 +82,7 @@ export function LoginForm({ tenantSlug }: LoginFormProps) {
           onChange={(event) => setPassword(event.target.value)}
         />
         <Button type="submit" variant="contained" disabled={loading}>
-          Anmelden
+          {t("admin.login.submit")}
         </Button>
       </Stack>
     </Box>

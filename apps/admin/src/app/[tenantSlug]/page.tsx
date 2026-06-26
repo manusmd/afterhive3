@@ -2,12 +2,15 @@ import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { canViewLocations } from "@afterhive/api/location/can-manage-locations";
+import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Button, Chip, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
+
+const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
 type TenantDashboardProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -26,29 +29,32 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showLeads = canReadLeads(session.roles, session.locationIds);
 
   return (
-    <SurfaceShell surface="admin" title="Dashboard">
+    <SurfaceShell surface="admin" title={t("admin.dashboard.title")}>
       <Stack spacing={2}>
         <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
           <StaffLogoutButton tenantSlug={tenantSlug} />
         </Stack>
         <Typography color="text.secondary">
-          Angemeldet als {session.userId} in {session.tenantSlug}
+          {t("admin.dashboard.signedInAs", {
+            userId: session.userId,
+            tenantSlug: session.tenantSlug ?? tenantSlug,
+          })}
         </Typography>
         {showLeads || showLocations || showTeam ? (
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
             {showLeads ? (
               <Link href={`/${tenantSlug}/crm/leads`}>
-                <Button variant="outlined">Leads</Button>
+                <Button variant="outlined">{t("admin.dashboard.nav.leads")}</Button>
               </Link>
             ) : null}
             {showLocations ? (
               <Link href={`/${tenantSlug}/settings/locations`}>
-                <Button variant="outlined">Standorte</Button>
+                <Button variant="outlined">{t("admin.dashboard.nav.locations")}</Button>
               </Link>
             ) : null}
             {showTeam ? (
               <Link href={`/${tenantSlug}/settings/team`}>
-                <Button variant="outlined">Team</Button>
+                <Button variant="outlined">{t("admin.dashboard.nav.team")}</Button>
               </Link>
             ) : null}
           </Stack>
@@ -59,11 +65,11 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
           ))}
         </Stack>
         <Typography variant="body2">
-          Sichtbare Standorte:{" "}
+          {t("admin.dashboard.visibleLocations.label")}{" "}
           {session.locationIds === undefined
-            ? "alle Standorte"
+            ? t("admin.dashboard.visibleLocations.all")
             : session.locationIds.length === 0
-              ? "keine zugewiesen"
+              ? t("admin.dashboard.visibleLocations.none")
               : session.locationIds.join(", ")}
         </Typography>
       </Stack>

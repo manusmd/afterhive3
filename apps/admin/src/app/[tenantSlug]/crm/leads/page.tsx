@@ -3,6 +3,7 @@ import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { listLeadFormLocations } from "@afterhive/api/crm/create-lead";
 import { listLeads } from "@afterhive/api/crm/list-leads";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { createTranslator, DEFAULT_LOCALE, getMessages, translateLeadSource, translateLeadStatus, translateStaffRole } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
@@ -11,6 +12,8 @@ import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { CreateLeadForm } from "./CreateLeadForm";
+
+const t = createTranslator(getMessages(DEFAULT_LOCALE));
 
 type LeadsPageProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -24,14 +27,16 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
     redirect(`/${tenantSlug}/login`);
   }
 
+  const leadsTitle = t("admin.leads.title");
+
   if (!canReadLeads(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" title="Leads">
+      <SurfaceShell surface="admin" title={leadsTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
           </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title="Leads" />
+          <SettingsForbidden tenantSlug={tenantSlug} title={leadsTitle} />
         </Stack>
       </SurfaceShell>
     );
@@ -46,21 +51,27 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
   const formLocations = showCreateForm ? await listLeadFormLocations(session, tenantSlug) : [];
   const scopedLocations =
     session.locationIds === undefined
-      ? "alle Standorte"
+      ? t("admin.leads.visibleLocations.all")
       : session.locationIds.length === 0
-        ? "keine Standorte zugewiesen"
-        : `${session.locationIds.length} Standort(e)`;
+        ? t("admin.leads.visibleLocations.none")
+        : t("admin.leads.visibleLocations.count", { count: session.locationIds.length });
+  const tableHeadings = [
+    t("admin.leads.table.name"),
+    t("admin.leads.table.location"),
+    t("admin.leads.table.status"),
+    t("admin.leads.table.source"),
+  ];
 
   return (
-    <SurfaceShell surface="admin" title="Leads">
+    <SurfaceShell surface="admin" title={leadsTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-          <Link href={`/${tenantSlug}`}>Dashboard</Link>
+          <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
           <StaffLogoutButton tenantSlug={tenantSlug} />
         </Stack>
 
         <Typography color="text.secondary">
-          Sichtbare Standorte: {scopedLocations}
+          {t("admin.leads.visibleLocations.label")} {scopedLocations}
         </Typography>
 
         {showCreateForm ? (
@@ -68,16 +79,16 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
         ) : null}
 
         <Stack spacing={2}>
-          <Typography variant="h6">Leads ({leads.length})</Typography>
+          <Typography variant="h6">{t("admin.leads.list.title", { count: leads.length })}</Typography>
           {leads.length === 0 ? (
-            <Typography color="text.secondary">Keine Leads in Ihren sichtbaren Standorten.</Typography>
+            <Typography color="text.secondary">{t("admin.leads.list.empty")}</Typography>
           ) : (
             <>
               <Box sx={{ display: { xs: "none", md: "block" } }}>
                 <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
                   <Box component="thead">
                     <Box component="tr">
-                      {["Name", "Standort", "Status", "Quelle"].map((heading) => (
+                      {tableHeadings.map((heading) => (
                         <Box
                           component="th"
                           key={heading}
@@ -114,13 +125,13 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                           component="td"
                           sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
                         >
-                          {lead.status}
+                          {translateLeadStatus(t, lead.status)}
                         </Box>
                         <Box
                           component="td"
                           sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
                         >
-                          {lead.source}
+                          {translateLeadSource(t, lead.source)}
                         </Box>
                       </Box>
                     ))}
@@ -143,7 +154,8 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                       {lead.firstName} {lead.lastName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {lead.locationName} · {lead.status} · {lead.source}
+                      {lead.locationName} · {translateLeadStatus(t, lead.status)} ·{" "}
+                      {translateLeadSource(t, lead.source)}
                     </Typography>
                   </Box>
                 ))}
