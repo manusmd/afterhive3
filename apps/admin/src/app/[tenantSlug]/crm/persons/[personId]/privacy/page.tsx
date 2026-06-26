@@ -33,7 +33,11 @@ export default async function PersonPrivacyPage({ params }: PersonPrivacyPagePro
     session.locationIds,
     session.roleAssignments,
   );
-  const canAnonymize = canAnonymizePerson(session.roles);
+  const canAnonymize = canAnonymizePerson(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
 
   if (!canExport && !canAnonymize) {
     return (

@@ -1,16 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionContext } from "@afterhive/domain";
-import {
-  ANONYMIZED_FIRST_NAME,
-  ANONYMIZED_LAST_NAME,
-  AnonymizePersonError,
-  anonymizePerson,
-} from "./anonymize-person";
+import { AnonymizePersonError, anonymizePerson } from "./anonymize-person";
 
 const tenantId = "tenant-1";
 const tenantSlug = "demo-club";
 const personId = "person-1";
 const memberProfileId = "member-1";
+const locationNorth = "loc-north";
 
 const getDb = vi.hoisted(() => vi.fn());
 
@@ -25,14 +21,21 @@ const ownerSession: SessionContext = {
   tenantSlug,
   roles: ["tenant_owner"],
   locationIds: undefined,
+  roleAssignments: [{ role: "tenant_owner", locationIds: null }],
+};
+
+const scopedAdminSession: SessionContext = {
+  userId: "admin-1",
+  surface: "tenant_admin",
+  tenantId,
+  tenantSlug,
+  roles: ["tenant_admin"],
+  locationIds: [locationNorth],
+  roleAssignments: [{ role: "tenant_admin", locationIds: [locationNorth] }],
 };
 
 type MockPerson = {
   id: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string | null;
-  userId: string | null;
   deletedAt: Date | null;
 };
 
@@ -120,10 +123,6 @@ describe("anonymizePerson", () => {
           createTransactionMock({
             person: {
               id: personId,
-              firstName: ANONYMIZED_FIRST_NAME,
-              lastName: ANONYMIZED_LAST_NAME,
-              dateOfBirth: null,
-              userId: null,
               deletedAt: new Date("2024-01-01"),
             },
           }),
@@ -144,10 +143,6 @@ describe("anonymizePerson", () => {
         const tx = createTransactionMock({
           person: {
             id: personId,
-            firstName: "Leo",
-            lastName: "Muster",
-            dateOfBirth: "2015-01-01",
-            userId: "portal-user",
             deletedAt: null,
           },
           memberProfileId,
@@ -169,12 +164,32 @@ describe("anonymizePerson", () => {
       expect.objectContaining({
         action: "person.anonymize",
         entityId: personId,
+        before: {
+          personId,
+          redactedFields: ["firstName", "lastName", "dateOfBirth", "userId"],
+        },
         after: expect.objectContaining({
           memberProfileRetained: memberProfileId,
           anonymizedLeadIds: ["lead-1", "lead-2"],
         }),
       }),
     );
+  });
+
+  it("throws location_forbidden for scoped admin without lead in scope", async () => {
+    getDb.mockReturnValue({
+      select: () => ({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      }),
+    });
+
+    await expect(anonymizePerson(scopedAdminSession, tenantSlug, personId)).rejects.toMatchObject({
+      code: "location_forbidden",
+    });
   });
 
   it("throws already_anonymized when update returns no row", async () => {
@@ -184,10 +199,6 @@ describe("anonymizePerson", () => {
           createTransactionMock({
             person: {
               id: personId,
-              firstName: "Leo",
-              lastName: "Muster",
-              dateOfBirth: "2015-01-01",
-              userId: null,
               deletedAt: null,
             },
             leadIds: [],

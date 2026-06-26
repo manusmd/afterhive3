@@ -2,9 +2,17 @@ import { and, eq, isNull } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
 import { auditLogEntries, leads, memberProfiles, persons, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
+import {
+  buildLocationScopeFilter,
+  hasAllLocationsAccess,
+  hasNoLocationAccess,
+} from "../location/location-scope";
+import { resolveSessionAnonymizeLocationIds } from "./can-anonymize-person";
 
 export const ANONYMIZED_FIRST_NAME = "Anonymisiert";
 export const ANONYMIZED_LAST_NAME = "Person";
+
+const ANONYMIZE_REDACTED_FIELDS = ["firstName", "lastName", "dateOfBirth", "userId"] as const;
 
 export type AnonymizePersonResult = {
   personId: string;
@@ -14,10 +22,46 @@ export type AnonymizePersonResult = {
 
 export class AnonymizePersonError extends Error {
   constructor(
-    readonly code: "tenant_not_found" | "person_not_found" | "already_anonymized",
+    readonly code:
+      | "tenant_not_found"
+      | "person_not_found"
+      | "already_anonymized"
+      | "location_forbidden",
   ) {
     super(code);
     this.name = "AnonymizePersonError";
+  }
+}
+
+async function assertPersonAnonymizeScope(
+  tenantId: string,
+  personId: string,
+  anonymizeLocationIds: string[] | undefined,
+) {
+  if (hasAllLocationsAccess(anonymizeLocationIds)) {
+    return;
+  }
+
+  if (hasNoLocationAccess(anonymizeLocationIds)) {
+    throw new AnonymizePersonError("location_forbidden");
+  }
+
+  const db = getDb();
+  const scopeFilter = buildLocationScopeFilter(leads.locationId, anonymizeLocationIds);
+  const conditions = [eq(leads.tenantId, tenantId), eq(leads.convertedPersonId, personId)];
+
+  if (scopeFilter) {
+    conditions.push(scopeFilter);
+  }
+
+  const [lead] = await db
+    .select({ id: leads.id })
+    .from(leads)
+    .where(and(...conditions))
+    .limit(1);
+
+  if (!lead) {
+    throw new AnonymizePersonError("location_forbidden");
   }
 }
 
@@ -30,6 +74,9 @@ export async function anonymizePerson(
     throw new AnonymizePersonError("tenant_not_found");
   }
 
+  const anonymizeLocationIds = resolveSessionAnonymizeLocationIds(session);
+  await assertPersonAnonymizeScope(session.tenantId, personId, anonymizeLocationIds);
+
   const db = getDb();
   const anonymizedAt = new Date();
 
@@ -37,10 +84,6 @@ export async function anonymizePerson(
     const [person] = await tx
       .select({
         id: persons.id,
-        firstName: persons.firstName,
-        lastName: persons.lastName,
-        dateOfBirth: persons.dateOfBirth,
-        userId: persons.userId,
         deletedAt: persons.deletedAt,
       })
       .from(persons)
@@ -103,10 +146,8 @@ export async function anonymizePerson(
       entityType: "person",
       entityId: personId,
       before: {
-        firstName: person.firstName,
-        lastName: person.lastName,
-        dateOfBirth: person.dateOfBirth,
-        userId: person.userId,
+        personId,
+        redactedFields: [...ANONYMIZE_REDACTED_FIELDS],
       },
       after: {
         personId,

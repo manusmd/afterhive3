@@ -23,6 +23,8 @@ export function AnonymizePersonButton({ tenantSlug, personId }: AnonymizePersonB
         return t("admin.persons.privacy.anonymize.error.personNotFound");
       case "already_anonymized":
         return t("admin.persons.privacy.anonymize.error.alreadyAnonymized");
+      case "location_forbidden":
+        return t("admin.persons.privacy.anonymize.error.forbidden");
       case "forbidden":
         return t("admin.persons.privacy.anonymize.error.forbidden");
       default:

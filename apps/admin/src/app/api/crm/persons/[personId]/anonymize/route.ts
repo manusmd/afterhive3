@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: AnonymizeRouteProps) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!canAnonymizePerson(session.roles)) {
+  if (!canAnonymizePerson(session.roles, session.locationIds, session.roleAssignments)) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
@@ -31,11 +31,13 @@ export async function POST(request: Request, { params }: AnonymizeRouteProps) {
   } catch (error) {
     if (error instanceof AnonymizePersonError) {
       const status =
-        error.code === "person_not_found" || error.code === "tenant_not_found"
-          ? 404
-          : error.code === "already_anonymized"
-            ? 409
-            : 400;
+        error.code === "location_forbidden"
+          ? 403
+          : error.code === "person_not_found" || error.code === "tenant_not_found"
+            ? 404
+            : error.code === "already_anonymized"
+              ? 409
+              : 400;
       return NextResponse.json({ error: error.code }, { status });
     }
 
