@@ -33,7 +33,9 @@
     "./crm/list-leads": "./src/crm/list-leads.ts",
     "./crm/can-read-leads": "./src/crm/can-read-leads.ts",
     "./crm/create-lead": "./src/crm/create-lead.ts",
-    "./crm/can-create-lead": "./src/crm/can-create-lead.ts"
+    "./crm/can-create-lead": "./src/crm/can-create-lead.ts",
+    "./crm/convert-lead": "./src/crm/convert-lead.ts",
+    "./crm/can-convert-lead": "./src/crm/can-convert-lead.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
