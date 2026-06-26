@@ -32,18 +32,17 @@ export async function resolveStaffSession(
     return null;
   }
 
-  const roles = await db
+  const assignmentRows = await db
     .select()
     .from(roleAssignments)
     .where(eq(roleAssignments.membershipId, row.membershipId));
 
-  const roleNames = roles.map((entry) => entry.role);
-  const locationIds = resolveSessionLocationIds(
-    roles.map((entry) => ({
-      role: entry.role,
-      locationIds: entry.locationIds,
-    })),
-  );
+  const roleAssignmentsForSession = assignmentRows.map((entry) => ({
+    role: entry.role,
+    locationIds: entry.locationIds,
+  }));
+  const roleNames = roleAssignmentsForSession.map((entry) => entry.role);
+  const locationIds = resolveSessionLocationIds(roleAssignmentsForSession);
 
   return {
     userId,
@@ -52,5 +51,6 @@ export async function resolveStaffSession(
     tenantSlug: row.tenantSlug,
     roles: roleNames,
     locationIds,
+    roleAssignments: roleAssignmentsForSession,
   };
 }

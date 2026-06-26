@@ -17,6 +17,11 @@ export type ResourceRef = {
   locationId?: string;
 };
 
+export type RoleAssignmentLocation = {
+  role: string;
+  locationIds: string[] | null;
+};
+
 export type SessionContext = {
   userId: string;
   surface: Surface;
@@ -24,6 +29,7 @@ export type SessionContext = {
   tenantSlug?: string;
   roles: string[];
   locationIds?: string[];
+  roleAssignments?: RoleAssignmentLocation[];
   impersonation?: { actorUserId: string; expiresAt: string };
 };
 
