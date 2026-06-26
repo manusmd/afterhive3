@@ -2,7 +2,10 @@ import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "@afterhive/db";
 import { leads, locations } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
-import { buildLocationScopeFilter } from "../location/location-scope";
+import {
+  buildLocationScopeFilter,
+  hasAllLocationsAccess,
+} from "../location/location-scope";
 
 export type LeadListItem = {
   id: string;
@@ -15,6 +18,16 @@ export type LeadListItem = {
   lastActivityAt: string;
 };
 
+export function resolveListLeadsLocationScope(
+  locationIds?: string[],
+): string[] | undefined {
+  if (hasAllLocationsAccess(locationIds)) {
+    return undefined;
+  }
+
+  return locationIds;
+}
+
 export async function listLeads(session: SessionContext): Promise<LeadListItem[]> {
   if (!session.tenantId) {
     return [];
@@ -22,7 +35,10 @@ export async function listLeads(session: SessionContext): Promise<LeadListItem[]
 
   const db = getDb();
   const conditions = [eq(leads.tenantId, session.tenantId)];
-  const scopeFilter = buildLocationScopeFilter(leads.locationId, session.locationIds);
+  const scopeFilter = buildLocationScopeFilter(
+    leads.locationId,
+    resolveListLeadsLocationScope(session.locationIds),
+  );
 
   if (scopeFilter) {
     conditions.push(scopeFilter);
