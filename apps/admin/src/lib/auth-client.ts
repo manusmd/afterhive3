@@ -3,5 +3,8 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  basePath: "/app/api/auth",
+  baseURL:
+    typeof window === "undefined"
+      ? "http://localhost:3002/app/api/auth"
+      : `${window.location.origin}/app/api/auth`,
 });
