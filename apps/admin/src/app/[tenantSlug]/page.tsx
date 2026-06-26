@@ -1,5 +1,6 @@
 import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { canViewLocations } from "@afterhive/api/location/can-manage-locations";
 import { SurfaceShell } from "@afterhive/ui";
 import { Button, Chip, Stack, Typography } from "@mui/material";
@@ -22,6 +23,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
 
   const showLocations = canViewLocations(session.roles);
   const showTeam = canAssignRoles(session.roles);
+  const showLeads = canReadLeads(session.roles);
 
   return (
     <SurfaceShell surface="admin" title="Dashboard">
@@ -32,8 +34,13 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
         <Typography color="text.secondary">
           Angemeldet als {session.userId} in {session.tenantSlug}
         </Typography>
-        {showLocations || showTeam ? (
+        {showLeads || showLocations || showTeam ? (
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
+            {showLeads ? (
+              <Link href={`/${tenantSlug}/crm/leads`}>
+                <Button variant="outlined">Leads</Button>
+              </Link>
+            ) : null}
             {showLocations ? (
               <Link href={`/${tenantSlug}/settings/locations`}>
                 <Button variant="outlined">Standorte</Button>
