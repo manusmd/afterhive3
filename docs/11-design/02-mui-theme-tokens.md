@@ -8,13 +8,20 @@ Theme structure for heavily customized MUI v9.
 
 `packages/ui/theme/base.ts` + surface overrides
 
-## Color tokens (dark admin example)
+## Afterhive brand
+
+Platform chrome uses warm **orange–amber** (hive energy). Per-tenant colors come later via `SCR-admin-settings-branding` and are not mixed into this base theme.
+
+## Color tokens
 
 | Token | Dark | Light |
 |-------|------|-------|
 | background.default | #0a0a0b | #fafafa |
 | background.paper | #141416 | #ffffff |
-| primary.main | #5b8def | #2563eb |
+| primary.main | #fb923c | #f97316 |
+| primary.dark | #f97316 | #ea580c |
+| primary.light | #fdba74 | #fb923c |
+| primary.contrastText | #0a0a0b | #ffffff |
 | secondary.main | #94a3b8 | #64748b |
 | error.main | #ef4444 | #dc2626 |
 | success.main | #22c55e | #16a34a |

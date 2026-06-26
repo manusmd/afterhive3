@@ -3,6 +3,7 @@ import { SurfaceShell } from "@afterhive/ui";
 import { Chip, Stack, Typography } from "@mui/material";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 
 type TenantDashboardProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -19,6 +20,9 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   return (
     <SurfaceShell surface="admin" title="Dashboard">
       <Stack spacing={2}>
+        <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
+          <StaffLogoutButton tenantSlug={tenantSlug} />
+        </Stack>
         <Typography color="text.secondary">
           Angemeldet als {session.userId} in {session.tenantSlug}
         </Typography>

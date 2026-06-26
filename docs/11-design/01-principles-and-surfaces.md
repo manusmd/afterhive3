@@ -7,6 +7,7 @@ UI direction for MUI v9 across surfaces.
 ## Principles
 
 - Dark-first admin; light default portal; marketplace narrative light
+- Afterhive platform primary: warm orange (`#f97316` light / `#fb923c` dark)
 - Information density over decoration
 - Status always visible (badges, chips)
 - Consistent empty/loading/error patterns

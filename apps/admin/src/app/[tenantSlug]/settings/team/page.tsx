@@ -7,6 +7,7 @@ import { Chip, Stack, Typography } from "@mui/material";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { InviteStaffForm } from "./InviteStaffForm";
+import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 
 type TeamSettingsPageProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -30,6 +31,9 @@ export default async function TeamSettingsPage({ params }: TeamSettingsPageProps
   return (
     <SurfaceShell surface="admin" title="Team & Rollen">
       <Stack spacing={4}>
+        <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
+          <StaffLogoutButton tenantSlug={tenantSlug} />
+        </Stack>
         <InviteStaffForm tenantSlug={tenantSlug} locations={tenantLocations} />
         <Stack spacing={1}>
           <Typography variant="h6">Offene Einladungen</Typography>
