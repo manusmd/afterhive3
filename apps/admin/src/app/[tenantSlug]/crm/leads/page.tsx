@@ -54,7 +54,7 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
 
   if (!canReadLeads(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" title={leadsTitle}>
+      <SurfaceShell surface="admin" embedded title={leadsTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -98,7 +98,7 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
   ];
 
   return (
-    <SurfaceShell surface="admin" title={leadsTitle}>
+    <SurfaceShell surface="admin" embedded title={leadsTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>

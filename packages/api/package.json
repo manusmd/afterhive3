@@ -95,7 +95,8 @@
     "./billing/generate-enrollment-invoices": "./src/billing/generate-enrollment-invoices.ts",
     "./billing/generate-custom-invoices": "./src/billing/generate-custom-invoices.ts",
     "./email/queue-dunning-email": "./src/email/queue-dunning-email.ts",
-    "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
+    "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts",
+    "./tenant/get-tenant-display-name": "./src/tenant/get-tenant-display-name.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

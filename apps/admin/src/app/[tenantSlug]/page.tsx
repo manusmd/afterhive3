@@ -41,7 +41,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showClub = await canAccessClubSport(session);
 
   return (
-    <SurfaceShell surface="admin" title={t("admin.dashboard.title")}>
+    <SurfaceShell surface="admin" embedded title={t("admin.dashboard.title")}>
       <Stack spacing={2}>
         <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
           <StaffLogoutButton tenantSlug={tenantSlug} />

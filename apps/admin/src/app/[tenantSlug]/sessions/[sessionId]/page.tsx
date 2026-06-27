@@ -29,7 +29,7 @@ export default async function SessionAttendancePage({ params }: SessionAttendanc
 
   if (!canReadSessions(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" title={pageTitle}>
+      <SurfaceShell surface="admin" embedded title={pageTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -47,7 +47,7 @@ export default async function SessionAttendancePage({ params }: SessionAttendanc
   }
 
   return (
-    <SurfaceShell surface="admin" title={pageTitle}>
+    <SurfaceShell surface="admin" embedded title={pageTitle}>
       <Stack spacing={2}>
         <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
           <StaffLogoutButton tenantSlug={tenantSlug} />

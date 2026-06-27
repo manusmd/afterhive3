@@ -27,7 +27,7 @@ export default async function DocumentsPage({ params }: DocumentsPageProps) {
 
   if (!canUploadDocument(session.roles)) {
     return (
-      <SurfaceShell surface="admin" title={pageTitle}>
+      <SurfaceShell surface="admin" embedded title={pageTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -39,7 +39,7 @@ export default async function DocumentsPage({ params }: DocumentsPageProps) {
   }
 
   return (
-    <SurfaceShell surface="admin" title={pageTitle}>
+    <SurfaceShell surface="admin" embedded title={pageTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Stack direction="row" spacing={1}>

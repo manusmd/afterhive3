@@ -29,7 +29,7 @@ export default async function ImportPage({ params }: ImportPageProps) {
 
   if (!canRunImport(session.roles, session.locationIds, session.roleAssignments)) {
     return (
-      <SurfaceShell surface="admin" title={importTitle}>
+      <SurfaceShell surface="admin" embedded title={importTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -43,7 +43,7 @@ export default async function ImportPage({ params }: ImportPageProps) {
   const locations = await listImportFormLocations(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="admin" title={importTitle}>
+    <SurfaceShell surface="admin" embedded title={importTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Stack direction="row" spacing={1}>

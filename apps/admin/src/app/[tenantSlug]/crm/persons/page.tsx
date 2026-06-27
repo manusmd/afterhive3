@@ -32,7 +32,7 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
 
   if (!canReadPersons(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" title={personsTitle}>
+      <SurfaceShell surface="admin" embedded title={personsTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -55,7 +55,7 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
   ];
 
   return (
-    <SurfaceShell surface="admin" title={personsTitle}>
+    <SurfaceShell surface="admin" embedded title={personsTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Stack direction="row" spacing={1}>

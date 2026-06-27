@@ -28,7 +28,7 @@ export default async function SessionsPage({ params }: SessionsPageProps) {
 
   if (!canReadSessions(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" title={pageTitle}>
+      <SurfaceShell surface="admin" embedded title={pageTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -42,7 +42,7 @@ export default async function SessionsPage({ params }: SessionsPageProps) {
   const sessions = await listAttendanceSessions(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="admin" title={pageTitle}>
+    <SurfaceShell surface="admin" embedded title={pageTitle}>
       <Stack spacing={2}>
         <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
           <StaffLogoutButton tenantSlug={tenantSlug} />
