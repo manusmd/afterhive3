@@ -735,6 +735,16 @@
     "meta": {
       "title": "Afterhive Entdecken"
     },
+    "shell": {
+      "searchPlaceholder": "Angebote suchen…",
+      "marketplaceLabel": "Entdecken",
+      "sections": {
+        "browse": "Entdecken"
+      }
+    },
+    "nav": {
+      "discover": "Marktplatz"
+    },
     "home": {
       "title": "Marktplatz",
       "subtitle": "Grundgeruest — oeffentliche Suche folgt in EPIC-050."

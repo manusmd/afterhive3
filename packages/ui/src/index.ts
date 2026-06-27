@@ -10,6 +10,7 @@ export { SurfaceShell } from "./shell/SurfaceShell";
 export { AdminAppShell } from "./shell/AdminAppShell";
 export { PlatformAppShell } from "./shell/PlatformAppShell";
 export { PortalAppShell } from "./shell/PortalAppShell";
+export { MarketplaceAppShell } from "./shell/MarketplaceAppShell";
 export type {
   AdminAppShellProps,
   AdminNavItem,
@@ -25,6 +26,11 @@ export type {
   PortalNavItem,
   PortalNavSection,
 } from "./shell/portal-app-shell-types";
+export type {
+  MarketplaceAppShellProps,
+  MarketplaceNavItem,
+  MarketplaceNavSection,
+} from "./shell/marketplace-app-shell-types";
 export { I18nProvider, useT } from "./providers/I18nProvider";
 export {
   NavSection,
