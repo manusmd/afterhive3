@@ -50,7 +50,41 @@
     },
     "dashboard": {
       "title": "Dashboard",
+      "greeting": "Guten Tag, {name}",
+      "subtitle": "{tenantName}",
       "signedInAs": "Angemeldet als {userId} in {tenantSlug}",
+      "quickActions": {
+        "createLead": "Lead anlegen",
+        "importLeads": "Import starten",
+        "viewSessions": "Termine anzeigen"
+      },
+      "kpis": {
+        "openLeads": "Offene Leads",
+        "members": "Personen",
+        "upcomingSessions": "Anstehende Termine",
+        "publishedOffers": "Veroeffentlichte Angebote"
+      },
+      "kpisHint": {
+        "newLeads": "{count} neu",
+        "todaySessions": "{count} heute"
+      },
+      "sections": {
+        "upcomingSessions": "Naechste Termine",
+        "tasks": "Aufgaben",
+        "hints": "Hinweise"
+      },
+      "tasks": {
+        "empty": "Keine offenen Aufgaben.",
+        "followUpLead": "Lead nachfassen: {name}"
+      },
+      "hints": {
+        "import": "Nutzen Sie den CSV-Import, um viele Leads auf einmal anzulegen.",
+        "sessions": "Tragen Sie Anwesenheiten direkt auf der Termin-Detailseite ein."
+      },
+      "sessions": {
+        "empty": "Keine anstehenden Termine.",
+        "viewAll": "Alle Termine"
+      },
       "nav": {
         "leads": "Leads",
         "persons": "Personen",
