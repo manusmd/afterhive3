@@ -411,6 +411,30 @@
         }
       }
     },
+    "schedule": {
+      "assignStaff": {
+        "title": "Trainer zuweisen",
+        "session": { "label": "Termin" },
+        "staff": { "label": "Mitarbeiter" },
+        "assigned": "Zugewiesen: {names}",
+        "submit": "Trainer zuweisen",
+        "success": "Trainer zugewiesen.",
+        "empty": {
+          "noSessionsOrStaff": "Keine Termine oder Mitarbeiter verfuegbar.",
+          "noSessions": "Keine Termine verfuegbar. Erstellen Sie zuerst ein Angebot.",
+          "noStaff": "Keine Mitarbeiter verfuegbar."
+        },
+        "error": {
+          "missingFields": "Termin und Mitarbeiter sind erforderlich.",
+          "sessionNotFound": "Termin nicht gefunden.",
+          "staffNotFound": "Mitarbeiter nicht gefunden.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "alreadyAssigned": "Mitarbeiter ist diesem Termin bereits zugewiesen.",
+          "staffDoubleBook": "Mitarbeiter ist zu dieser Zeit bereits einem anderen Termin zugewiesen.",
+          "default": "Zuweisung fehlgeschlagen."
+        }
+      }
+    },
     "settings": {
       "forbidden": {
         "message": "Ihr Konto hat keine Berechtigung fuer diesen Bereich.",

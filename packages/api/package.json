@@ -70,7 +70,11 @@
     "./offer/can-read-offers": "./src/offer/can-read-offers.ts",
     "./offer/create-offer": "./src/offer/create-offer.ts",
     "./offer/list-offers": "./src/offer/list-offers.ts",
-    "./schedule/generate-sessions": "./src/schedule/generate-sessions.ts"
+    "./schedule/generate-sessions": "./src/schedule/generate-sessions.ts",
+    "./schedule/session-overlap": "./src/schedule/session-overlap.ts",
+    "./schedule/validate-session": "./src/schedule/validate-session.ts",
+    "./schedule/can-assign-session-staff": "./src/schedule/can-assign-session-staff.ts",
+    "./schedule/assign-session-staff": "./src/schedule/assign-session-staff.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
