@@ -3,6 +3,7 @@ import { getDb } from "@afterhive/db";
 import { invoices, paymentRecords, tenants } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { canRecordPayment } from "./can-record-payment";
+import { resolveDunningForInvoice } from "./advance-dunning";
 import {
   PAYABLE_INVOICE_STATUSES,
   getInvoiceRemainingCents,
@@ -175,6 +176,10 @@ export async function recordMockPayment(
         status: application.nextStatus,
       })
       .where(eq(invoices.id, invoiceRow.invoiceId));
+
+    if (application.nextStatus === "paid") {
+      await resolveDunningForInvoice(invoiceRow.invoiceId, tx);
+    }
 
     return {
       paymentId: payment.id,
