@@ -1,7 +1,7 @@
 import { getAdminAuth } from "@afterhive/api/auth/admin-auth";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { getTenantDisplayName } from "@afterhive/api/tenant/get-tenant-display-name";
-import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
+import { createTranslator, DEFAULT_LOCALE, getMessages, translateStaffRole } from "@afterhive/shared/i18n";
 import { headers } from "next/headers";
 import { AdminTenantChrome } from "@/components/AdminTenantChrome";
 import {
@@ -36,7 +36,7 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
   const tenantName = await getTenantDisplayName(tenantSlug);
   const userName = authSession?.user?.name ?? authSession?.user?.email ?? undefined;
   const userInitials = userName ? deriveUserInitials(userName) : undefined;
-  const userRole = session?.roles[0];
+  const userRole = session?.roles[0] ? translateStaffRole(t, session.roles[0]) : undefined;
   const showClub = session ? await resolveAdminClubNavVisible(session) : false;
   const navSections =
     session && userName

@@ -122,6 +122,7 @@
         }
       },
       "roles": {
+        "owner": "Inhaber",
         "administrator": "Administrator",
         "office": "Buero",
         "coach": "Trainer",

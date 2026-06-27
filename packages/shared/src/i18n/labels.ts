@@ -39,6 +39,7 @@ const LEAD_SOURCE_KEYS = {
 } as const;
 
 const STAFF_ROLE_KEYS = {
+  tenant_owner: "admin.team.roles.owner",
   tenant_admin: "admin.team.roles.administrator",
   tenant_office: "admin.team.roles.office",
   tenant_coach: "admin.team.roles.coach",

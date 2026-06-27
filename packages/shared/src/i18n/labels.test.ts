@@ -27,6 +27,7 @@ describe("i18n display labels", () => {
   });
 
   it("translates staff role codes", () => {
+    expect(translateStaffRole(t, "tenant_owner")).toBe("Inhaber");
     expect(translateStaffRole(t, "tenant_office")).toBe("Buero");
   });
 
