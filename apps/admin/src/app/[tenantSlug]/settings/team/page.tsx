@@ -31,7 +31,7 @@ export default async function TeamSettingsPage({ params }: TeamSettingsPageProps
 
   if (!canAssignRoles(session.roles)) {
     return (
-      <SurfaceShell surface="admin" title={teamTitle}>
+      <SurfaceShell surface="admin" embedded title={teamTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -47,7 +47,7 @@ export default async function TeamSettingsPage({ params }: TeamSettingsPageProps
   const showLocations = canViewLocations(session.roles);
 
   return (
-    <SurfaceShell surface="admin" title={teamTitle}>
+    <SurfaceShell surface="admin" embedded title={teamTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Stack direction="row" spacing={1}>

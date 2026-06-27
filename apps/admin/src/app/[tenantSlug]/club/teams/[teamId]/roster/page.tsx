@@ -35,7 +35,7 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
 
   if (!(await canAccessClubSport(session))) {
     return (
-      <SurfaceShell surface="admin" title={pageTitle}>
+      <SurfaceShell surface="admin" embedded title={pageTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -63,7 +63,7 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
     }));
 
   return (
-    <SurfaceShell surface="admin" title={pageTitle}>
+    <SurfaceShell surface="admin" embedded title={pageTitle}>
       <Stack spacing={2}>
         <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
           <StaffLogoutButton tenantSlug={tenantSlug} />

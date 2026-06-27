@@ -40,7 +40,7 @@ export default async function OffersPage({ params }: OffersPageProps) {
 
   if (!canReadOffers(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" title={pageTitle}>
+      <SurfaceShell surface="admin" embedded title={pageTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -80,7 +80,7 @@ export default async function OffersPage({ params }: OffersPageProps) {
   const offers = await listOffers(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="admin" title={pageTitle}>
+    <SurfaceShell surface="admin" embedded title={pageTitle}>
       <Stack spacing={4}>
         <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
           <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>

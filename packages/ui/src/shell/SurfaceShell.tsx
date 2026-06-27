@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 type SurfaceShellProps = {
   surface: SurfaceTheme;
   title: string;
+  embedded?: boolean;
   children?: ReactNode;
 };
 
@@ -24,20 +25,32 @@ const surfacePadding: Record<SurfaceTheme, number> = {
   marketplace: 6,
 };
 
-export function SurfaceShell({ surface, title, children }: SurfaceShellProps) {
+export function SurfaceShell({ surface, title, embedded = false, children }: SurfaceShellProps) {
+  const content = (
+    <>
+      {!embedded ? (
+        <Typography variant="overline" color="text.secondary">
+          Afterhive
+        </Typography>
+      ) : null}
+      <Typography variant="h4" component="h1" gutterBottom>
+        {title}
+      </Typography>
+      {children}
+    </>
+  );
+
+  if (embedded) {
+    return <Box>{content}</Box>;
+  }
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
       <Container
         maxWidth={surfaceMaxWidth[surface]}
         sx={{ py: surfacePadding[surface] }}
       >
-        <Typography variant="overline" color="text.secondary">
-          Afterhive
-        </Typography>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {title}
-        </Typography>
-        {children}
+        {content}
       </Container>
     </Box>
   );

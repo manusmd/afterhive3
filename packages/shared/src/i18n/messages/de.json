@@ -29,8 +29,20 @@
       "offers": "Angebote",
       "sessions": "Termine",
       "club": "Verein",
+      "teams": "Teams",
       "locations": "Standorte",
       "team": "Team"
+    },
+    "shell": {
+      "searchPlaceholder": "Suchen…",
+      "tenantAdminLabel": "Tenant-Admin",
+      "sections": {
+        "overview": "Übersicht",
+        "crm": "CRM",
+        "offers": "Angebote & Termine",
+        "club": "Verein",
+        "settings": "Einstellungen"
+      }
     },
     "home": {
       "title": "Tenant Admin",
@@ -110,6 +122,7 @@
         }
       },
       "roles": {
+        "owner": "Inhaber",
         "administrator": "Administrator",
         "office": "Buero",
         "coach": "Trainer",

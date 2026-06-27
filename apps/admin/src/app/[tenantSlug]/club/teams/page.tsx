@@ -28,7 +28,7 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
 
   if (!(await canAccessClubSport(session))) {
     return (
-      <SurfaceShell surface="admin" title={pageTitle}>
+      <SurfaceShell surface="admin" embedded title={pageTitle}>
         <Stack spacing={2}>
           <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
             <StaffLogoutButton tenantSlug={tenantSlug} />
@@ -42,7 +42,7 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
   const teams = await listTeams(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="admin" title={pageTitle}>
+    <SurfaceShell surface="admin" embedded title={pageTitle}>
       <Stack spacing={2}>
         <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
           <StaffLogoutButton tenantSlug={tenantSlug} />
