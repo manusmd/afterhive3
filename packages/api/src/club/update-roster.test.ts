@@ -37,6 +37,7 @@ const selectResults = vi.hoisted(() => ({
 }));
 
 const update = vi.hoisted(() => vi.fn(() => Promise.resolve()));
+const updateSetPayloads = vi.hoisted(() => [] as Record<string, unknown>[]);
 const insert = vi.hoisted(() => vi.fn(() => Promise.resolve()));
 
 function mockTransaction() {
@@ -66,9 +67,12 @@ function mockTransaction() {
       }),
     }),
     update: () => ({
-      set: () => ({
-        where: update,
-      }),
+      set: (payload: Record<string, unknown>) => {
+        updateSetPayloads.push(payload);
+        return {
+          where: update,
+        };
+      },
     }),
     insert: () => ({
       values: insert,
@@ -105,6 +109,7 @@ describe("updateRoster", () => {
     selectResults.members = [{ id: memberProfileId }];
     selectResults.existing = null;
     update.mockClear();
+    updateSetPayloads.length = 0;
     insert.mockClear();
     tenantHasClubSportModule.mockResolvedValue(true);
     getDb.mockReturnValue({
@@ -131,7 +136,27 @@ describe("updateRoster", () => {
     });
 
     expect(update).toHaveBeenCalled();
+    const reactivateUpdate = updateSetPayloads.find((payload) => payload.status === "active");
+    expect(reactivateUpdate).toMatchObject({
+      status: "active",
+      fromDate: expect.any(String),
+      toDate: null,
+    });
     expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("preserves fromDate when updating an already-active roster entry", async () => {
+    selectResults.existing = { id: "entry-1", status: "active" };
+
+    await updateRoster(ownerSession, tenantSlug, {
+      teamId,
+      entries: [{ memberProfileId, jerseyNumber: "7" }],
+    });
+
+    const activeEntryUpdate = updateSetPayloads.find((payload) => payload.jerseyNumber === "7");
+    expect(activeEntryUpdate).toMatchObject({ jerseyNumber: "7" });
+    expect(activeEntryUpdate).not.toHaveProperty("fromDate");
+    expect(activeEntryUpdate).not.toHaveProperty("status");
   });
 
   it("throws when club_sport module is disabled", async () => {

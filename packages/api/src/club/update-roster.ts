@@ -182,16 +182,26 @@ export async function updateRoster(
         .limit(1);
 
       if (existing) {
-        await tx
-          .update(rosterEntries)
-          .set({
-            status: "active",
-            jerseyNumber,
-            fromDate,
-            toDate: null,
-            updatedAt: new Date(),
-          })
-          .where(eq(rosterEntries.id, existing.id));
+        if (existing.status === "active") {
+          await tx
+            .update(rosterEntries)
+            .set({
+              jerseyNumber,
+              updatedAt: new Date(),
+            })
+            .where(eq(rosterEntries.id, existing.id));
+        } else {
+          await tx
+            .update(rosterEntries)
+            .set({
+              status: "active",
+              jerseyNumber,
+              fromDate,
+              toDate: null,
+              updatedAt: new Date(),
+            })
+            .where(eq(rosterEntries.id, existing.id));
+        }
         continue;
       }
 
