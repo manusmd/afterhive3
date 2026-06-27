@@ -2,13 +2,11 @@ import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canRunImport } from "@afterhive/api/crm/can-run-import";
 import { listImportFormLocations } from "@afterhive/api/crm/import-leads-csv";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
-import { Stack } from "@mui/material";
-import Link from "next/link";
+import { Panel } from "@afterhive/ui";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { ImportLeadsForm } from "./ImportLeadsForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -29,31 +27,19 @@ export default async function ImportPage({ params }: ImportPageProps) {
 
   if (!canRunImport(session.roles, session.locationIds, session.roleAssignments)) {
     return (
-      <SurfaceShell surface="admin" embedded title={importTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={importTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={importTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
   const locations = await listImportFormLocations(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="admin" embedded title={importTitle}>
-      <Stack spacing={4}>
-        <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-          <Stack direction="row" spacing={1}>
-            <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
-            <Link href={`/${tenantSlug}/crm/leads`}>{t("admin.nav.leads")}</Link>
-          </Stack>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
+    <AdminPageFrame title={importTitle}>
+      <Panel>
         <ImportLeadsForm tenantSlug={tenantSlug} locations={locations} />
-      </Stack>
-    </SurfaceShell>
+      </Panel>
+    </AdminPageFrame>
   );
 }

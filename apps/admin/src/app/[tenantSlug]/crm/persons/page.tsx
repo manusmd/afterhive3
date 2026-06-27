@@ -5,13 +5,13 @@ import { listPersons } from "@afterhive/api/crm/list-persons";
 import { canExportPerson } from "@afterhive/api/gdpr/can-export-person";
 import { canAnonymizePerson } from "@afterhive/api/gdpr/can-anonymize-person";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
+import { Panel } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { MergePersonsForm } from "./MergePersonsForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -32,14 +32,9 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
 
   if (!canReadPersons(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" embedded title={personsTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={personsTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={personsTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
@@ -55,20 +50,16 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
   ];
 
   return (
-    <SurfaceShell surface="admin" embedded title={personsTitle}>
-      <Stack spacing={4}>
-        <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-          <Stack direction="row" spacing={1}>
-            <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
-            <Link href={`/${tenantSlug}/crm/leads`}>{t("admin.nav.leads")}</Link>
-          </Stack>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
+    <AdminPageFrame title={personsTitle}>
+      <Stack spacing={2}>
+        {showMergeForm ? (
+          <Panel>
+            <MergePersonsForm tenantSlug={tenantSlug} persons={persons} />
+          </Panel>
+        ) : null}
 
-        {showMergeForm ? <MergePersonsForm tenantSlug={tenantSlug} persons={persons} /> : null}
-
-        <Stack spacing={2}>
-          <Typography variant="h6">
+        <Panel>
+          <Typography variant="h6" sx={{ mb: 2 }}>
             {t("admin.persons.list.title", { count: persons.length })}
           </Typography>
           {persons.length === 0 ? (
@@ -155,8 +146,8 @@ export default async function PersonsPage({ params }: PersonsPageProps) {
               </Stack>
             </>
           )}
-        </Stack>
+        </Panel>
       </Stack>
-    </SurfaceShell>
+    </AdminPageFrame>
   );
 }
