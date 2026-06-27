@@ -27,6 +27,7 @@
       "import": "Import",
       "documents": "Dokumente",
       "offers": "Angebote",
+      "club": "Verein",
       "locations": "Standorte",
       "team": "Team"
     },
@@ -43,6 +44,7 @@
         "import": "Import",
         "documents": "Dokumente",
         "offers": "Angebote",
+        "club": "Verein",
         "locations": "Standorte",
         "team": "Team"
       },
@@ -432,6 +434,34 @@
           "alreadyAssigned": "Mitarbeiter ist diesem Termin bereits zugewiesen.",
           "staffDoubleBook": "Mitarbeiter ist zu dieser Zeit bereits einem anderen Termin zugewiesen.",
           "default": "Zuweisung fehlgeschlagen."
+        }
+      }
+    },
+    "club": {
+      "teams": {
+        "title": "Teams",
+        "back": "Zurueck zum Dashboard",
+        "empty": "Keine Teams vorhanden.",
+        "openRoster": "Kader"
+      },
+      "roster": {
+        "title": "Teamkader",
+        "back": "Zurueck zu Teams",
+        "member": { "label": "Mitglied" },
+        "jersey": { "label": "Nummer" },
+        "add": "Hinzufuegen",
+        "remove": "Entfernen",
+        "submit": "Kader speichern",
+        "success": "Kader gespeichert.",
+        "empty": "Noch keine Kaderplaetze besetzt.",
+        "noMembers": "Keine Mitglieder verfuegbar. Konvertieren Sie zuerst einen Lead.",
+        "error": {
+          "missingFields": "Mitglied ist erforderlich.",
+          "teamNotFound": "Team nicht gefunden.",
+          "memberNotFound": "Mitglied nicht gefunden.",
+          "duplicateMember": "Mitglied ist bereits im Kader.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "default": "Kader konnte nicht gespeichert werden."
         }
       }
     },

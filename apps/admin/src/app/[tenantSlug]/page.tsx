@@ -2,6 +2,7 @@ import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canUploadDocument } from "@afterhive/api/document/can-upload-document";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
+import { canReadRoster } from "@afterhive/api/club/can-read-roster";
 import { canRunImport } from "@afterhive/api/crm/can-run-import";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { canReadPersons } from "@afterhive/api/crm/can-read-persons";
@@ -35,6 +36,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showImport = canRunImport(session.roles, session.locationIds, session.roleAssignments);
   const showDocuments = canUploadDocument(session.roles);
   const showOffers = canReadOffers(session.roles, session.locationIds);
+  const showClub = canReadRoster(session.roles, session.locationIds, session.roleAssignments);
 
   return (
     <SurfaceShell surface="admin" title={t("admin.dashboard.title")}>
@@ -48,7 +50,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
             tenantSlug: session.tenantSlug ?? tenantSlug,
           })}
         </Typography>
-        {showLeads || showPersons || showImport || showDocuments || showOffers || showLocations || showTeam ? (
+        {showLeads || showPersons || showImport || showDocuments || showOffers || showClub || showLocations || showTeam ? (
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
             {showLeads ? (
               <Link href={`/${tenantSlug}/crm/leads`}>
@@ -73,6 +75,11 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
             {showOffers ? (
               <Link href={`/${tenantSlug}/offers`}>
                 <Button variant="outlined">{t("admin.dashboard.nav.offers")}</Button>
+              </Link>
+            ) : null}
+            {showClub ? (
+              <Link href={`/${tenantSlug}/club/teams`}>
+                <Button variant="outlined">{t("admin.dashboard.nav.club")}</Button>
               </Link>
             ) : null}
             {showLocations ? (

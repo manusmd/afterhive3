@@ -5,6 +5,7 @@ import { getDb } from "@afterhive/db";
 import {
   account,
   consentRecords,
+  departments,
   documents,
   enrollments,
   leads,
@@ -17,10 +18,12 @@ import {
   recurrenceRules,
   relationships,
   roleAssignments,
+  rosterEntries,
   session,
   sessionStaffAssignments,
   sessions,
   staffInvites,
+  teams,
   tenantMemberships,
   tenantSubscriptions,
   tenants,
@@ -36,12 +39,15 @@ async function main() {
 
   await db.delete(consentRecords);
   await db.delete(documents);
+  await db.delete(rosterEntries);
   await db.delete(waitlistEntries);
   await db.delete(enrollments);
   await db.delete(sessionStaffAssignments);
   await db.delete(sessions);
   await db.delete(recurrenceRules);
   await db.delete(offerGroups);
+  await db.delete(teams);
+  await db.delete(departments);
   await db.delete(offers);
   await db.delete(relationships);
   await db.delete(memberProfiles);
@@ -83,6 +89,7 @@ async function main() {
       name: "Demo Sportverein",
       legalName: "Demo Sportverein e.V.",
       status: "active",
+      modules: ["crm", "scheduling", "billing", "club_sport"],
     })
     .returning();
 
@@ -91,7 +98,7 @@ async function main() {
     stripeCustomerId: "cus_dev_demo_club",
     planId: "starter",
     status: "active",
-    modulesEntitled: ["crm", "scheduling", "billing"],
+    modulesEntitled: ["crm", "scheduling", "billing", "club_sport"],
   });
 
   const [locationA, locationB] = await db
@@ -222,6 +229,39 @@ async function main() {
     consentStatus: "pending",
   });
 
+  const [department] = await db
+    .insert(departments)
+    .values({
+      tenantId: tenant.id,
+      locationId: locationA.id,
+      name: "Fussball",
+      sortOrder: 1,
+    })
+    .returning();
+
+  const [offer] = await db
+    .insert(offers)
+    .values({
+      tenantId: tenant.id,
+      name: "U12 Fussball",
+      type: "team",
+      vertical: "club_sport",
+      locationId: locationA.id,
+      status: "internal",
+    })
+    .returning();
+
+  const [team] = await db
+    .insert(teams)
+    .values({
+      tenantId: tenant.id,
+      departmentId: department.id,
+      offerId: offer.id,
+      name: "U12",
+      ageGroup: "U12",
+    })
+    .returning();
+
   if (ownerSignUp.user) {
     await db.insert(documents).values([
       {
@@ -265,6 +305,7 @@ async function main() {
   console.log("Owner: owner@demo-club.de / Demo1234! → all locations (2 leads)");
   console.log("Guardian: guardian@demo-club.de / Demo1234! → portal consent for", minorPerson.firstName);
   console.log("Portal documents: /portal/demo-club/documents (2 visible, 1 internal hidden)");
+  console.log("Club team roster:", `/app/demo-club/club/teams/${team.id}/roster`);
   console.log("Other location:", locationB.name);
 }
 

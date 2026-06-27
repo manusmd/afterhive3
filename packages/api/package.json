@@ -74,7 +74,11 @@
     "./schedule/session-overlap": "./src/schedule/session-overlap.ts",
     "./schedule/validate-session": "./src/schedule/validate-session.ts",
     "./schedule/can-assign-session-staff": "./src/schedule/can-assign-session-staff.ts",
-    "./schedule/assign-session-staff": "./src/schedule/assign-session-staff.ts"
+    "./schedule/assign-session-staff": "./src/schedule/assign-session-staff.ts",
+    "./club/can-read-roster": "./src/club/can-read-roster.ts",
+    "./club/can-update-roster": "./src/club/can-update-roster.ts",
+    "./club/list-roster": "./src/club/list-roster.ts",
+    "./club/update-roster": "./src/club/update-roster.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
