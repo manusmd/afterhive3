@@ -6,9 +6,13 @@ import {
   account,
   attendanceRecords,
   consentRecords,
+  contracts,
+  customerProfiles,
   departments,
   documents,
   enrollments,
+  invoiceLineItems,
+  invoices,
   leads,
   locations,
   memberProfiles,
@@ -24,6 +28,7 @@ import {
   sessionStaffAssignments,
   sessions,
   staffInvites,
+  tariffs,
   teams,
   tenantMemberships,
   tenantSubscriptions,
@@ -40,6 +45,11 @@ async function main() {
 
   await db.delete(consentRecords);
   await db.delete(documents);
+  await db.delete(invoiceLineItems);
+  await db.delete(invoices);
+  await db.delete(contracts);
+  await db.delete(tariffs);
+  await db.delete(customerProfiles);
   await db.delete(attendanceRecords);
   await db.delete(rosterEntries);
   await db.delete(waitlistEntries);
@@ -303,6 +313,46 @@ async function main() {
     jerseyNumber: "10",
     status: "active",
     fromDate: "2026-06-01",
+  });
+
+  const [customerProfile] = await db
+    .insert(customerProfiles)
+    .values({
+      tenantId: tenant.id,
+      personId: guardianPerson.id,
+      customerNumber: "K-0001",
+      status: "active",
+    })
+    .returning();
+
+  const monthlyTariffConfig = { amount_cents: 4500, billing_day: 1 };
+
+  const [monthlyTariff] = await db
+    .insert(tariffs)
+    .values({
+      tenantId: tenant.id,
+      name: "U12 Mitgliedschaft",
+      model: "fixed_monthly",
+      config: monthlyTariffConfig,
+      vatRate: "0.19",
+      status: "active",
+      validFrom: "2026-01-01",
+    })
+    .returning();
+
+  await db.insert(contracts).values({
+    tenantId: tenant.id,
+    customerProfileId: customerProfile.id,
+    tariffId: monthlyTariff.id,
+    tariffSnapshot: {
+      id: monthlyTariff.id,
+      name: monthlyTariff.name,
+      model: monthlyTariff.model,
+      config: monthlyTariffConfig,
+      vat_rate: monthlyTariff.vatRate,
+    },
+    status: "active",
+    startDate: "2026-06-01",
   });
 
   if (ownerSignUp.user) {
