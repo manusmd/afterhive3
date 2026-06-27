@@ -55,6 +55,7 @@ export function PlatformAppShell({
   userInitials,
   navSections,
   currentPath,
+  hrefPrefix = "",
   children,
 }: PlatformAppShellProps) {
   return (
@@ -112,7 +113,7 @@ export function PlatformAppShell({
                   <ListItemButton
                     key={item.href}
                     component="a"
-                    href={item.href}
+                    href={`${hrefPrefix}${item.href}`}
                     selected={selected}
                   >
                     <ListItemIcon sx={{ minWidth: 36 }}>{resolveNavIcon(item.href)}</ListItemIcon>

@@ -6,6 +6,7 @@ import { buildPlatformNav } from "@/components/build-platform-nav";
 import { PlatformChrome } from "@/components/PlatformChrome";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
+const hrefPrefix = process.env.BASE_PATH ?? "/platform";
 
 type ShellLayoutProps = {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ export default async function ShellLayout({ children }: ShellLayoutProps) {
 
   return (
     <PlatformChrome
+      hrefPrefix={hrefPrefix}
       navSections={navSections}
       userName={userName}
       userRole={userRole}

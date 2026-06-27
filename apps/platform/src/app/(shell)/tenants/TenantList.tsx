@@ -143,9 +143,15 @@ type TenantListProps = {
   items: TenantListItemView[];
   nextCursor: string | null;
   canSuspend?: boolean;
+  showCreateTenant?: boolean;
 };
 
-export function TenantList({ items, nextCursor, canSuspend = false }: TenantListProps) {
+export function TenantList({
+  items,
+  nextCursor,
+  canSuspend = false,
+  showCreateTenant = false,
+}: TenantListProps) {
   const t = useT();
   const searchParams = useSearchParams();
   const hasFilters = Boolean(searchParams.get("status") || searchParams.get("plan"));
@@ -158,7 +164,7 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
             ? t("platform.tenants.list.emptyFiltered")
             : t("platform.tenants.list.empty")}
         </Typography>
-        {!hasFilters ? (
+        {!hasFilters && showCreateTenant ? (
           <Button component={Link} href="/tenants/new" variant="contained" sx={{ mt: 2 }}>
             {t("platform.tenants.list.createFirst")}
           </Button>

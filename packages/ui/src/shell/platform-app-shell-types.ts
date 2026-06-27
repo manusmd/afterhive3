@@ -18,5 +18,6 @@ export type PlatformAppShellProps = {
   userInitials: string;
   navSections: PlatformNavSection[];
   currentPath: string;
+  hrefPrefix?: string;
   children: React.ReactNode;
 };

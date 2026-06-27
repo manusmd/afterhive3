@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 type PlatformChromeProps = {
+  hrefPrefix: string;
   navSections: PlatformNavSection[];
   userName?: string;
   userRole?: string;
@@ -18,6 +19,7 @@ function isShellExcludedPath(pathname: string) {
 }
 
 export function PlatformChrome({
+  hrefPrefix,
   navSections,
   userName,
   userRole,
@@ -41,6 +43,7 @@ export function PlatformChrome({
       userInitials={userInitials ?? "?"}
       navSections={navSections}
       currentPath={pathname}
+      hrefPrefix={hrefPrefix}
     >
       {children}
     </PlatformAppShell>

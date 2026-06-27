@@ -40,9 +40,9 @@ export default async function TenantsPage({ searchParams }: TenantsPageProps) {
   const pageActions = (
     <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
       {showCreateTenant ? (
-        <Button component={Link} href="/tenants/new" variant="outlined">
-          {t("platform.tenants.create.toolbarButton")}
-        </Button>
+        <Link href="/tenants/new">
+          <Button variant="outlined">{t("platform.tenants.create.toolbarButton")}</Button>
+        </Link>
       ) : null}
       <PlatformLogoutButton />
     </Stack>
@@ -79,6 +79,7 @@ export default async function TenantsPage({ searchParams }: TenantsPageProps) {
             items={result.items}
             nextCursor={result.nextCursor}
             canSuspend={canSuspendTenant(session.roles)}
+            showCreateTenant={showCreateTenant}
           />
         </Panel>
       </Stack>
