@@ -1,7 +1,13 @@
-import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { memberProfiles } from "./member-profiles";
 import { offerGroups } from "./offer-groups";
 import { tenants } from "./tenants";
+
+export const enrollmentEndReasonEnum = pgEnum("enrollment_end_reason", [
+  "completed",
+  "canceled",
+  "transferred",
+]);
 
 export const enrollments = pgTable("enrollments", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -17,5 +23,7 @@ export const enrollments = pgTable("enrollments", {
   status: varchar("status", { length: 32 }).notNull().default("pending"),
   enrolledAt: timestamp("enrolled_at", { withTimezone: true }).notNull().defaultNow(),
   activatedAt: timestamp("activated_at", { withTimezone: true }),
+  endedAt: timestamp("ended_at", { withTimezone: true }),
+  endReason: enrollmentEndReasonEnum("end_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

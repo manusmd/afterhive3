@@ -99,6 +99,13 @@
       "when": 1782490000000,
       "tag": "0013_waitlist_entries",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1782491000000,
+      "tag": "0014_enrollment_end",
+      "breakpoints": true
     }
   ]
 }
