@@ -22,6 +22,15 @@ export type RecordMockPaymentResult = {
   amountCents: number;
 };
 
+type LockedInvoiceRow = {
+  invoiceId: string;
+  tenantId: string;
+  status: string;
+  grossTotalCents: number;
+  paidCents: number;
+  currency: string;
+};
+
 export class RecordMockPaymentError extends Error {
   constructor(
     readonly code:
@@ -53,6 +62,43 @@ export function validateRecordMockPaymentInput(input: RecordMockPaymentInput) {
   return null;
 }
 
+export function resolveMockPaymentApplication(
+  invoiceRow: LockedInvoiceRow,
+  amountCents?: number,
+) {
+  if (!PAYABLE_INVOICE_STATUSES.has(invoiceRow.status as "open" | "partially_paid" | "overdue")) {
+    return "invoice_not_payable" as const;
+  }
+
+  const remainingCents = getInvoiceRemainingCents(
+    invoiceRow.grossTotalCents,
+    invoiceRow.paidCents,
+  );
+
+  if (remainingCents === 0) {
+    return "invoice_not_payable" as const;
+  }
+
+  const paymentAmountCents = amountCents ?? remainingCents;
+
+  if (paymentAmountCents > remainingCents) {
+    return "amount_exceeds_remaining" as const;
+  }
+
+  const nextPaidCents = invoiceRow.paidCents + paymentAmountCents;
+  const nextStatus = resolveInvoiceStatusAfterPayment(nextPaidCents, invoiceRow.grossTotalCents);
+
+  if (nextStatus === "open") {
+    return "invalid_amount" as const;
+  }
+
+  return {
+    amountCents: paymentAmountCents,
+    nextPaidCents,
+    nextStatus,
+  };
+}
+
 export async function recordMockPayment(
   session: SessionContext,
   tenantSlug: string,
@@ -69,58 +115,41 @@ export async function recordMockPayment(
   }
 
   const db = getDb();
-  const [invoiceRow] = await db
-    .select({
-      invoiceId: invoices.id,
-      tenantId: invoices.tenantId,
-      status: invoices.status,
-      grossTotalCents: invoices.grossTotalCents,
-      paidCents: invoices.paidCents,
-      currency: invoices.currency,
-    })
-    .from(invoices)
-    .innerJoin(tenants, eq(invoices.tenantId, tenants.id))
-    .where(
-      and(
-        eq(invoices.id, input.invoiceId),
-        eq(invoices.tenantId, session.tenantId),
-        eq(tenants.slug, tenantSlug),
-      ),
-    )
-    .limit(1);
-
-  if (!invoiceRow) {
-    throw new RecordMockPaymentError("invoice_not_found");
-  }
-
-  if (!PAYABLE_INVOICE_STATUSES.has(invoiceRow.status as "open" | "partially_paid" | "overdue")) {
-    throw new RecordMockPaymentError("invoice_not_payable");
-  }
-
-  const remainingCents = getInvoiceRemainingCents(
-    invoiceRow.grossTotalCents,
-    invoiceRow.paidCents,
-  );
-
-  if (remainingCents === 0) {
-    throw new RecordMockPaymentError("invoice_not_payable");
-  }
-
-  const amountCents = input.amountCents ?? remainingCents;
-
-  if (amountCents > remainingCents) {
-    throw new RecordMockPaymentError("amount_exceeds_remaining");
-  }
-
-  const paidAt = new Date();
-  const nextPaidCents = invoiceRow.paidCents + amountCents;
-  const nextStatus = resolveInvoiceStatusAfterPayment(nextPaidCents, invoiceRow.grossTotalCents);
-
-  if (nextStatus === "open") {
-    throw new RecordMockPaymentError("invalid_amount");
-  }
 
   return db.transaction(async (tx) => {
+    const [invoiceRow] = await tx
+      .select({
+        invoiceId: invoices.id,
+        tenantId: invoices.tenantId,
+        status: invoices.status,
+        grossTotalCents: invoices.grossTotalCents,
+        paidCents: invoices.paidCents,
+        currency: invoices.currency,
+      })
+      .from(invoices)
+      .innerJoin(tenants, eq(invoices.tenantId, tenants.id))
+      .where(
+        and(
+          eq(invoices.id, input.invoiceId),
+          eq(invoices.tenantId, session.tenantId!),
+          eq(tenants.slug, tenantSlug),
+        ),
+      )
+      .for("update")
+      .limit(1);
+
+    if (!invoiceRow) {
+      throw new RecordMockPaymentError("invoice_not_found");
+    }
+
+    const application = resolveMockPaymentApplication(invoiceRow, input.amountCents);
+
+    if (typeof application === "string") {
+      throw new RecordMockPaymentError(application);
+    }
+
+    const paidAt = new Date();
+
     const [payment] = await tx
       .insert(paymentRecords)
       .values({
@@ -128,7 +157,7 @@ export async function recordMockPayment(
         invoiceId: invoiceRow.invoiceId,
         externalProvider: "mock",
         externalId: `mock_${paidAt.getTime()}`,
-        amountCents,
+        amountCents: application.amountCents,
         currency: invoiceRow.currency,
         status: "succeeded",
         paidAt,
@@ -142,17 +171,17 @@ export async function recordMockPayment(
     await tx
       .update(invoices)
       .set({
-        paidCents: nextPaidCents,
-        status: nextStatus,
+        paidCents: application.nextPaidCents,
+        status: application.nextStatus,
       })
       .where(eq(invoices.id, invoiceRow.invoiceId));
 
     return {
       paymentId: payment.id,
       invoiceId: invoiceRow.invoiceId,
-      invoiceStatus: nextStatus,
-      paidCents: nextPaidCents,
-      amountCents,
+      invoiceStatus: application.nextStatus,
+      paidCents: application.nextPaidCents,
+      amountCents: application.amountCents,
     };
   });
 }

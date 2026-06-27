@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SessionContext } from "@afterhive/domain";
-import { RecordMockPaymentError, recordMockPayment } from "./record-mock-payment";
+import {
+  RecordMockPaymentError,
+  recordMockPayment,
+  resolveMockPaymentApplication,
+} from "./record-mock-payment";
 
 const getDb = vi.hoisted(() => vi.fn());
 
@@ -34,6 +38,17 @@ const financeSession: SessionContext = {
 
 function mockTransaction() {
   return {
+    select: () => ({
+      from: () => ({
+        innerJoin: () => ({
+          where: () => ({
+            for: () => ({
+              limit: () => Promise.resolve(selectResults.invoice ? [selectResults.invoice] : []),
+            }),
+          }),
+        }),
+      }),
+    }),
     insert: () => ({
       values: (values: Record<string, unknown>) => {
         txState.insertedPayment = values;
@@ -55,19 +70,28 @@ function mockTransaction() {
 
 function mockDb() {
   return {
-    select: () => ({
-      from: () => ({
-        innerJoin: () => ({
-          where: () => ({
-            limit: () => Promise.resolve(selectResults.invoice ? [selectResults.invoice] : []),
-          }),
-        }),
-      }),
-    }),
     transaction: (fn: (tx: ReturnType<typeof mockTransaction>) => Promise<unknown>) =>
       fn(mockTransaction()),
   };
 }
+
+describe("resolveMockPaymentApplication", () => {
+  it("rejects payment when the locked invoice is already fully paid", () => {
+    expect(
+      resolveMockPaymentApplication(
+        {
+          invoiceId: "invoice-1",
+          tenantId: "tenant-1",
+          status: "paid",
+          grossTotalCents: 5355,
+          paidCents: 5355,
+          currency: "EUR",
+        },
+        100,
+      ),
+    ).toBe("invoice_not_payable");
+  });
+});
 
 describe("recordMockPayment", () => {
   beforeEach(() => {
@@ -117,12 +141,30 @@ describe("recordMockPayment", () => {
     ).rejects.toMatchObject({ code: "forbidden" satisfies RecordMockPaymentError["code"] });
   });
 
-  it("rejects amounts above the remaining balance", async () => {
+  it("rejects amounts above the remaining balance from the locked invoice row", async () => {
     await expect(
       recordMockPayment(financeSession, "demo-club", {
         invoiceId: "invoice-1",
         amountCents: 6000,
       }),
     ).rejects.toMatchObject({ code: "amount_exceeds_remaining" });
+  });
+
+  it("rejects payment when the locked invoice row is already fully paid", async () => {
+    selectResults.invoice = {
+      invoiceId: "invoice-1",
+      tenantId: "tenant-1",
+      status: "paid",
+      grossTotalCents: 5355,
+      paidCents: 5355,
+      currency: "EUR",
+    };
+
+    await expect(
+      recordMockPayment(financeSession, "demo-club", {
+        invoiceId: "invoice-1",
+      }),
+    ).rejects.toMatchObject({ code: "invoice_not_payable" });
+    expect(txState.insertedPayment).toBeNull();
   });
 });
