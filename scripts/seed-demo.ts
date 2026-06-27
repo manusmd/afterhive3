@@ -18,6 +18,7 @@ import {
   memberProfiles,
   offerGroups,
   offers,
+  paymentRecords,
   persons,
   platformMemberships,
   recurrenceRules,
@@ -46,6 +47,7 @@ async function main() {
   await db.delete(consentRecords);
   await db.delete(documents);
   await db.delete(invoiceLineItems);
+  await db.delete(paymentRecords);
   await db.delete(invoices);
   await db.delete(contracts);
   await db.delete(tariffs);

@@ -87,6 +87,8 @@
     "./billing/generate-recurring-invoices": "./src/billing/generate-recurring-invoices.ts",
     "./billing/generate-per-session-invoices": "./src/billing/generate-per-session-invoices.ts",
     "./billing/invoice-amounts": "./src/billing/invoice-amounts.ts",
+    "./billing/can-record-payment": "./src/billing/can-record-payment.ts",
+    "./billing/record-mock-payment": "./src/billing/record-mock-payment.ts",
     "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
   },
   "scripts": {

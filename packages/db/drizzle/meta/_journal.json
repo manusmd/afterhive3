@@ -141,6 +141,13 @@
       "when": 1782496000000,
       "tag": "0019_per_session_line_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1782497000000,
+      "tag": "0020_payment_records",
+      "breakpoints": true
     }
   ]
 }
