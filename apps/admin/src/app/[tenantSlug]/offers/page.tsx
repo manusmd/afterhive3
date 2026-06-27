@@ -1,6 +1,8 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { canEndEnrollment } from "@afterhive/api/enrollment/can-end-enrollment";
 import { canEnrollMember } from "@afterhive/api/enrollment/can-enroll-member";
 import { listEnrollFormOptions } from "@afterhive/api/enrollment/enroll-member";
+import { listEnrollments } from "@afterhive/api/enrollment/list-enrollments";
 import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { listOfferFormLocations } from "@afterhive/api/offer/create-offer";
@@ -14,6 +16,7 @@ import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { CreateOfferForm } from "./CreateOfferForm";
+import { EndEnrollmentButton } from "./EndEnrollmentButton";
 import { EnrollMemberForm } from "./EnrollMemberForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -55,8 +58,14 @@ export default async function OffersPage({ params }: OffersPageProps) {
     session.locationIds,
     session.roleAssignments,
   );
+  const showEndEnrollment = canEndEnrollment(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
   const locations = showCreateForm ? await listOfferFormLocations(session, tenantSlug) : [];
   const enrollOptions = showEnrollForm ? await listEnrollFormOptions(session, tenantSlug) : null;
+  const activeEnrollments = showEndEnrollment ? await listEnrollments(session, tenantSlug) : [];
   const offers = await listOffers(session, tenantSlug);
 
   return (
@@ -85,6 +94,34 @@ export default async function OffersPage({ params }: OffersPageProps) {
                 label: member.label,
               }))}
             />
+          </Stack>
+        ) : null}
+
+        {showEndEnrollment ? (
+          <Stack spacing={2}>
+            <Typography variant="h6">
+              {t("admin.enrollment.list.title", { count: activeEnrollments.length })}
+            </Typography>
+            {activeEnrollments.length === 0 ? (
+              <Typography color="text.secondary">{t("admin.enrollment.list.empty")}</Typography>
+            ) : (
+              activeEnrollments.map((enrollment) => (
+                <Stack
+                  key={enrollment.enrollmentId}
+                  direction="row"
+                  spacing={2}
+                  sx={{ alignItems: "center", flexWrap: "wrap" }}
+                >
+                  <Typography>
+                    {enrollment.memberLabel} · {enrollment.offerGroupLabel}
+                  </Typography>
+                  <EndEnrollmentButton
+                    tenantSlug={tenantSlug}
+                    enrollmentId={enrollment.enrollmentId}
+                  />
+                </Stack>
+              ))
+            )}
           </Stack>
         ) : null}
 

@@ -396,6 +396,19 @@
           "alreadyWaitlisted": "Mitglied steht bereits auf der Warteliste.",
           "default": "Einschreibung fehlgeschlagen."
         }
+      },
+      "list": {
+        "title": "Aktive Einschreibungen ({count})",
+        "empty": "Keine aktiven Einschreibungen."
+      },
+      "end": {
+        "button": "Beenden",
+        "error": {
+          "invalidStatus": "Nur aktive Einschreibungen koennen beendet werden.",
+          "forbidden": "Keine Berechtigung fuer diesen Standort.",
+          "notFound": "Einschreibung nicht gefunden.",
+          "default": "Einschreibung konnte nicht beendet werden."
+        }
       }
     },
     "settings": {
