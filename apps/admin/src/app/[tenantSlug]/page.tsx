@@ -2,6 +2,7 @@ import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canAccessClubSport } from "@afterhive/api/club/can-access-club-sport";
 import { canUploadDocument } from "@afterhive/api/document/can-upload-document";
+import { canReadSessions } from "@afterhive/api/attendance/can-read-sessions";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { canRunImport } from "@afterhive/api/crm/can-run-import";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
@@ -36,7 +37,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showImport = canRunImport(session.roles, session.locationIds, session.roleAssignments);
   const showDocuments = canUploadDocument(session.roles);
   const showOffers = canReadOffers(session.roles, session.locationIds);
-  const showSessions = canReadOffers(session.roles, session.locationIds);
+  const showSessions = canReadSessions(session.roles, session.locationIds);
   const showClub = await canAccessClubSport(session);
 
   return (

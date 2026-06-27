@@ -1,6 +1,6 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { getSessionAttendance } from "@afterhive/api/attendance/list-session-attendance";
-import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
+import { canReadSessions } from "@afterhive/api/attendance/can-read-sessions";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
 import { Stack, Typography } from "@mui/material";
@@ -27,7 +27,7 @@ export default async function SessionAttendancePage({ params }: SessionAttendanc
 
   const pageTitle = t("admin.attendance.session.title");
 
-  if (!canReadOffers(session.roles, session.locationIds)) {
+  if (!canReadSessions(session.roles, session.locationIds)) {
     return (
       <SurfaceShell surface="admin" title={pageTitle}>
         <Stack spacing={2}>

@@ -14,7 +14,7 @@ import {
   tenants,
 } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
-import { canReadOffers } from "../offer/can-read-offers";
+import { canReadSessions } from "./can-read-sessions";
 import { isWithinLocationScope } from "../location/location-scope";
 import {
   canRecordAttendance,
@@ -176,7 +176,7 @@ export async function getSessionAttendance(
   tenantSlug: string,
   sessionId: string,
 ): Promise<SessionAttendanceView | null> {
-  if (!session.tenantId || !canReadOffers(session.roles, session.locationIds)) {
+  if (!session.tenantId || !canReadSessions(session.roles, session.locationIds)) {
     return null;
   }
 
@@ -270,7 +270,7 @@ export async function listAttendanceSessions(
   session: SessionContext,
   tenantSlug: string,
 ): Promise<SessionListItem[]> {
-  if (!session.tenantId || !canReadOffers(session.roles, session.locationIds)) {
+  if (!session.tenantId || !canReadSessions(session.roles, session.locationIds)) {
     return [];
   }
 
