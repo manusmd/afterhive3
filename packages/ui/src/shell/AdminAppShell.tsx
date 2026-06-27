@@ -8,7 +8,6 @@ import {
   Badge,
   Box,
   Drawer,
-  IconButton,
   InputAdornment,
   List,
   ListItemButton,
@@ -22,9 +21,7 @@ import {
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import ImportExportOutlinedIcon from "@mui/icons-material/ImportExportOutlined";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
@@ -205,14 +202,6 @@ export function AdminAppShell({
                 </InputAdornment>
               }
             />
-            <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
-              <IconButton size="small" aria-label="notifications">
-                <NotificationsNoneOutlinedIcon fontSize="small" />
-              </IconButton>
-              <IconButton size="small" aria-label="help">
-                <HelpOutlineOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Box>
           </Toolbar>
         </AppBar>
 
