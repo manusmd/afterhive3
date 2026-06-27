@@ -675,6 +675,20 @@
     "meta": {
       "title": "Afterhive Portal"
     },
+    "shell": {
+      "searchPlaceholder": "Suchen…",
+      "portalLabel": "Portal",
+      "sections": {
+        "selfService": "Self-Service"
+      }
+    },
+    "nav": {
+      "consent": "Einwilligung",
+      "documents": "Dokumente"
+    },
+    "roles": {
+      "parent": "Erziehungsberechtigte:r"
+    },
     "home": {
       "title": "Self-Service-Portal",
       "subtitle": "Verwalten Sie Einwilligungen, Dokumente und Mitgliederdaten."

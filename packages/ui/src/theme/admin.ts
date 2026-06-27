@@ -7,7 +7,7 @@ import {
 } from "./design-tokens";
 import { createBaseTheme } from "./base";
 
-const compactSurfaceOptions: ThemeOptions = {
+export const compactSurfaceOptions: ThemeOptions = {
   shape: { borderRadius: afterhiveShape.borderRadius },
   typography: {
     body1: { fontSize: "0.875rem" },
