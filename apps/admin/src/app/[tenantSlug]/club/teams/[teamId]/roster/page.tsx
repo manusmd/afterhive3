@@ -8,13 +8,12 @@ import {
   listRosterMemberOptions,
 } from "@afterhive/api/club/list-roster";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
-import { Stack, Typography } from "@mui/material";
-import Link from "next/link";
+import { Panel } from "@afterhive/ui";
+import { Stack } from "@mui/material";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { UpdateRosterForm } from "./UpdateRosterForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -35,14 +34,9 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
 
   if (!(await canAccessClubSport(session))) {
     return (
-      <SurfaceShell surface="admin" embedded title={pageTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={pageTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={pageTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
@@ -63,17 +57,11 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
     }));
 
   return (
-    <SurfaceShell surface="admin" embedded title={pageTitle}>
-      <Stack spacing={2}>
-        <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
-        <Typography variant="body2" color="text.secondary">
-          <Link href={`/${tenantSlug}/club/teams`}>{t("admin.club.roster.back")}</Link>
-        </Typography>
-        <Typography variant="h6">
-          {roster.teamName} · {roster.departmentName}
-        </Typography>
+    <AdminPageFrame
+      title={pageTitle}
+      subtitle={`${roster.teamName} · ${roster.departmentName}`}
+    >
+      <Panel>
         <UpdateRosterForm
           tenantSlug={tenantSlug}
           teamId={teamId}
@@ -81,7 +69,7 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
           memberOptions={memberOptions}
           canEdit={canEdit}
         />
-      </Stack>
-    </SurfaceShell>
+      </Panel>
+    </AdminPageFrame>
   );
 }

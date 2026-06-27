@@ -16,13 +16,12 @@ import {
   translateLeadSource,
   translateLeadStatus,
 } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
+import { Panel, StatusChip } from "@afterhive/ui";
 import { Box, Stack, Typography } from "@mui/material";
-import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { ConvertLeadButton } from "./ConvertLeadButton";
 import { CreateLeadForm } from "./CreateLeadForm";
 import { LeadStatusActions } from "./LeadStatusActions";
@@ -36,6 +35,20 @@ function resolveLeadPipelineTransitions(
   return getAllowedLeadTransitions(currentStatus).filter(
     (status) => status !== "new" || canReopenLostLead(roles),
   );
+}
+
+function resolveLeadStatusTone(status: string) {
+  switch (status) {
+    case "new":
+      return "warning" as const;
+    case "qualified":
+    case "converted":
+      return "success" as const;
+    case "lost":
+      return "error" as const;
+    default:
+      return "neutral" as const;
+  }
 }
 
 type LeadsPageProps = {
@@ -54,14 +67,9 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
 
   if (!canReadLeads(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" embedded title={leadsTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={leadsTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={leadsTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
@@ -98,23 +106,21 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
   ];
 
   return (
-    <SurfaceShell surface="admin" embedded title={leadsTitle}>
-      <Stack spacing={4}>
-        <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-          <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
-
-        <Typography color="text.secondary">
-          {t("admin.leads.visibleLocations.label")} {scopedLocations}
-        </Typography>
-
+    <AdminPageFrame
+      title={leadsTitle}
+      subtitle={`${t("admin.leads.visibleLocations.label")} ${scopedLocations}`}
+    >
+      <Stack spacing={2}>
         {showCreateForm ? (
-          <CreateLeadForm tenantSlug={tenantSlug} locations={formLocations} />
+          <Panel>
+            <CreateLeadForm tenantSlug={tenantSlug} locations={formLocations} />
+          </Panel>
         ) : null}
 
-        <Stack spacing={2}>
-          <Typography variant="h6">{t("admin.leads.list.title", { count: leads.length })}</Typography>
+        <Panel>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {t("admin.leads.list.title", { count: leads.length })}
+          </Typography>
           {leads.length === 0 ? (
             <Typography color="text.secondary">{t("admin.leads.list.empty")}</Typography>
           ) : (
@@ -150,51 +156,54 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                         showConvertAction && isLeadConvertibleStatus(lead.status);
 
                       return (
-                      <Box component="tr" key={lead.id}>
-                        <Box
-                          component="td"
-                          sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
-                        >
-                          {lead.firstName} {lead.lastName}
-                        </Box>
-                        <Box
-                          component="td"
-                          sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
-                        >
-                          {lead.locationName}
-                        </Box>
-                        <Box
-                          component="td"
-                          sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
-                        >
-                          {translateLeadStatus(t, lead.status)}
-                        </Box>
-                        <Box
-                          component="td"
-                          sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
-                        >
-                          {translateLeadSource(t, lead.source)}
-                        </Box>
-                        {showRowActions ? (
+                        <Box component="tr" key={lead.id}>
                           <Box
                             component="td"
                             sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
                           >
-                            <Stack spacing={1}>
-                              {pipelineTransitions.length > 0 ? (
-                                <LeadStatusActions
-                                  tenantSlug={tenantSlug}
-                                  leadId={lead.id}
-                                  allowedTransitions={pipelineTransitions}
-                                />
-                              ) : null}
-                              {showConvertButton ? (
-                                <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
-                              ) : null}
-                            </Stack>
+                            {lead.firstName} {lead.lastName}
                           </Box>
-                        ) : null}
-                      </Box>
+                          <Box
+                            component="td"
+                            sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
+                          >
+                            {lead.locationName}
+                          </Box>
+                          <Box
+                            component="td"
+                            sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
+                          >
+                            <StatusChip
+                              label={translateLeadStatus(t, lead.status)}
+                              tone={resolveLeadStatusTone(lead.status)}
+                            />
+                          </Box>
+                          <Box
+                            component="td"
+                            sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
+                          >
+                            {translateLeadSource(t, lead.source)}
+                          </Box>
+                          {showRowActions ? (
+                            <Box
+                              component="td"
+                              sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}
+                            >
+                              <Stack spacing={1}>
+                                {pipelineTransitions.length > 0 ? (
+                                  <LeadStatusActions
+                                    tenantSlug={tenantSlug}
+                                    leadId={lead.id}
+                                    allowedTransitions={pipelineTransitions}
+                                  />
+                                ) : null}
+                                {showConvertButton ? (
+                                  <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
+                                ) : null}
+                              </Stack>
+                            </Box>
+                          ) : null}
+                        </Box>
                       );
                     })}
                   </Box>
@@ -210,44 +219,49 @@ export default async function LeadsPage({ params }: LeadsPageProps) {
                     showConvertAction && isLeadConvertibleStatus(lead.status);
 
                   return (
-                  <Box
-                    key={lead.id}
-                    sx={{
-                      p: 2,
-                      border: 1,
-                      borderColor: "divider",
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Typography variant="subtitle1">
-                      {lead.firstName} {lead.lastName}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {lead.locationName} · {translateLeadStatus(t, lead.status)} ·{" "}
-                      {translateLeadSource(t, lead.source)}
-                    </Typography>
-                    {pipelineTransitions.length > 0 ? (
+                    <Box
+                      key={lead.id}
+                      sx={{
+                        p: 2,
+                        border: 1,
+                        borderColor: "divider",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Typography variant="subtitle1">
+                        {lead.firstName} {lead.lastName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {lead.locationName} · {translateLeadSource(t, lead.source)}
+                      </Typography>
                       <Box sx={{ mt: 1 }}>
-                        <LeadStatusActions
-                          tenantSlug={tenantSlug}
-                          leadId={lead.id}
-                          allowedTransitions={pipelineTransitions}
+                        <StatusChip
+                          label={translateLeadStatus(t, lead.status)}
+                          tone={resolveLeadStatusTone(lead.status)}
                         />
                       </Box>
-                    ) : null}
-                    {showConvertButton ? (
-                      <Box sx={{ mt: 1 }}>
-                        <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
-                      </Box>
-                    ) : null}
-                  </Box>
+                      {pipelineTransitions.length > 0 ? (
+                        <Box sx={{ mt: 1 }}>
+                          <LeadStatusActions
+                            tenantSlug={tenantSlug}
+                            leadId={lead.id}
+                            allowedTransitions={pipelineTransitions}
+                          />
+                        </Box>
+                      ) : null}
+                      {showConvertButton ? (
+                        <Box sx={{ mt: 1 }}>
+                          <ConvertLeadButton tenantSlug={tenantSlug} leadId={lead.id} />
+                        </Box>
+                      ) : null}
+                    </Box>
                   );
                 })}
               </Stack>
             </>
           )}
-        </Stack>
+        </Panel>
       </Stack>
-    </SurfaceShell>
+    </AdminPageFrame>
   );
 }

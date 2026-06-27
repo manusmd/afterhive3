@@ -1,13 +1,11 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { canUploadDocument } from "@afterhive/api/document/can-upload-document";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
-import { Stack } from "@mui/material";
-import Link from "next/link";
+import { Panel } from "@afterhive/ui";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { UploadDocumentForm } from "./UploadDocumentForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -27,28 +25,17 @@ export default async function DocumentsPage({ params }: DocumentsPageProps) {
 
   if (!canUploadDocument(session.roles)) {
     return (
-      <SurfaceShell surface="admin" embedded title={pageTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={pageTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={pageTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
   return (
-    <SurfaceShell surface="admin" embedded title={pageTitle}>
-      <Stack spacing={4}>
-        <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-          <Stack direction="row" spacing={1}>
-            <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
-          </Stack>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
+    <AdminPageFrame title={pageTitle}>
+      <Panel>
         <UploadDocumentForm tenantSlug={tenantSlug} />
-      </Stack>
-    </SurfaceShell>
+      </Panel>
+    </AdminPageFrame>
   );
 }

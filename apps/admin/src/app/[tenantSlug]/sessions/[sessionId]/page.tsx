@@ -2,13 +2,12 @@ import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
 import { getSessionAttendance } from "@afterhive/api/attendance/list-session-attendance";
 import { canReadSessions } from "@afterhive/api/attendance/can-read-sessions";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
+import { Panel } from "@afterhive/ui";
 import { Stack, Typography } from "@mui/material";
-import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { RecordAttendanceForm } from "./RecordAttendanceForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -29,14 +28,9 @@ export default async function SessionAttendancePage({ params }: SessionAttendanc
 
   if (!canReadSessions(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" embedded title={pageTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={pageTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={pageTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
@@ -47,28 +41,25 @@ export default async function SessionAttendancePage({ params }: SessionAttendanc
   }
 
   return (
-    <SurfaceShell surface="admin" embedded title={pageTitle}>
+    <AdminPageFrame title={pageTitle} subtitle={attendance.sessionLabel}>
       <Stack spacing={2}>
-        <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
-        <Typography variant="body2" color="text.secondary">
-          <Link href={`/${tenantSlug}/sessions`}>{t("admin.attendance.session.back")}</Link>
-        </Typography>
-        <Typography variant="h6">{attendance.sessionLabel}</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t("admin.attendance.session.startsAt", { value: attendance.startsAt })}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {t("admin.attendance.session.endsAt", { value: attendance.endsAt })}
-        </Typography>
-        <RecordAttendanceForm
-          tenantSlug={tenantSlug}
-          sessionId={sessionId}
-          members={attendance.members}
-          canEdit={attendance.canRecord}
-        />
+        <Panel>
+          <Stack spacing={1} sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              {t("admin.attendance.session.startsAt", { value: attendance.startsAt })}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t("admin.attendance.session.endsAt", { value: attendance.endsAt })}
+            </Typography>
+          </Stack>
+          <RecordAttendanceForm
+            tenantSlug={tenantSlug}
+            sessionId={sessionId}
+            members={attendance.members}
+            canEdit={attendance.canRecord}
+          />
+        </Panel>
       </Stack>
-    </SurfaceShell>
+    </AdminPageFrame>
   );
 }

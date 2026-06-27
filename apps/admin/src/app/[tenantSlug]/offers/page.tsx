@@ -9,20 +9,38 @@ import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { listOfferFormLocations } from "@afterhive/api/offer/create-offer";
 import { listOffers } from "@afterhive/api/offer/list-offers";
-import { createTranslator, DEFAULT_LOCALE, getMessages, translateOfferStatus, translateOfferType } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
+import {
+  createTranslator,
+  DEFAULT_LOCALE,
+  getMessages,
+  translateOfferStatus,
+  translateOfferType,
+} from "@afterhive/shared/i18n";
+import { Panel, StatusChip } from "@afterhive/ui";
 import { Stack, Typography } from "@mui/material";
-import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { AdminPageFrame } from "@/components/AdminPageFrame";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
-import { StaffLogoutButton } from "@/components/StaffLogoutButton";
 import { AssignSessionStaffForm } from "./AssignSessionStaffForm";
 import { CreateOfferForm } from "./CreateOfferForm";
 import { EndEnrollmentButton } from "./EndEnrollmentButton";
 import { EnrollMemberForm } from "./EnrollMemberForm";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
+
+function resolveOfferStatusTone(status: string) {
+  switch (status) {
+    case "published":
+      return "success" as const;
+    case "draft":
+      return "neutral" as const;
+    case "archived":
+      return "error" as const;
+    default:
+      return "info" as const;
+  }
+}
 
 type OffersPageProps = {
   params: Promise<{ tenantSlug: string }>;
@@ -40,14 +58,9 @@ export default async function OffersPage({ params }: OffersPageProps) {
 
   if (!canReadOffers(session.roles, session.locationIds)) {
     return (
-      <SurfaceShell surface="admin" embedded title={pageTitle}>
-        <Stack spacing={2}>
-          <Stack direction="row" sx={{ justifyContent: "flex-end" }}>
-            <StaffLogoutButton tenantSlug={tenantSlug} />
-          </Stack>
-          <SettingsForbidden tenantSlug={tenantSlug} title={pageTitle} />
-        </Stack>
-      </SurfaceShell>
+      <AdminPageFrame title={pageTitle}>
+        <SettingsForbidden tenantSlug={tenantSlug} />
+      </AdminPageFrame>
     );
   }
 
@@ -80,20 +93,19 @@ export default async function OffersPage({ params }: OffersPageProps) {
   const offers = await listOffers(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="admin" embedded title={pageTitle}>
-      <Stack spacing={4}>
-        <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
-          <Link href={`/${tenantSlug}`}>{t("admin.nav.dashboard")}</Link>
-          <StaffLogoutButton tenantSlug={tenantSlug} />
-        </Stack>
-
+    <AdminPageFrame title={pageTitle}>
+      <Stack spacing={2}>
         {showCreateForm ? (
-          <CreateOfferForm tenantSlug={tenantSlug} locations={locations} />
+          <Panel>
+            <CreateOfferForm tenantSlug={tenantSlug} locations={locations} />
+          </Panel>
         ) : null}
 
         {showEnrollForm && enrollOptions ? (
-          <Stack spacing={1}>
-            <Typography variant="h6">{t("admin.enrollment.enroll.title")}</Typography>
+          <Panel>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              {t("admin.enrollment.enroll.title")}
+            </Typography>
             <EnrollMemberForm
               tenantSlug={tenantSlug}
               offerGroups={enrollOptions.offerGroups.map((group) => ({
@@ -105,40 +117,44 @@ export default async function OffersPage({ params }: OffersPageProps) {
                 label: member.label,
               }))}
             />
-          </Stack>
+          </Panel>
         ) : null}
 
         {showEndEnrollment ? (
-          <Stack spacing={2}>
-            <Typography variant="h6">
+          <Panel>
+            <Typography variant="h6" sx={{ mb: 2 }}>
               {t("admin.enrollment.list.title", { count: activeEnrollments.length })}
             </Typography>
             {activeEnrollments.length === 0 ? (
               <Typography color="text.secondary">{t("admin.enrollment.list.empty")}</Typography>
             ) : (
-              activeEnrollments.map((enrollment) => (
-                <Stack
-                  key={enrollment.enrollmentId}
-                  direction="row"
-                  spacing={2}
-                  sx={{ alignItems: "center", flexWrap: "wrap" }}
-                >
-                  <Typography>
-                    {enrollment.memberLabel} · {enrollment.offerGroupLabel}
-                  </Typography>
-                  <EndEnrollmentButton
-                    tenantSlug={tenantSlug}
-                    enrollmentId={enrollment.enrollmentId}
-                  />
-                </Stack>
-              ))
+              <Stack spacing={1.5}>
+                {activeEnrollments.map((enrollment) => (
+                  <Stack
+                    key={enrollment.enrollmentId}
+                    direction="row"
+                    spacing={2}
+                    sx={{ alignItems: "center", flexWrap: "wrap" }}
+                  >
+                    <Typography>
+                      {enrollment.memberLabel} · {enrollment.offerGroupLabel}
+                    </Typography>
+                    <EndEnrollmentButton
+                      tenantSlug={tenantSlug}
+                      enrollmentId={enrollment.enrollmentId}
+                    />
+                  </Stack>
+                ))}
+              </Stack>
             )}
-          </Stack>
+          </Panel>
         ) : null}
 
         {showAssignStaff && staffAssignOptions ? (
-          <Stack spacing={1}>
-            <Typography variant="h6">{t("admin.schedule.assignStaff.title")}</Typography>
+          <Panel>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              {t("admin.schedule.assignStaff.title")}
+            </Typography>
             <AssignSessionStaffForm
               tenantSlug={tenantSlug}
               sessions={staffAssignOptions.sessions.map((entry) => ({
@@ -151,25 +167,38 @@ export default async function OffersPage({ params }: OffersPageProps) {
                 label: entry.label,
               }))}
             />
-          </Stack>
+          </Panel>
         ) : null}
 
-        <Stack spacing={2}>
-          <Typography variant="h6">
+        <Panel>
+          <Typography variant="h6" sx={{ mb: 2 }}>
             {t("admin.offers.list.title", { count: offers.length })}
           </Typography>
           {offers.length === 0 ? (
             <Typography color="text.secondary">{t("admin.offers.list.empty")}</Typography>
           ) : (
-            offers.map((offer) => (
-              <Typography key={offer.offerId}>
-                {offer.name} · {translateOfferType(t, offer.type)} ·{" "}
-                {translateOfferStatus(t, offer.status)}
-              </Typography>
-            ))
+            <Stack spacing={1.5}>
+              {offers.map((offer) => (
+                <Stack
+                  key={offer.offerId}
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={1}
+                  sx={{ alignItems: { sm: "center" } }}
+                >
+                  <Typography sx={{ flex: 1 }}>{offer.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {translateOfferType(t, offer.type)}
+                  </Typography>
+                  <StatusChip
+                    label={translateOfferStatus(t, offer.status)}
+                    tone={resolveOfferStatusTone(offer.status)}
+                  />
+                </Stack>
+              ))}
+            </Stack>
           )}
-        </Stack>
+        </Panel>
       </Stack>
-    </SurfaceShell>
+    </AdminPageFrame>
   );
 }
