@@ -3,6 +3,8 @@ import { canEndEnrollment } from "@afterhive/api/enrollment/can-end-enrollment";
 import { canEnrollMember } from "@afterhive/api/enrollment/can-enroll-member";
 import { listEnrollFormOptions } from "@afterhive/api/enrollment/enroll-member";
 import { listEnrollments } from "@afterhive/api/enrollment/list-enrollments";
+import { canAssignSessionStaff } from "@afterhive/api/schedule/can-assign-session-staff";
+import { listSessionStaffFormOptions } from "@afterhive/api/schedule/assign-session-staff";
 import { canCreateOffer } from "@afterhive/api/offer/can-create-offer";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
 import { listOfferFormLocations } from "@afterhive/api/offer/create-offer";
@@ -15,6 +17,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SettingsForbidden } from "@/components/SettingsForbidden";
 import { StaffLogoutButton } from "@/components/StaffLogoutButton";
+import { AssignSessionStaffForm } from "./AssignSessionStaffForm";
 import { CreateOfferForm } from "./CreateOfferForm";
 import { EndEnrollmentButton } from "./EndEnrollmentButton";
 import { EnrollMemberForm } from "./EnrollMemberForm";
@@ -63,9 +66,17 @@ export default async function OffersPage({ params }: OffersPageProps) {
     session.locationIds,
     session.roleAssignments,
   );
+  const showAssignStaff = canAssignSessionStaff(
+    session.roles,
+    session.locationIds,
+    session.roleAssignments,
+  );
   const locations = showCreateForm ? await listOfferFormLocations(session, tenantSlug) : [];
   const enrollOptions = showEnrollForm ? await listEnrollFormOptions(session, tenantSlug) : null;
   const activeEnrollments = showEndEnrollment ? await listEnrollments(session, tenantSlug) : [];
+  const staffAssignOptions = showAssignStaff
+    ? await listSessionStaffFormOptions(session, tenantSlug)
+    : null;
   const offers = await listOffers(session, tenantSlug);
 
   return (
@@ -122,6 +133,24 @@ export default async function OffersPage({ params }: OffersPageProps) {
                 </Stack>
               ))
             )}
+          </Stack>
+        ) : null}
+
+        {showAssignStaff && staffAssignOptions ? (
+          <Stack spacing={1}>
+            <Typography variant="h6">{t("admin.schedule.assignStaff.title")}</Typography>
+            <AssignSessionStaffForm
+              tenantSlug={tenantSlug}
+              sessions={staffAssignOptions.sessions.map((entry) => ({
+                id: entry.sessionId,
+                label: entry.label,
+                assignedStaff: entry.assignedStaff,
+              }))}
+              staff={staffAssignOptions.staff.map((entry) => ({
+                id: entry.userId,
+                label: entry.label,
+              }))}
+            />
           </Stack>
         ) : null}
 

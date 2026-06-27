@@ -10,6 +10,7 @@ export * from "./offers";
 export * from "./offer-groups";
 export * from "./recurrence-rules";
 export * from "./sessions";
+export * from "./session-staff-assignments";
 export * from "./enrollments";
 export * from "./waitlist-entries";
 export * from "./relationships";

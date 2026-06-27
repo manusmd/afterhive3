@@ -18,6 +18,7 @@ import {
   relationships,
   roleAssignments,
   session,
+  sessionStaffAssignments,
   sessions,
   staffInvites,
   tenantMemberships,
@@ -37,6 +38,7 @@ async function main() {
   await db.delete(documents);
   await db.delete(waitlistEntries);
   await db.delete(enrollments);
+  await db.delete(sessionStaffAssignments);
   await db.delete(sessions);
   await db.delete(recurrenceRules);
   await db.delete(offerGroups);
