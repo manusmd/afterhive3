@@ -1,4 +1,5 @@
 import { date, integer, pgEnum, pgTable, timestamp, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
+import { contracts } from "./contracts";
 import { customerProfiles } from "./customer-profiles";
 import { tenants } from "./tenants";
 
@@ -23,6 +24,9 @@ export const invoices = pgTable(
     customerProfileId: uuid("customer_profile_id")
       .notNull()
       .references(() => customerProfiles.id, { onDelete: "restrict" }),
+    contractId: uuid("contract_id")
+      .notNull()
+      .references(() => contracts.id, { onDelete: "restrict" }),
     invoiceNumber: varchar("invoice_number", { length: 64 }).notNull(),
     status: invoiceStatusEnum("status").notNull().default("draft"),
     issueDate: date("issue_date").notNull(),
@@ -38,9 +42,9 @@ export const invoices = pgTable(
   },
   (table) => [
     uniqueIndex("invoices_tenant_number_unique").on(table.tenantId, table.invoiceNumber),
-    uniqueIndex("invoices_tenant_customer_period_unique").on(
+    uniqueIndex("invoices_tenant_contract_period_unique").on(
       table.tenantId,
-      table.customerProfileId,
+      table.contractId,
       table.servicePeriodStart,
       table.servicePeriodEnd,
     ),

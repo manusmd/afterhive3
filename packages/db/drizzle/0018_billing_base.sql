@@ -42,6 +42,7 @@ CREATE TABLE "invoices" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"tenant_id" uuid NOT NULL,
 	"customer_profile_id" uuid NOT NULL,
+	"contract_id" uuid NOT NULL,
 	"invoice_number" varchar(64) NOT NULL,
 	"status" "invoice_status" DEFAULT 'draft' NOT NULL,
 	"issue_date" date NOT NULL,
@@ -79,6 +80,7 @@ ALTER TABLE "contracts" ADD CONSTRAINT "contracts_tariff_id_tariffs_id_fk" FOREI
 ALTER TABLE "contracts" ADD CONSTRAINT "contracts_enrollment_id_enrollments_id_fk" FOREIGN KEY ("enrollment_id") REFERENCES "public"."enrollments"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_customer_profile_id_customer_profiles_id_fk" FOREIGN KEY ("customer_profile_id") REFERENCES "public"."customer_profiles"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "invoices" ADD CONSTRAINT "invoices_contract_id_contracts_id_fk" FOREIGN KEY ("contract_id") REFERENCES "public"."contracts"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoice_line_items" ADD CONSTRAINT "invoice_line_items_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoice_line_items" ADD CONSTRAINT "invoice_line_items_invoice_id_invoices_id_fk" FOREIGN KEY ("invoice_id") REFERENCES "public"."invoices"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoice_line_items" ADD CONSTRAINT "invoice_line_items_enrollment_id_enrollments_id_fk" FOREIGN KEY ("enrollment_id") REFERENCES "public"."enrollments"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -86,4 +88,4 @@ ALTER TABLE "invoice_line_items" ADD CONSTRAINT "invoice_line_items_session_id_s
 CREATE UNIQUE INDEX "customer_profiles_tenant_number_unique" ON "customer_profiles" ("tenant_id","customer_number");--> statement-breakpoint
 CREATE UNIQUE INDEX "customer_profiles_tenant_person_unique" ON "customer_profiles" ("tenant_id","person_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "invoices_tenant_number_unique" ON "invoices" ("tenant_id","invoice_number");--> statement-breakpoint
-CREATE UNIQUE INDEX "invoices_tenant_customer_period_unique" ON "invoices" ("tenant_id","customer_profile_id","service_period_start","service_period_end");
+CREATE UNIQUE INDEX "invoices_tenant_contract_period_unique" ON "invoices" ("tenant_id","contract_id","service_period_start","service_period_end");

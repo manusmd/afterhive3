@@ -130,7 +130,7 @@ export async function generateRecurringInvoices(
         .where(
           and(
             eq(invoices.tenantId, contract.tenantId),
-            eq(invoices.customerProfileId, contract.customerProfileId),
+            eq(invoices.contractId, contract.contractId),
             eq(invoices.servicePeriodStart, servicePeriodStart),
             eq(invoices.servicePeriodEnd, servicePeriodEnd),
           ),
@@ -158,6 +158,7 @@ export async function generateRecurringInvoices(
         .values({
           tenantId: contract.tenantId,
           customerProfileId: contract.customerProfileId,
+          contractId: contract.contractId,
           invoiceNumber,
           status: "open",
           issueDate,
