@@ -27,6 +27,7 @@
       "import": "Import",
       "documents": "Dokumente",
       "offers": "Angebote",
+      "sessions": "Termine",
       "club": "Verein",
       "locations": "Standorte",
       "team": "Team"
@@ -44,6 +45,7 @@
         "import": "Import",
         "documents": "Dokumente",
         "offers": "Angebote",
+        "sessions": "Termine",
         "club": "Verein",
         "locations": "Standorte",
         "team": "Team"
@@ -462,6 +464,39 @@
           "duplicateMember": "Mitglied ist bereits im Kader.",
           "forbidden": "Keine Berechtigung fuer diesen Standort.",
           "default": "Kader konnte nicht gespeichert werden."
+        }
+      }
+    },
+    "attendance": {
+      "sessions": {
+        "title": "Termine",
+        "back": "Zurueck zum Dashboard",
+        "empty": "Keine Termine vorhanden.",
+        "open": "Anwesenheit"
+      },
+      "session": {
+        "title": "Termin",
+        "back": "Zurueck zu Terminen",
+        "startsAt": "Beginn: {value}",
+        "endsAt": "Ende: {value}",
+        "emptyMembers": "Keine Teilnehmer fuer diesen Termin.",
+        "status": {
+          "label": "Anwesenheit",
+          "present": "Anwesend",
+          "absent": "Abwesend",
+          "excused": "Entschuldigt",
+          "late": "Verspaetet",
+          "unset": "Offen"
+        },
+        "submit": "Anwesenheit speichern",
+        "success": "Anwesenheit gespeichert.",
+        "error": {
+          "missingFields": "Anwesenheitsdaten unvollstaendig.",
+          "sessionNotFound": "Termin nicht gefunden.",
+          "memberNotEligible": "Mitglied ist fuer diesen Termin nicht zulaessig.",
+          "invalidStatus": "Anwesenheitsstatus ungueltig.",
+          "forbidden": "Keine Berechtigung fuer diesen Termin.",
+          "default": "Anwesenheit konnte nicht gespeichert werden."
         }
       }
     },

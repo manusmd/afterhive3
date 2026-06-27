@@ -16,6 +16,7 @@ export * from "./waitlist-entries";
 export * from "./departments";
 export * from "./teams";
 export * from "./roster-entries";
+export * from "./attendance-records";
 export * from "./relationships";
 export * from "./consent-records";
 export * from "./documents";

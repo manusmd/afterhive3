@@ -4,6 +4,7 @@ import { getPortalAuth } from "@afterhive/api/auth/portal-auth";
 import { getDb } from "@afterhive/db";
 import {
   account,
+  attendanceRecords,
   consentRecords,
   departments,
   documents,
@@ -39,6 +40,7 @@ async function main() {
 
   await db.delete(consentRecords);
   await db.delete(documents);
+  await db.delete(attendanceRecords);
   await db.delete(rosterEntries);
   await db.delete(waitlistEntries);
   await db.delete(enrollments);
@@ -222,12 +224,15 @@ async function main() {
     isPrimaryGuardian: true,
   });
 
-  await db.insert(memberProfiles).values({
-    tenantId: tenant.id,
-    personId: minorPerson.id,
-    memberNumber: "M-0001",
-    consentStatus: "pending",
-  });
+  const [memberProfile] = await db
+    .insert(memberProfiles)
+    .values({
+      tenantId: tenant.id,
+      personId: minorPerson.id,
+      memberNumber: "M-0001",
+      consentStatus: "pending",
+    })
+    .returning({ id: memberProfiles.id });
 
   const [department] = await db
     .insert(departments)
@@ -261,6 +266,44 @@ async function main() {
       ageGroup: "U12",
     })
     .returning();
+
+  const [offerGroup] = await db
+    .insert(offerGroups)
+    .values({
+      tenantId: tenant.id,
+      offerId: offer.id,
+      name: "U12 Gruppe A",
+      capacity: 20,
+      waitlistEnabled: true,
+      locationId: locationA.id,
+      status: "open",
+    })
+    .returning();
+
+  const sessionStartsAt = new Date("2026-07-01T17:00:00.000Z");
+  const sessionEndsAt = new Date("2026-07-01T18:30:00.000Z");
+
+  const [demoSession] = await db
+    .insert(sessions)
+    .values({
+      tenantId: tenant.id,
+      offerGroupId: offerGroup.id,
+      locationId: locationA.id,
+      startsAt: sessionStartsAt,
+      endsAt: sessionEndsAt,
+      status: "scheduled",
+      title: "U12 Training",
+    })
+    .returning();
+
+  await db.insert(rosterEntries).values({
+    tenantId: tenant.id,
+    teamId: team.id,
+    memberProfileId: memberProfile.id,
+    jerseyNumber: "10",
+    status: "active",
+    fromDate: "2026-06-01",
+  });
 
   if (ownerSignUp.user) {
     await db.insert(documents).values([
@@ -306,6 +349,7 @@ async function main() {
   console.log("Guardian: guardian@demo-club.de / Demo1234! → portal consent for", minorPerson.firstName);
   console.log("Portal documents: /portal/demo-club/documents (2 visible, 1 internal hidden)");
   console.log("Club team roster:", `/app/demo-club/club/teams/${team.id}/roster`);
+  console.log("Session attendance:", `/app/demo-club/sessions/${demoSession.id}`);
   console.log("Other location:", locationB.name);
 }
 

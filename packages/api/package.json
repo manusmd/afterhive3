@@ -80,6 +80,10 @@
     "./club/can-access-club-sport": "./src/club/can-access-club-sport.ts",
     "./club/list-roster": "./src/club/list-roster.ts",
     "./club/update-roster": "./src/club/update-roster.ts",
+    "./attendance/can-read-sessions": "./src/attendance/can-read-sessions.ts",
+    "./attendance/can-record-attendance": "./src/attendance/can-record-attendance.ts",
+    "./attendance/list-session-attendance": "./src/attendance/list-session-attendance.ts",
+    "./attendance/record-bulk-attendance": "./src/attendance/record-bulk-attendance.ts",
     "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
   },
   "scripts": {
