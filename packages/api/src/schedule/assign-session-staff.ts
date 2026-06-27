@@ -88,6 +88,25 @@ export async function assignSessionStaff(
   const role = input.role ?? "lead";
 
   return db.transaction(async (tx) => {
+    const [staffMember] = await tx
+      .select({ userId: tenantMemberships.userId })
+      .from(tenantMemberships)
+      .innerJoin(tenants, eq(tenantMemberships.tenantId, tenants.id))
+      .where(
+        and(
+          eq(tenantMemberships.userId, input.userId),
+          eq(tenantMemberships.tenantId, session.tenantId!),
+          eq(tenantMemberships.status, "active"),
+          eq(tenants.slug, tenantSlug),
+        ),
+      )
+      .for("update")
+      .limit(1);
+
+    if (!staffMember) {
+      throw new AssignSessionStaffError("staff_not_found");
+    }
+
     const [sessionRow] = await tx
       .select({
         sessionId: sessions.id,
@@ -115,24 +134,6 @@ export async function assignSessionStaff(
 
     if (!isWithinLocationScope(sessionRow.locationId, assignLocationIds)) {
       throw new AssignSessionStaffError("location_forbidden");
-    }
-
-    const [staffMember] = await tx
-      .select({ userId: tenantMemberships.userId })
-      .from(tenantMemberships)
-      .innerJoin(tenants, eq(tenantMemberships.tenantId, tenants.id))
-      .where(
-        and(
-          eq(tenantMemberships.userId, input.userId),
-          eq(tenantMemberships.tenantId, session.tenantId!),
-          eq(tenantMemberships.status, "active"),
-          eq(tenants.slug, tenantSlug),
-        ),
-      )
-      .limit(1);
-
-    if (!staffMember) {
-      throw new AssignSessionStaffError("staff_not_found");
     }
 
     const [existingAssignment] = await tx

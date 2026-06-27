@@ -45,6 +45,7 @@ const selectResults = vi.hoisted(() => ({
 }));
 
 const insert = vi.hoisted(() => vi.fn());
+const staffMembershipLocked = vi.hoisted(() => vi.fn());
 
 function mockTransaction() {
   let fromCall = 0;
@@ -54,34 +55,41 @@ function mockTransaction() {
       from: () => {
         fromCall += 1;
 
-        if (fromCall === 3) {
+        if (fromCall === 1) {
           return {
-            where: () => ({
-              limit: () =>
-                Promise.resolve(
-                  selectResults.existingAssignment ? [selectResults.existingAssignment] : [],
-                ),
+            innerJoin: () => ({
+              where: () => ({
+                for: () => {
+                  staffMembershipLocked();
+
+                  return {
+                    limit: () =>
+                      Promise.resolve(selectResults.staffMember ? [selectResults.staffMember] : []),
+                  };
+                },
+              }),
+            }),
+          };
+        }
+
+        if (fromCall === 2) {
+          return {
+            innerJoin: () => ({
+              where: () => ({
+                for: () => ({
+                  limit: () => Promise.resolve(selectResults.session ? [selectResults.session] : []),
+                }),
+              }),
             }),
           };
         }
 
         return {
-          innerJoin: () => ({
-            where: () => {
-              if (fromCall === 1) {
-                return {
-                  for: () => ({
-                    limit: () =>
-                      Promise.resolve(selectResults.session ? [selectResults.session] : []),
-                  }),
-                };
-              }
-
-              return {
-                limit: () =>
-                  Promise.resolve(selectResults.staffMember ? [selectResults.staffMember] : []),
-              };
-            },
+          where: () => ({
+            limit: () =>
+              Promise.resolve(
+                selectResults.existingAssignment ? [selectResults.existingAssignment] : [],
+              ),
           }),
         };
       },
@@ -109,6 +117,7 @@ describe("assignSessionStaff", () => {
     getDb.mockReset();
     validateSession.mockReset();
     insert.mockReset();
+    staffMembershipLocked.mockReset();
     selectResults.session = {
       sessionId,
       locationId,
@@ -119,9 +128,7 @@ describe("assignSessionStaff", () => {
     selectResults.staffMember = { userId };
     selectResults.existingAssignment = null;
     validateSession.mockResolvedValue([]);
-    insert.mockResolvedValue([
-      { id: "assignment-1", sessionId, userId, role: "lead" },
-    ]);
+    insert.mockResolvedValue([{ id: "assignment-1", sessionId, userId, role: "lead" }]);
     getDb.mockReturnValue({
       transaction: vi.fn(async (callback: (tx: unknown) => Promise<unknown>) =>
         callback(mockTransaction()),
@@ -139,6 +146,15 @@ describe("assignSessionStaff", () => {
       role: "lead",
     });
     expect(validateSession).toHaveBeenCalled();
+  });
+
+  it("locks staff membership before validating conflicts", async () => {
+    await assignSessionStaff(ownerSession, tenantSlug, sessionId, { userId });
+
+    expect(staffMembershipLocked).toHaveBeenCalled();
+    expect(staffMembershipLocked.mock.invocationCallOrder[0]).toBeLessThan(
+      validateSession.mock.invocationCallOrder[0]!,
+    );
   });
 
   it("throws staff_double_book when validation finds a conflict", async () => {
@@ -162,6 +178,14 @@ describe("assignSessionStaff", () => {
     await expect(
       assignSessionStaff(ownerSession, tenantSlug, sessionId, { userId }),
     ).rejects.toMatchObject({ code: "session_not_found" });
+  });
+
+  it("throws staff_not_found when membership is missing", async () => {
+    selectResults.staffMember = null;
+
+    await expect(
+      assignSessionStaff(ownerSession, tenantSlug, sessionId, { userId }),
+    ).rejects.toMatchObject({ code: "staff_not_found" });
   });
 
   it("throws already_assigned for duplicate assignment", async () => {
