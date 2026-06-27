@@ -91,6 +91,9 @@
     "./billing/record-mock-payment": "./src/billing/record-mock-payment.ts",
     "./billing/advance-dunning": "./src/billing/advance-dunning.ts",
     "./billing/dunning-schedule": "./src/billing/dunning-schedule.ts",
+    "./billing/contract-billing-amounts": "./src/billing/contract-billing-amounts.ts",
+    "./billing/generate-enrollment-invoices": "./src/billing/generate-enrollment-invoices.ts",
+    "./billing/generate-custom-invoices": "./src/billing/generate-custom-invoices.ts",
     "./email/queue-dunning-email": "./src/email/queue-dunning-email.ts",
     "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
   },

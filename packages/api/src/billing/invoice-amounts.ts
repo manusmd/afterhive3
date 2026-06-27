@@ -41,6 +41,18 @@ export function addDays(isoDate: string, days: number) {
   return date.toISOString().slice(0, 10);
 }
 
+export function countInclusiveDays(startDate: string, endDate: string) {
+  const start = new Date(`${startDate}T00:00:00.000Z`);
+  const end = new Date(`${endDate}T00:00:00.000Z`);
+  const diffMs = end.getTime() - start.getTime();
+
+  if (diffMs < 0) {
+    return 0;
+  }
+
+  return Math.floor(diffMs / (24 * 60 * 60 * 1000)) + 1;
+}
+
 export function isContractActiveForPeriod(
   startDate: string,
   endDate: string | null,

@@ -401,6 +401,112 @@ async function main() {
     startDate: "2026-06-01",
   });
 
+  const packageTariffConfig = {
+    amount_cents: 13000,
+    sessions_included: 10,
+    valid_days: 90,
+  };
+
+  const [packageTariff] = await db
+    .insert(tariffs)
+    .values({
+      tenantId: tenant.id,
+      name: "10-session card",
+      model: "package",
+      config: packageTariffConfig,
+      vatRate: "0.19",
+      status: "active",
+      validFrom: "2026-01-01",
+    })
+    .returning();
+
+  await db.insert(contracts).values({
+    tenantId: tenant.id,
+    customerProfileId: customerProfile.id,
+    tariffId: packageTariff.id,
+    tariffSnapshot: {
+      id: packageTariff.id,
+      name: packageTariff.name,
+      model: packageTariff.model,
+      config: packageTariffConfig,
+      vat_rate: packageTariff.vatRate,
+    },
+    enrollmentId: enrollment.id,
+    status: "active",
+    startDate: "2026-06-01",
+  });
+
+  const seasonTariffConfig = {
+    amount_cents: 32000,
+    season_id: "00000000-0000-4000-8000-000000000001",
+    season_start: "2025-09-01",
+    season_end: "2026-06-30",
+  };
+
+  const [seasonTariff] = await db
+    .insert(tariffs)
+    .values({
+      tenantId: tenant.id,
+      name: "Season 2025/26 U14",
+      model: "season",
+      config: seasonTariffConfig,
+      vatRate: "0.19",
+      status: "active",
+      validFrom: "2025-09-01",
+    })
+    .returning();
+
+  await db.insert(contracts).values({
+    tenantId: tenant.id,
+    customerProfileId: customerProfile.id,
+    tariffId: seasonTariff.id,
+    tariffSnapshot: {
+      id: seasonTariff.id,
+      name: seasonTariff.name,
+      model: seasonTariff.model,
+      config: seasonTariffConfig,
+      vat_rate: seasonTariff.vatRate,
+    },
+    enrollmentId: enrollment.id,
+    status: "active",
+    startDate: "2026-01-15",
+    endDate: "2026-06-30",
+  });
+
+  const customTariffConfig = {
+    description: "Staff discount",
+    billing_day: 1,
+  };
+
+  const [customTariff] = await db
+    .insert(tariffs)
+    .values({
+      tenantId: tenant.id,
+      name: "Staff discount",
+      model: "custom",
+      config: customTariffConfig,
+      vatRate: "0.19",
+      status: "active",
+      validFrom: "2026-01-01",
+    })
+    .returning();
+
+  await db.insert(contracts).values({
+    tenantId: tenant.id,
+    customerProfileId: customerProfile.id,
+    tariffId: customTariff.id,
+    tariffSnapshot: {
+      id: customTariff.id,
+      name: customTariff.name,
+      model: customTariff.model,
+      config: customTariffConfig,
+      vat_rate: customTariff.vatRate,
+    },
+    customAmountCents: 3000,
+    status: "active",
+    startDate: "2026-06-01",
+  });
+
   await db.insert(attendanceRecords).values({
     tenantId: tenant.id,
     sessionId: demoSession.id,
@@ -472,6 +578,8 @@ async function main() {
   console.log("Club team roster:", `/app/demo-club/club/teams/${team.id}/roster`);
   console.log("Session attendance:", `/app/demo-club/sessions/${demoSession.id}`);
   console.log("Per-session billing:", "pnpm billing:per-session 2026 7");
+  console.log("Enrollment billing:", "pnpm billing:enrollment");
+  console.log("Custom billing:", "pnpm billing:custom 2026 7");
   console.log("Dunning advance:", "pnpm billing:dunning 2026-06-26");
   console.log("Other location:", locationB.name);
 }
