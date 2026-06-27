@@ -11,3 +11,4 @@ dist
 coverage
 .vercel
 *.tsbuildinfo
+docs/design/*.png

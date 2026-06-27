@@ -1,4 +1,11 @@
 export { createBaseTheme, baseThemeOptions } from "./base";
+export {
+  afterhiveLayout,
+  afterhivePalette,
+  afterhiveShape,
+  afterhiveShell,
+  afterhiveTypography,
+} from "./design-tokens";
 export { adminTheme, platformTheme } from "./admin";
 export { portalTheme } from "./portal";
 export { marketplaceTheme } from "./marketplace";
