@@ -558,6 +558,22 @@
     "meta": {
       "title": "Afterhive Plattform"
     },
+    "shell": {
+      "searchPlaceholder": "Suchen…",
+      "platformLabel": "Plattform",
+      "sections": {
+        "management": "Verwaltung"
+      }
+    },
+    "nav": {
+      "tenants": "Mandanten",
+      "createTenant": "Mandant anlegen"
+    },
+    "roles": {
+      "superadmin": "Superadmin",
+      "support": "Support",
+      "finance": "Finanzen"
+    },
     "home": {
       "title": "Plattform-Backoffice",
       "subtitle": "Melden Sie sich an, um Mandanten zu verwalten.",

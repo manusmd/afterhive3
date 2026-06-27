@@ -1,7 +1,7 @@
 "use client";
 
 import { useT } from "@afterhive/ui";
-import { Alert, Box, Button, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Stack, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -83,9 +83,6 @@ export function CreateTenantForm({ onCreated }: CreateTenantFormProps) {
   return (
     <Box component="form" onSubmit={onSubmit} sx={{ maxWidth: 560 }}>
       <Stack spacing={2}>
-        <Typography variant="body2" color="text.secondary">
-          {t("platform.tenants.create.description")}
-        </Typography>
         {error ? <Alert severity="error">{error}</Alert> : null}
         {success ? <Alert severity="success">{success}</Alert> : null}
         <TextField

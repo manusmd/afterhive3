@@ -6,7 +6,7 @@ import {
   translateTenantPlan,
   translateTenantStatus,
 } from "@afterhive/shared/i18n";
-import { useT } from "@afterhive/ui";
+import { StatusChip, useT } from "@afterhive/ui";
 import {
   Alert,
   Box,
@@ -22,6 +22,23 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { SuspendTenantButton } from "@/components/SuspendTenantButton";
+
+function resolveTenantStatusTone(status: TenantStatus) {
+  switch (status) {
+    case "trial":
+      return "warning" as const;
+    case "active":
+      return "success" as const;
+    case "suspended":
+      return "error" as const;
+    case "closed":
+      return "neutral" as const;
+    default: {
+      const _exhaustive: never = status;
+      return _exhaustive;
+    }
+  }
+}
 
 export function TenantListFilters() {
   const t = useT();
@@ -126,9 +143,15 @@ type TenantListProps = {
   items: TenantListItemView[];
   nextCursor: string | null;
   canSuspend?: boolean;
+  showCreateTenant?: boolean;
 };
 
-export function TenantList({ items, nextCursor, canSuspend = false }: TenantListProps) {
+export function TenantList({
+  items,
+  nextCursor,
+  canSuspend = false,
+  showCreateTenant = false,
+}: TenantListProps) {
   const t = useT();
   const searchParams = useSearchParams();
   const hasFilters = Boolean(searchParams.get("status") || searchParams.get("plan"));
@@ -141,7 +164,7 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
             ? t("platform.tenants.list.emptyFiltered")
             : t("platform.tenants.list.empty")}
         </Typography>
-        {!hasFilters ? (
+        {!hasFilters && showCreateTenant ? (
           <Button component={Link} href="/tenants/new" variant="contained" sx={{ mt: 2 }}>
             {t("platform.tenants.list.createFirst")}
           </Button>
@@ -202,7 +225,10 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
                   {tenant.slug}
                 </Box>
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
-                  {translateTenantStatus(t, tenant.status)}
+                  <StatusChip
+                    label={translateTenantStatus(t, tenant.status)}
+                    tone={resolveTenantStatusTone(tenant.status)}
+                  />
                 </Box>
                 <Box component="td" sx={{ py: 1.5, px: 1, borderBottom: 1, borderColor: "divider" }}>
                   {translateTenantPlan(t, tenant.planId)}
@@ -244,7 +270,11 @@ export function TenantList({ items, nextCursor, canSuspend = false }: TenantList
               {tenant.slug}
             </Typography>
             <Typography variant="body2" sx={{ mt: 1 }}>
-              {translateTenantStatus(t, tenant.status)} · {translateTenantPlan(t, tenant.planId)} ·{" "}
+              <StatusChip
+                label={translateTenantStatus(t, tenant.status)}
+                tone={resolveTenantStatusTone(tenant.status)}
+              />{" "}
+              · {translateTenantPlan(t, tenant.planId)} ·{" "}
               {translateSubscriptionStatus(t, tenant.subscriptionStatus)}
             </Typography>
             <Typography variant="caption" color="text.secondary">

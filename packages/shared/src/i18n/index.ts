@@ -14,6 +14,7 @@ export {
   translateLeadStatus,
   translateOfferStatus,
   translateOfferType,
+  translatePlatformRole,
   translateStaffRole,
   translateSubscriptionStatus,
   translateTenantPlan,

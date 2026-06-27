@@ -47,6 +47,12 @@ const STAFF_ROLE_KEYS = {
   tenant_location_manager: "admin.team.roles.locationManager",
 } as const;
 
+const PLATFORM_ROLE_KEYS = {
+  platform_superadmin: "platform.roles.superadmin",
+  platform_support: "platform.roles.support",
+  platform_finance: "platform.roles.finance",
+} as const;
+
 const OFFER_TYPE_KEYS = {
   team: "admin.offers.type.team",
   course: "admin.offers.type.course",
@@ -92,6 +98,10 @@ export function translateLeadSource(t: Translator, source: string): string {
 
 export function translateStaffRole(t: Translator, role: string): string {
   return translateMappedValue(t, role, STAFF_ROLE_KEYS);
+}
+
+export function translatePlatformRole(t: Translator, role: string): string {
+  return translateMappedValue(t, role, PLATFORM_ROLE_KEYS);
 }
 
 export function translateOfferType(t: Translator, type: string): string {

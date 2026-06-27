@@ -4,12 +4,14 @@ import { canListTenants } from "@afterhive/api/platform/can-list-tenants";
 import { canSuspendTenant } from "@afterhive/api/platform/can-suspend-tenant";
 import { listTenants, parseTenantStatus } from "@afterhive/api/platform/list-tenants";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
-import { Stack } from "@mui/material";
+import { Panel } from "@afterhive/ui";
+import { Button, Stack } from "@mui/material";
+import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { PlatformToolbar } from "@/components/PlatformToolbar";
+import { PlatformLogoutButton } from "@/components/PlatformLogoutButton";
+import { PlatformPageFrame } from "@/components/PlatformPageFrame";
 import { TenantList, TenantListError, TenantListFilters } from "./TenantList";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -34,6 +36,17 @@ export default async function TenantsPage({ searchParams }: TenantsPageProps) {
   }
 
   const params = await searchParams;
+  const showCreateTenant = canCreateTenant(session.roles);
+  const pageActions = (
+    <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
+      {showCreateTenant ? (
+        <Link href="/tenants/new">
+          <Button variant="outlined">{t("platform.tenants.create.toolbarButton")}</Button>
+        </Link>
+      ) : null}
+      <PlatformLogoutButton />
+    </Stack>
+  );
 
   let result;
 
@@ -45,27 +58,31 @@ export default async function TenantsPage({ searchParams }: TenantsPageProps) {
     });
   } catch {
     return (
-      <SurfaceShell surface="platform" title={t("platform.tenants.title")}>
-        <TenantListError />
-      </SurfaceShell>
+      <PlatformPageFrame title={t("platform.tenants.title")} actions={pageActions}>
+        <Panel>
+          <TenantListError />
+        </Panel>
+      </PlatformPageFrame>
     );
   }
 
   return (
-    <SurfaceShell surface="platform" title={t("platform.tenants.title")}>
-      <Stack spacing={3}>
-        <PlatformToolbar showCreateTenant={canCreateTenant(session.roles)} />
-        <Suspense fallback={null}>
-          <Stack spacing={3}>
+    <PlatformPageFrame title={t("platform.tenants.title")} actions={pageActions}>
+      <Stack spacing={2}>
+        <Panel>
+          <Suspense fallback={null}>
             <TenantListFilters />
-            <TenantList
-              items={result.items}
-              nextCursor={result.nextCursor}
-              canSuspend={canSuspendTenant(session.roles)}
-            />
-          </Stack>
-        </Suspense>
+          </Suspense>
+        </Panel>
+        <Panel>
+          <TenantList
+            items={result.items}
+            nextCursor={result.nextCursor}
+            canSuspend={canSuspendTenant(session.roles)}
+            showCreateTenant={showCreateTenant}
+          />
+        </Panel>
       </Stack>
-    </SurfaceShell>
+    </PlatformPageFrame>
   );
 }
