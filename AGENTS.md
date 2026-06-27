@@ -25,8 +25,9 @@ pnpm test
 
 5. Commit with a message that references the ticket when relevant.
 6. Push the branch and open a PR from the feature branch into `main`.
+7. Update the Linear issue after implementation — see **Linear** below.
 
-When the user asks to **push**, always push **and** open the PR in the same turn (unless a PR for that branch already exists).
+When the user asks to **push**, always push **and** open the PR in the same turn (unless a PR for that branch already exists). Then update Linear for that ticket.
 
 ### Branch naming
 
@@ -79,7 +80,19 @@ Demo credentials come from `pnpm db:seed` (platform admin, tenant staff, owner).
 
 Follow `docs/14-delivery/03-implementation-order.md`. Phase 0 foundations first. Linear project: [Afterhive](https://linear.app/manuweb/project/afterhive-9438c620d7c3).
 
-When picking up work, mark the Linear issue **In Progress** and **Done** when complete.
+## Linear
+
+Keep the Linear issue in sync with the branch and PR lifecycle. Use the Linear MCP (`save_issue`) or the Linear UI.
+
+| When | Linear update |
+|------|----------------|
+| Start work on a ticket | Set status to **In Progress** |
+| Implementation complete (checks pass, PR opened) | Update the issue: link the PR (attachment or description), confirm acceptance criteria in the PR body; keep **In Progress** until merge |
+| PR merged to `main` | Set status to **Done** (e.g. during `/continue`) |
+
+Do not leave a ticket in **Backlog** or **In Progress** after the PR is merged. Do not mark **Done** before the PR is merged unless the user explicitly asks.
+
+When picking up the next ticket after merge, use `/continue`: pull `main`, delete the feature branch, mark the merged issue **Done**, then set the next issue **In Progress** and create its branch.
 
 ## Code conventions
 
