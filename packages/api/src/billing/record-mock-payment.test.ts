@@ -28,6 +28,10 @@ vi.mock("@afterhive/db", () => ({
   getDb,
 }));
 
+vi.mock("./advance-dunning", () => ({
+  resolveDunningForInvoice: vi.fn(),
+}));
+
 const financeSession: SessionContext = {
   userId: "finance-1",
   surface: "tenant_admin",

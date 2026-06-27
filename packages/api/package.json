@@ -89,6 +89,9 @@
     "./billing/invoice-amounts": "./src/billing/invoice-amounts.ts",
     "./billing/can-record-payment": "./src/billing/can-record-payment.ts",
     "./billing/record-mock-payment": "./src/billing/record-mock-payment.ts",
+    "./billing/advance-dunning": "./src/billing/advance-dunning.ts",
+    "./billing/dunning-schedule": "./src/billing/dunning-schedule.ts",
+    "./email/queue-dunning-email": "./src/email/queue-dunning-email.ts",
     "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
   },
   "scripts": {

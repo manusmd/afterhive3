@@ -8,6 +8,7 @@ import {
   consentRecords,
   contracts,
   customerProfiles,
+  dunningCases,
   departments,
   documents,
   enrollments,
@@ -48,6 +49,7 @@ async function main() {
   await db.delete(documents);
   await db.delete(invoiceLineItems);
   await db.delete(paymentRecords);
+  await db.delete(dunningCases);
   await db.delete(invoices);
   await db.delete(contracts);
   await db.delete(tariffs);
@@ -342,7 +344,7 @@ async function main() {
     })
     .returning();
 
-  await db.insert(contracts).values({
+  const [monthlyContract] = await db.insert(contracts).values({
     tenantId: tenant.id,
     customerProfileId: customerProfile.id,
     tariffId: monthlyTariff.id,
@@ -355,7 +357,7 @@ async function main() {
     },
     status: "active",
     startDate: "2026-06-01",
-  });
+  }).returning();
 
   const [enrollment] = await db
     .insert(enrollments)
@@ -407,6 +409,23 @@ async function main() {
     recordedByUserId: staffSignUp.user.id,
   });
 
+  await db.insert(invoices).values({
+    tenantId: tenant.id,
+    customerProfileId: customerProfile.id,
+    contractId: monthlyContract.id,
+    invoiceNumber: "RE2026-00001",
+    status: "open",
+    issueDate: "2026-05-01",
+    dueDate: "2026-06-01",
+    servicePeriodStart: "2026-05-01",
+    servicePeriodEnd: "2026-05-31",
+    netTotalCents: 4500,
+    vatTotalCents: 855,
+    grossTotalCents: 5355,
+    paidCents: 0,
+    currency: "EUR",
+  });
+
   if (ownerSignUp.user) {
     await db.insert(documents).values([
       {
@@ -453,6 +472,7 @@ async function main() {
   console.log("Club team roster:", `/app/demo-club/club/teams/${team.id}/roster`);
   console.log("Session attendance:", `/app/demo-club/sessions/${demoSession.id}`);
   console.log("Per-session billing:", "pnpm billing:per-session 2026 7");
+  console.log("Dunning advance:", "pnpm billing:dunning 2026-06-26");
   console.log("Other location:", locationB.name);
 }
 

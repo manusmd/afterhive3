@@ -23,6 +23,7 @@ export * from "./contracts";
 export * from "./invoices";
 export * from "./invoice-line-items";
 export * from "./payment-records";
+export * from "./dunning-cases";
 export * from "./relationships";
 export * from "./consent-records";
 export * from "./documents";

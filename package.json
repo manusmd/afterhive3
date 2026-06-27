@@ -14,6 +14,7 @@
     "db:seed": "tsx scripts/seed-demo.ts",
     "billing:recurring": "tsx scripts/run-recurring-invoices.ts",
     "billing:per-session": "tsx scripts/run-per-session-billing.ts",
+    "billing:dunning": "tsx scripts/run-dunning-advance.ts",
     "db:studio": "pnpm --filter @afterhive/db studio"
   },
   "devDependencies": {
