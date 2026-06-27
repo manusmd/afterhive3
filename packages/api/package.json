@@ -77,8 +77,10 @@
     "./schedule/assign-session-staff": "./src/schedule/assign-session-staff.ts",
     "./club/can-read-roster": "./src/club/can-read-roster.ts",
     "./club/can-update-roster": "./src/club/can-update-roster.ts",
+    "./club/can-access-club-sport": "./src/club/can-access-club-sport.ts",
     "./club/list-roster": "./src/club/list-roster.ts",
-    "./club/update-roster": "./src/club/update-roster.ts"
+    "./club/update-roster": "./src/club/update-roster.ts",
+    "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

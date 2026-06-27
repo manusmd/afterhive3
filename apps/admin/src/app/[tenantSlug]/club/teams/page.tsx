@@ -1,5 +1,5 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
-import { canReadRoster } from "@afterhive/api/club/can-read-roster";
+import { canAccessClubSport } from "@afterhive/api/club/can-access-club-sport";
 import { listTeams } from "@afterhive/api/club/list-roster";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
 import { SurfaceShell } from "@afterhive/ui";
@@ -26,7 +26,7 @@ export default async function TeamsPage({ params }: TeamsPageProps) {
 
   const pageTitle = t("admin.club.teams.title");
 
-  if (!canReadRoster(session.roles, session.locationIds, session.roleAssignments)) {
+  if (!(await canAccessClubSport(session))) {
     return (
       <SurfaceShell surface="admin" title={pageTitle}>
         <Stack spacing={2}>

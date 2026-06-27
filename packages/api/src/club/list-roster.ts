@@ -10,6 +10,7 @@ import {
 } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { isWithinLocationScope } from "../location/location-scope";
+import { tenantHasClubSportModule } from "../tenant/has-club-sport-module";
 import { canReadRoster, resolveReadRosterLocationIds } from "./can-read-roster";
 
 export type RosterEntryItem = {
@@ -34,6 +35,10 @@ export async function getTeamRoster(
   teamId: string,
 ): Promise<TeamRosterView | null> {
   if (!session.tenantId || !canReadRoster(session.roles, session.locationIds, session.roleAssignments)) {
+    return null;
+  }
+
+  if (!(await tenantHasClubSportModule(session.tenantId))) {
     return null;
   }
 
@@ -107,6 +112,10 @@ export async function listTeams(
     return [];
   }
 
+  if (!(await tenantHasClubSportModule(session.tenantId))) {
+    return [];
+  }
+
   const readLocationIds = session.roleAssignments
     ? resolveReadRosterLocationIds(session.roles, session.roleAssignments)
     : session.locationIds;
@@ -147,6 +156,10 @@ export async function listRosterMemberOptions(
     !session.tenantId ||
     !canReadRoster(session.roles, session.locationIds, session.roleAssignments)
   ) {
+    return [];
+  }
+
+  if (!(await tenantHasClubSportModule(session.tenantId))) {
     return [];
   }
 

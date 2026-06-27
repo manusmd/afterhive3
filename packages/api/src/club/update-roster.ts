@@ -9,6 +9,7 @@ import {
 } from "@afterhive/db/schema";
 import type { SessionContext } from "@afterhive/domain";
 import { isWithinLocationScope } from "../location/location-scope";
+import { tenantHasClubSportModule } from "../tenant/has-club-sport-module";
 import { canUpdateRoster, resolveUpdateRosterLocationIds } from "./can-update-roster";
 
 export type UpdateRosterEntryInput = {
@@ -74,6 +75,10 @@ export async function updateRoster(
   }
 
   if (!canUpdateRoster(session.roles, session.locationIds, session.roleAssignments)) {
+    throw new UpdateRosterError("forbidden");
+  }
+
+  if (!(await tenantHasClubSportModule(session.tenantId))) {
     throw new UpdateRosterError("forbidden");
   }
 

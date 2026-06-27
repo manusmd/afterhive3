@@ -1,6 +1,8 @@
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
-import { canReadRoster } from "@afterhive/api/club/can-read-roster";
-import { canUpdateRoster } from "@afterhive/api/club/can-update-roster";
+import {
+  canAccessClubSport,
+  canManageClubRoster,
+} from "@afterhive/api/club/can-access-club-sport";
 import {
   getTeamRoster,
   listRosterMemberOptions,
@@ -31,7 +33,7 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
 
   const pageTitle = t("admin.club.roster.title");
 
-  if (!canReadRoster(session.roles, session.locationIds, session.roleAssignments)) {
+  if (!(await canAccessClubSport(session))) {
     return (
       <SurfaceShell surface="admin" title={pageTitle}>
         <Stack spacing={2}>
@@ -50,7 +52,7 @@ export default async function TeamRosterPage({ params }: TeamRosterPageProps) {
     redirect(`/${tenantSlug}/club/teams`);
   }
 
-  const canEdit = canUpdateRoster(session.roles, session.locationIds, session.roleAssignments);
+  const canEdit = await canManageClubRoster(session);
   const memberOptions = canEdit ? await listRosterMemberOptions(session, tenantSlug) : [];
   const activeEntries = roster.entries
     .filter((entry) => entry.status === "active")

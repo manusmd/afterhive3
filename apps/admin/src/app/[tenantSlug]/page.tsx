@@ -1,8 +1,8 @@
 import { canAssignRoles } from "@afterhive/api/auth/can-assign-roles";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
+import { canAccessClubSport } from "@afterhive/api/club/can-access-club-sport";
 import { canUploadDocument } from "@afterhive/api/document/can-upload-document";
 import { canReadOffers } from "@afterhive/api/offer/can-read-offers";
-import { canReadRoster } from "@afterhive/api/club/can-read-roster";
 import { canRunImport } from "@afterhive/api/crm/can-run-import";
 import { canReadLeads } from "@afterhive/api/crm/can-read-leads";
 import { canReadPersons } from "@afterhive/api/crm/can-read-persons";
@@ -36,7 +36,7 @@ export default async function TenantDashboardPage({ params }: TenantDashboardPro
   const showImport = canRunImport(session.roles, session.locationIds, session.roleAssignments);
   const showDocuments = canUploadDocument(session.roles);
   const showOffers = canReadOffers(session.roles, session.locationIds);
-  const showClub = canReadRoster(session.roles, session.locationIds, session.roleAssignments);
+  const showClub = await canAccessClubSport(session);
 
   return (
     <SurfaceShell surface="admin" title={t("admin.dashboard.title")}>

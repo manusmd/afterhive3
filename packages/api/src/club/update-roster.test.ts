@@ -3,9 +3,14 @@ import type { SessionContext } from "@afterhive/domain";
 import { UpdateRosterError, updateRoster, validateUpdateRosterInput } from "./update-roster";
 
 const getDb = vi.hoisted(() => vi.fn());
+const tenantHasClubSportModule = vi.hoisted(() => vi.fn(() => Promise.resolve(true)));
 
 vi.mock("@afterhive/db", () => ({
   getDb,
+}));
+
+vi.mock("../tenant/has-club-sport-module", () => ({
+  tenantHasClubSportModule,
 }));
 
 const tenantId = "tenant-1";
@@ -101,6 +106,7 @@ describe("updateRoster", () => {
     selectResults.existing = null;
     update.mockClear();
     insert.mockClear();
+    tenantHasClubSportModule.mockResolvedValue(true);
     getDb.mockReturnValue({
       transaction: (fn: (tx: ReturnType<typeof mockTransaction>) => Promise<void>) =>
         fn(mockTransaction()),
@@ -126,6 +132,17 @@ describe("updateRoster", () => {
 
     expect(update).toHaveBeenCalled();
     expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("throws when club_sport module is disabled", async () => {
+    tenantHasClubSportModule.mockResolvedValueOnce(false);
+
+    await expect(
+      updateRoster(ownerSession, tenantSlug, {
+        teamId,
+        entries: [{ memberProfileId }],
+      }),
+    ).rejects.toMatchObject({ code: "forbidden" });
   });
 
   it("throws when team is missing", async () => {

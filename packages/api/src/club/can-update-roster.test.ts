@@ -20,6 +20,16 @@ describe("canUpdateRoster", () => {
   });
 });
 
+describe("coach roster write before trainer assignment (MAN-192)", () => {
+  it("denies coach until trainer team assignment is implemented", () => {
+    expect(
+      canUpdateRoster(["tenant_coach"], ["loc-1"], [
+        { role: "tenant_coach", locationIds: ["loc-1"] },
+      ]),
+    ).toBe(false);
+  });
+});
+
 describe("canReadRoster", () => {
   it("allows coach with locations", () => {
     expect(

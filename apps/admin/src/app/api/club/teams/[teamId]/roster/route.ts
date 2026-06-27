@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminSessionContext } from "@afterhive/api/auth/get-admin-session";
-import { canUpdateRoster } from "@afterhive/api/club/can-update-roster";
+import { canManageClubRoster } from "@afterhive/api/club/can-access-club-sport";
 import { UpdateRosterError, updateRoster } from "@afterhive/api/club/update-roster";
 
 type UpdateRosterBody = {
@@ -26,7 +26,7 @@ export async function POST(
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!canUpdateRoster(session.roles, session.locationIds, session.roleAssignments)) {
+  if (!(await canManageClubRoster(session))) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
