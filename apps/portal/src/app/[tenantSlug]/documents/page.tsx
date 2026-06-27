@@ -1,9 +1,11 @@
 import { getPortalSessionContext } from "@afterhive/api/auth/get-portal-session";
 import { listPortalDocuments } from "@afterhive/api/document/list-portal-documents";
 import { createTranslator, DEFAULT_LOCALE, getMessages } from "@afterhive/shared/i18n";
-import { SurfaceShell } from "@afterhive/ui";
+import { Panel } from "@afterhive/ui";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { PortalLogoutButton } from "@/components/PortalLogoutButton";
+import { PortalPageFrame } from "@/components/PortalPageFrame";
 import { PortalDocumentsList } from "./PortalDocumentsList";
 
 const t = createTranslator(getMessages(DEFAULT_LOCALE));
@@ -23,8 +25,13 @@ export default async function DocumentsPage({ params }: DocumentsPageProps) {
   const documents = await listPortalDocuments(session, tenantSlug);
 
   return (
-    <SurfaceShell surface="portal" title={t("portal.documents.title")}>
-      <PortalDocumentsList tenantSlug={tenantSlug} documents={documents} />
-    </SurfaceShell>
+    <PortalPageFrame
+      title={t("portal.documents.title")}
+      actions={<PortalLogoutButton tenantSlug={tenantSlug} />}
+    >
+      <Panel>
+        <PortalDocumentsList tenantSlug={tenantSlug} documents={documents} />
+      </Panel>
+    </PortalPageFrame>
   );
 }

@@ -53,6 +53,10 @@ const PLATFORM_ROLE_KEYS = {
   platform_finance: "platform.roles.finance",
 } as const;
 
+const PORTAL_ROLE_KEYS = {
+  portal_parent: "portal.roles.parent",
+} as const;
+
 const OFFER_TYPE_KEYS = {
   team: "admin.offers.type.team",
   course: "admin.offers.type.course",
@@ -102,6 +106,10 @@ export function translateStaffRole(t: Translator, role: string): string {
 
 export function translatePlatformRole(t: Translator, role: string): string {
   return translateMappedValue(t, role, PLATFORM_ROLE_KEYS);
+}
+
+export function translatePortalRole(t: Translator, role: string): string {
+  return translateMappedValue(t, role, PORTAL_ROLE_KEYS);
 }
 
 export function translateOfferType(t: Translator, type: string): string {
