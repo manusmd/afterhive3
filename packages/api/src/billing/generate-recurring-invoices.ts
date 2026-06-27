@@ -3,18 +3,19 @@ import { getDb } from "@afterhive/db";
 import { contracts, invoiceLineItems, invoices } from "@afterhive/db/schema";
 import {
   addDays,
+  buildInvoiceNumber,
   calculateAmountsFromNet,
   getCalendarMonthBounds,
   isContractActiveForPeriod,
   parseVatRate,
   resolveIssueDate,
+  validateBillingPeriod,
+  type BillingPeriod,
 } from "./invoice-amounts";
 import { parseFixedMonthlyConfig, parseTariffSnapshot } from "./tariff-snapshot";
 
-export type BillingPeriod = {
-  year: number;
-  month: number;
-};
+export type { BillingPeriod };
+export { validateBillingPeriod } from "./invoice-amounts";
 
 export type GenerateRecurringInvoicesInput = {
   period: BillingPeriod;
@@ -36,23 +37,6 @@ export type GenerateRecurringInvoicesResult = {
 };
 
 const PAYMENT_TERMS_DAYS = 14;
-
-export function validateBillingPeriod(period: BillingPeriod) {
-  if (
-    !Number.isInteger(period.year) ||
-    !Number.isInteger(period.month) ||
-    period.month < 1 ||
-    period.month > 12
-  ) {
-    return "invalid_period" as const;
-  }
-
-  return null;
-}
-
-function buildInvoiceNumber(year: number, sequence: number) {
-  return `RE${year}-${String(sequence).padStart(5, "0")}`;
-}
 
 export async function generateRecurringInvoices(
   input: GenerateRecurringInvoicesInput,

@@ -4,6 +4,7 @@ import {
   calculateAmountsFromNet,
   getCalendarMonthBounds,
   isContractActiveForPeriod,
+  isContractActiveOnDate,
   parseVatRate,
   resolveIssueDate,
 } from "./invoice-amounts";
@@ -52,6 +53,12 @@ describe("billing period helpers", () => {
     expect(
       isContractActiveForPeriod("2026-01-01", "2026-06-30", "2026-07-01", "2026-07-31"),
     ).toBe(false);
+  });
+
+  it("checks contract coverage for a specific session date", () => {
+    expect(isContractActiveOnDate("2026-07-15", null, "2026-07-01")).toBe(false);
+    expect(isContractActiveOnDate("2026-07-01", null, "2026-07-01")).toBe(true);
+    expect(isContractActiveOnDate("2026-06-01", "2026-07-15", "2026-07-16")).toBe(false);
   });
 
   it("parses VAT rate strings", () => {
