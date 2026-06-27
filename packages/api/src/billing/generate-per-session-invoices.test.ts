@@ -153,4 +153,43 @@ describe("generatePerSessionInvoices", () => {
     expect(result.linesCreated).toHaveLength(0);
     expect(result.skipped).toBe(1);
   });
+
+  it("skips sessions before the contract start date", async () => {
+    selectResults.attendanceRows = [
+      {
+        ...selectResults.attendanceRows[0],
+        contractStartDate: "2026-07-15",
+      },
+    ];
+
+    const result = await generatePerSessionInvoices({ period: { year: 2026, month: 7 } });
+
+    expect(result.linesCreated).toHaveLength(0);
+    expect(result.skipped).toBe(1);
+    expect(insertedLineItems).toHaveLength(0);
+  });
+
+  it("skips sessions after the contract end date", async () => {
+    selectResults.attendanceRows = [
+      {
+        ...selectResults.attendanceRows[0],
+        contractEndDate: "2026-06-30",
+      },
+    ];
+
+    const result = await generatePerSessionInvoices({ period: { year: 2026, month: 7 } });
+
+    expect(result.linesCreated).toHaveLength(0);
+    expect(result.skipped).toBe(1);
+  });
+
+  it("skips when an invoice line already exists for the session", async () => {
+    selectResults.existingLine = { id: "existing-line" };
+
+    const result = await generatePerSessionInvoices({ period: { year: 2026, month: 7 } });
+
+    expect(result.linesCreated).toHaveLength(0);
+    expect(result.skipped).toBe(1);
+    expect(insertedLineItems).toHaveLength(0);
+  });
 });

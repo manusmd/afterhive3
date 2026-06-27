@@ -58,6 +58,26 @@ export function isContractActiveForPeriod(
   return true;
 }
 
+export function isContractActiveOnDate(
+  startDate: string,
+  endDate: string | null,
+  activeDate: string,
+) {
+  if (startDate > activeDate) {
+    return false;
+  }
+
+  if (endDate && endDate < activeDate) {
+    return false;
+  }
+
+  return true;
+}
+
+export function toIsoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
 export function buildInvoiceNumber(year: number, sequence: number) {
   return `RE${year}-${String(sequence).padStart(5, "0")}`;
 }

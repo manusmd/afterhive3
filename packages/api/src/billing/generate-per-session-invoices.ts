@@ -13,8 +13,9 @@ import {
   buildInvoiceNumber,
   calculateAmountsFromNet,
   getCalendarMonthBounds,
-  isContractActiveForPeriod,
+  isContractActiveOnDate,
   parseVatRate,
+  toIsoDate,
   validateBillingPeriod,
 } from "./invoice-amounts";
 import {
@@ -123,7 +124,7 @@ export async function generatePerSessionInvoices(
   let skipped = 0;
 
   for (const row of attendanceRows) {
-    const billable = resolveBillableAttendance(row, servicePeriodStart, servicePeriodEnd);
+    const billable = resolveBillableAttendance(row);
 
     if (!billable) {
       skipped += 1;
@@ -259,11 +260,7 @@ export async function generatePerSessionInvoices(
   return { linesCreated, skipped };
 }
 
-function resolveBillableAttendance(
-  row: BillableAttendanceRow,
-  servicePeriodStart: string,
-  servicePeriodEnd: string,
-) {
+function resolveBillableAttendance(row: BillableAttendanceRow) {
   const snapshot = parseTariffSnapshot(row.tariffSnapshot);
 
   if (!snapshot || snapshot.model !== "per_session") {
@@ -276,14 +273,9 @@ function resolveBillableAttendance(
     return null;
   }
 
-  if (
-    !isContractActiveForPeriod(
-      row.contractStartDate,
-      row.contractEndDate,
-      servicePeriodStart,
-      servicePeriodEnd,
-    )
-  ) {
+  const sessionDate = toIsoDate(row.sessionEndsAt);
+
+  if (!isContractActiveOnDate(row.contractStartDate, row.contractEndDate, sessionDate)) {
     return null;
   }
 
