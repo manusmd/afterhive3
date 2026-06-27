@@ -183,7 +183,7 @@ export function AdminAppShell({
       </Drawer>
 
       <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <AppBar position="sticky" color="transparent" elevation={0}>
+        <AppBar position="sticky" elevation={0}>
           <Toolbar sx={{ gap: 2, minHeight: afterhiveLayout.topbarHeight }}>
             <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
               {breadcrumb}
