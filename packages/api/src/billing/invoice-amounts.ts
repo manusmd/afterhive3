@@ -57,3 +57,25 @@ export function isContractActiveForPeriod(
 
   return true;
 }
+
+export function buildInvoiceNumber(year: number, sequence: number) {
+  return `RE${year}-${String(sequence).padStart(5, "0")}`;
+}
+
+export type BillingPeriod = {
+  year: number;
+  month: number;
+};
+
+export function validateBillingPeriod(period: BillingPeriod) {
+  if (
+    !Number.isInteger(period.year) ||
+    !Number.isInteger(period.month) ||
+    period.month < 1 ||
+    period.month > 12
+  ) {
+    return "invalid_period" as const;
+  }
+
+  return null;
+}

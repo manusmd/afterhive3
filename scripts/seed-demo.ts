@@ -355,6 +355,56 @@ async function main() {
     startDate: "2026-06-01",
   });
 
+  const [enrollment] = await db
+    .insert(enrollments)
+    .values({
+      tenantId: tenant.id,
+      memberProfileId: memberProfile.id,
+      offerGroupId: offerGroup.id,
+      status: "active",
+      activatedAt: new Date("2026-06-01T00:00:00.000Z"),
+    })
+    .returning();
+
+  const perSessionTariffConfig = { amount_cents: 1500, bill_absent: false };
+
+  const [perSessionTariff] = await db
+    .insert(tariffs)
+    .values({
+      tenantId: tenant.id,
+      name: "Training pro Einheit",
+      model: "per_session",
+      config: perSessionTariffConfig,
+      vatRate: "0.19",
+      status: "active",
+      validFrom: "2026-01-01",
+    })
+    .returning();
+
+  await db.insert(contracts).values({
+    tenantId: tenant.id,
+    customerProfileId: customerProfile.id,
+    tariffId: perSessionTariff.id,
+    tariffSnapshot: {
+      id: perSessionTariff.id,
+      name: perSessionTariff.name,
+      model: perSessionTariff.model,
+      config: perSessionTariffConfig,
+      vat_rate: perSessionTariff.vatRate,
+    },
+    enrollmentId: enrollment.id,
+    status: "active",
+    startDate: "2026-06-01",
+  });
+
+  await db.insert(attendanceRecords).values({
+    tenantId: tenant.id,
+    sessionId: demoSession.id,
+    memberProfileId: memberProfile.id,
+    status: "present",
+    recordedByUserId: staffSignUp.user.id,
+  });
+
   if (ownerSignUp.user) {
     await db.insert(documents).values([
       {
@@ -400,6 +450,7 @@ async function main() {
   console.log("Portal documents: /portal/demo-club/documents (2 visible, 1 internal hidden)");
   console.log("Club team roster:", `/app/demo-club/club/teams/${team.id}/roster`);
   console.log("Session attendance:", `/app/demo-club/sessions/${demoSession.id}`);
+  console.log("Per-session billing:", "pnpm billing:per-session 2026 7");
   console.log("Other location:", locationB.name);
 }
 

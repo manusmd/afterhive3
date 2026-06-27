@@ -13,6 +13,7 @@
     "db:migrate": "pnpm --filter @afterhive/db migrate",
     "db:seed": "tsx scripts/seed-demo.ts",
     "billing:recurring": "tsx scripts/run-recurring-invoices.ts",
+    "billing:per-session": "tsx scripts/run-per-session-billing.ts",
     "db:studio": "pnpm --filter @afterhive/db studio"
   },
   "devDependencies": {
