@@ -84,6 +84,8 @@
     "./attendance/can-record-attendance": "./src/attendance/can-record-attendance.ts",
     "./attendance/list-session-attendance": "./src/attendance/list-session-attendance.ts",
     "./attendance/record-bulk-attendance": "./src/attendance/record-bulk-attendance.ts",
+    "./billing/generate-recurring-invoices": "./src/billing/generate-recurring-invoices.ts",
+    "./billing/invoice-amounts": "./src/billing/invoice-amounts.ts",
     "./tenant/has-club-sport-module": "./src/tenant/has-club-sport-module.ts"
   },
   "scripts": {

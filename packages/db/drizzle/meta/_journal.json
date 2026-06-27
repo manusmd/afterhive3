@@ -127,6 +127,13 @@
       "when": 1782494000000,
       "tag": "0017_attendance_records",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1782495000000,
+      "tag": "0018_billing_base",
+      "breakpoints": true
     }
   ]
 }
